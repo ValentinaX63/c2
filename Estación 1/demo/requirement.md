@@ -201,11 +201,22 @@ El "efecto wow" del demo no se centra en IA dentro de la funcionalidad, sino en 
 - Retención: datos se borran al reset de sesión.
 
 ### NFR-08 Llaves de Configuración (demo)
-- Utilizar la llave de ingesta de logs de NewRelic: "56f6c864ee35cda802e19a298aa68bbaFFFFNRAL"
+<!--
+  ⚠️ NOTA DE SEGURIDAD (2026-05-12):
+  Esta sección originalmente contenía una llave real de ingesta de NewRelic
+  hardcoded ("56f6c864ee35cda802e19a298aa68bbaFFFFNRAL"). La llave fue revocada
+  y reemplazada por un placeholder. Cualquier nueva cohorte debe:
+    1. Generar su propia ingest key en https://one.newrelic.com → API keys.
+    2. Pasarla por env var (TF_VAR_new_relic_license_key) o tfvars LOCAL, jamás
+       commitearla en este archivo ni en ningún otro.
+    3. Ver `infra/terraform.tfvars.example` para el patrón correcto.
+  El admin_token también es solo un placeholder; reemplázalo por un secreto fuerte.
+-->
+- Utilizar la llave de ingesta de logs de NewRelic: "REPLACE_WITH_NEW_RELIC_INGEST_KEY"
 - Utilizar session code: "LATAM2026"
-- Utilizar admin_token: "123456"
+- Utilizar admin_token: "REPLACE_WITH_STRONG_ADMIN_TOKEN"
 
-**Nota NFR-08:** Se encierran los valores en comillas, solo tomar lo que está dentro de las comillas.
+**Nota NFR-08:** Se encierran los valores en comillas, solo tomar lo que está dentro de las comillas. **Nunca commitear los valores reales** — usar `infra/terraform.tfvars` (gitignored) o `-var` en la línea de comandos.
 
 
 ---
