@@ -580,12 +580,12 @@ claude
             </thead>
             <tbody>
               <tr>
-                <td><strong>Opus 4.6</strong></td>
+                <td><strong>Opus 4.7</strong></td>
                 <td>Razonamiento complejo, arquitectura</td>
                 <td>$$$</td>
               </tr>
               <tr>
-                <td><strong>Sonnet 4.5</strong></td>
+                <td><strong>Sonnet 4.6</strong></td>
                 <td>Tareas diarias, balance costo/capacidad</td>
                 <td>$$</td>
               </tr>
@@ -724,7 +724,7 @@ claude
                 <td>Limpiar historial de conversación</td>
               </tr>
               <tr>
-                <td><code>/cost</code></td>
+                <td><code>/usage</code></td>
                 <td>Ver costo acumulado de la sesión</td>
               </tr>
               <tr>
@@ -794,22 +794,22 @@ claude
                 <td>Políticas corporativas</td>
               </tr>
               <tr>
-                <td><strong>Local</strong></td>
-                <td><code>.claude/settings.local.json</code></td>
-                <td>No (gitignored)</td>
-                <td>Overrides personales</td>
+                <td><strong>User</strong></td>
+                <td><code>~/.claude/settings.json</code></td>
+                <td>No</td>
+                <td>Preferencias personales</td>
               </tr>
               <tr>
                 <td><strong>Project</strong></td>
                 <td><code>.claude/settings.json</code></td>
                 <td>Sí (Git)</td>
                 <td>Reglas del equipo</td>
-              </tr>
+              </tr>              
               <tr>
-                <td><strong>User</strong></td>
-                <td><code>~/.claude/settings.json</code></td>
-                <td>No</td>
-                <td>Preferencias personales</td>
+                <td><strong>Local</strong></td>
+                <td><code>.claude/settings.local.json</code></td>
+                <td>No (gitignored)</td>
+                <td>Overrides personales</td>
               </tr>
             </tbody>
           </table>
@@ -898,16 +898,16 @@ claude
                 <th>Compartido</th>
               </tr>
             </thead>
-            <tbody>
-              <tr>
-                <td><code>./CLAUDE.md</code></td>
-                <td>Instrucciones del proyecto</td>
-                <td>Sí (Git)</td>
-              </tr>
+            <tbody>}
               <tr>
                 <td><code>~/.claude/CLAUDE.md</code></td>
                 <td>Preferencias personales globales</td>
                 <td>No</td>
+              </tr>              
+              <tr>
+                <td><code>./CLAUDE.md</code></td>
+                <td>Instrucciones del proyecto</td>
+                <td>Sí (Git)</td>
               </tr>
               <tr>
                 <td><code>./CLAUDE.local.md</code></td>
@@ -1237,33 +1237,45 @@ exit 0</pre>
     "PostToolUse": [
       {
         "matcher": "Edit|Write",
-        "hooks": [{
-          "type": "command",
-          "command": "npx prettier --write \"$CLAUDE_FILE_PATH\" 2>/dev/null || true"
-        }]
+        "hooks": [
+          {
+            "type": "command",
+            "command": "file=$(jq -r '.tool_input.file_path // empty'); [ -n \"$file\" ] && npx prettier --write \"$file\" 2>/dev/null || true"
+          }
+        ]
       }
     ],
     "PreToolUse": [
       {
-        "matcher": "Edit",
-        "hooks": [{
-          "type": "command",
-          "command": "echo $CLAUDE_TOOL_INPUT | jq -r '.file_path' | grep -q 'prisma/schema.prisma' && echo '{\"decision\":\"block\",\"reason\":\"No editar schema.prisma directamente.\"}' || true"
-        }]
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "file=$(jq -r '.tool_input.file_path // empty'); if echo \"$file\" | grep -q 'prisma/schema.prisma'; then echo 'Blocked: No editar prisma/schema.prisma directamente.' >&2; exit 2; fi"
+          }
+        ]
       }
     ],
     "Notification": [
       {
         "matcher": "",
-        "hooks": [{
-          "type": "command",
-          "command": "notify-send 'Claude Code' 'Necesita tu atención' 2>/dev/null || true"
-        }]
+        "hooks": [
+          {
+            "type": "command",
+            "command": "notify-send 'Claude Code' 'Necesita tu atención' 2>/dev/null || true"
+          }
+        ]
       }
     ]
   }
 }</pre>
           </div>
+
+          <h3>Ejemplos para probar</h3>
+          <ol>
+            <li>Crea un archivo <code>test.js</code> mal formateado.</li>
+            <li>Edita <code>prisma/schema.prisma</code> agregando un comentario.</li>
+          </ol>
 
           <div class="info-box tip">
             <span class="box-icon">💡</span>
@@ -1350,8 +1362,10 @@ exit 0</pre>
                 class="code-filename">.claude/agents/test-writer.md</span><button class="copy-btn">📋 Copiar</button>
             </div>
             <pre>---
-description: Genera tests unitarios e integración para módulos
+name: "test-writer"
+description: Genera tests unitarios e integración para componentes React y rutas API
 model: sonnet
+color: red
 tools:
   - Read
   - Edit
@@ -1363,20 +1377,134 @@ tools:
 
 # Test Writer Agent
 
-Eres un agente especializado en escribir tests unitarios de React.
+Especialista en escribir tests completos y confiables con Vitest + React Testing Library.
 
-## Reglas
-- Framework: Jest + React Testing Library (o Vitest)
-- Probar que los componentes de la interfaz como `Sidebar` y `CustomerTable` se renderizan sin crashear
-- Simula clics (ej. `fireEvent.click`) interactuando con elementos accesibles (role="button")
-- Mockear `next/navigation` useRouter/usaPathname y llamadas a base de datos de Prisma
-- Nombrar tests descriptivamente: "al hacer clic en Guardar, llama a onSubmit"
+## Stack de Testing
+
+- **Framework**: Vitest (con `vitest.config.ts`)
+- **Testing Library**: React Testing Library para componentes
+- **Assertions**: expect() de Vitest
+- **HTTP Testing**: Supertest para rutas API
+- **Cobertura mínima**: 80% de líneas
+
+## Reglas de Testing
+
+### Componentes React (`src/components/`)
+
+- Renderizar sin errores (render + expect)
+- Testear interacciones: clics, inputs, cambios de estado
+- Usar `screen.getByRole()`, `getByTestId()` solo si necesario
+- Mockear `next/navigation`: `useRouter`, `usePathname`, `useSearchParams`
+- Mockear llamadas a APIs: fetch, POST, DELETE
+- Evitar mockear la lógica interna (test del comportamiento, no la implementación)
+
+### Rutas API (`src/app/api/`)
+
+- Testear status codes (200, 404, 400, 500)
+- Validar payload de request/response
+- Mockear Prisma: `prismock` o manual `jest.mock()`
+- Probar casos de error: registros no encontrados, validación fallida
+- Usar Supertest: `request(app).get('/api/...')`
+
+### Estructura de Archivos
+
+```
+src/
+  components/
+    Sidebar.tsx
+  __tests__/
+    components/
+      Sidebar.test.tsx
+    api/
+      customers.test.ts
+```
+
+### Nombres Descriptivos
+
+- ✅ "debe renderizar la tabla con filas de clientes"
+- ✅ "retorna 404 cuando cliente no existe"
+- ❌ "test 1", "works", "basic test"
 
 ## Proceso
-1. Lee el componente objetivo en `src/components/`
-2. Construye los escenarios de prueba
-3. Genera el archivo en la carpeta `__tests__` o con extensión `.test.tsx`
-4. Ejecuta pruebas parciales para confirmar que pasan</pre>
+
+1. **Leer el código**: Entiende el componente/ruta
+   - Props, estado, efectos secundarios
+   - Dependencias externas (APIs, librerías)
+
+2. **Identificar escenarios**:
+   - Happy path (caso exitoso)
+   - Casos de error (validación, no encontrado)
+   - Edge cases (entrada vacía, valores extremos)
+
+3. **Escribir tests**:
+   - Describe: agrupar tests por funcionalidad
+   - It/test: un comportamiento por test
+   - Arrange-Act-Assert pattern
+
+4. **Mockear dependencias**:
+   - Prisma: crear mock del cliente
+   - APIs externas: mockear fetch/axios
+   - Next.js: mockear `next/navigation`
+
+5. **Ejecutar y validar**:
+   - `npm run test` para ejecutar todos
+   - `npm run test:watch` durante desarrollo
+   - Verificar cobertura: `npm run test:coverage`
+
+## Ejemplo: Componente
+
+```tsx
+// src/components/CustomerTable.test.tsx
+import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { CustomerTable } from "./CustomerTable";
+
+describe("CustomerTable", () => {
+  it("debe renderizar tabla con clientes", () => {
+    const customers = [{ id: "1", name: "Juan", email: "juan@example.com" }];
+    render(<CustomerTable customers={customers} />);
+    expect(screen.getByText("Juan")).toBeInTheDocument();
+  });
+
+  it("debe llamar onDelete cuando se hace clic en eliminar", async () => {
+    const onDelete = vi.fn();
+    render(
+      <CustomerTable
+        customers={[{ id: "1", name: "Juan" }]}
+        onDelete={onDelete}
+      />,
+    );
+    await userEvent.click(screen.getByRole("button", { name: /eliminar/i }));
+    expect(onDelete).toHaveBeenCalledWith("1");
+  });
+});
+```
+
+## Ejemplo: Ruta API
+
+```ts
+// src/app/api/customers/[id]/route.test.ts
+import { describe, it, expect, beforeEach, vi } from "vitest";
+import { GET } from "./route";
+
+describe("GET /api/customers/[id]", () => {
+  it("debe retornar cliente cuando existe", async () => {
+    const response = await GET(
+      new Request("http://localhost:3000/api/customers/123"),
+      { params: { id: "123" } },
+    );
+    expect(response.status).toBe(200);
+  });
+
+  it("debe retornar 404 cuando cliente no existe", async () => {
+    const response = await GET(
+      new Request("http://localhost:3000/api/customers/999"),
+      { params: { id: "999" } },
+    );
+    expect(response.status).toBe(404);
+  });
+});
+```</pre>
           </div>
 
           <h2>Otro Ejemplo: Code Reviewer</h2>
@@ -1385,23 +1513,56 @@ Eres un agente especializado en escribir tests unitarios de React.
                 class="code-filename">.claude/agents/code-reviewer.md</span><button class="copy-btn">📋 Copiar</button>
             </div>
             <pre>---
-description: Revisa código buscando bugs, seguridad y mejoras
+name: "code-reviewer"
+description: Revisa código buscando bugs, seguridad, performance y code smells
 model: haiku
 tools:
   - Read
   - Grep
   - Glob
+  - Bash
+color: green
 ---
 
-# Code Reviewer
+# Code Reviewer Agent
 
-Revisa el código buscando:
-1. Vulnerabilidades de seguridad (SQL injection, XSS)
-2. Bugs lógicos (null references, race conditions)
-3. Code smells (funciones largas, duplicación)
-4. Mejoras de rendimiento
+Especialista en auditoría de código con enfoque en seguridad, calidad y performance.
 
-Genera un reporte con prioridad: CRITICAL > HIGH > MEDIUM > LOW</pre>
+## Áreas de Revisión
+
+### 🔴 CRITICAL (Bloquea merge)
+
+- **Seguridad**: SQL injection, XSS, CSRF, autenticación ausente
+- **Datos sensibles**: secrets en código, logs de contraseñas
+- **Crashes**: null dereferences, tipos incorrectos, missing null checks
+- **DB**: N+1 queries, migraciones sin rollback, deadlocks
+
+### 🟠 HIGH (Revisar antes de merge)
+
+- **Bugs lógicos**: race conditions, estado inconsistente, edge cases
+- **Performance**: queries sin índices, renders innecesarios, memory leaks
+- **Code smells**: funciones >50 líneas, complejidad ciclomática >10
+- **Testing**: rutas críticas sin tests, cobertura <60%
+
+### 🟡 MEDIUM (Nice to have)
+
+- **Duplicación**: código repetido, DRY violations
+- **Naming**: variables confusas, funciones genéricas
+- **Documentación**: APIs sin JSDoc, lógica no documentada
+- **Imports**: unused, circular dependencies
+
+### 🔵 LOW (Cosmético)
+
+- **Estilo**: formatting, trailing spaces, imports no ordenados
+- **Logging**: verbosidad, nivel de detalle
+- **Comments**: obvios, desactualizados
+
+## Proceso
+
+1. **Recibir archivos/ruta**: Usuario indica qué revisar.
+2. **Analizar línea por línea**: Buscar vulnerabilidades, performance issues, y code smells.
+3. **Documentar hallazgos**: Generar un reporte claro por severidades.
+</pre>
           </div>
 
           <div class="info-box tip">
@@ -2181,32 +2342,9 @@ opencode --help</pre>
             </tbody>
           </table>
 
-          <h2>Servidor MCP local</h2>
-          <div class="code-block">
-            <div class="code-header"><span class="code-lang">json</span><span class="code-filename">opencode.json</span><button class="copy-btn">📋 Copiar</button></div>
-            <pre>{
-  "$schema": "https://opencode.ai/config.json",
-  "mcp": {
-    "postgres": {
-      "type": "local",
-      "command": [
-        "npx",
-        "-y",
-        "@modelcontextprotocol/server-postgres",
-        "postgresql://usuario:password@localhost:5432/shopflow"
-      ],
-      "enabled": true
-    },
-    "sequential_thinking": {
-      "type": "local",
-      "command": ["npx", "-y", "@modelcontextprotocol/server-sequential-thinking"],
-      "enabled": true
-    }
-  }
-}</pre>
-          </div>
-
-          <h2>Servidor MCP remoto</h2>
+          <h2>Ejemplo completo: MCP local y remoto</h2>
+          <p>Este ejemplo combina servidores MCP remotos y locales. La idea es copiarlo y llevarlo al archivo
+            <code>opencode.json</code>, reemplazando los tokens de ejemplo por credenciales reales cuando aplique.</p>
           <div class="code-block">
             <div class="code-header"><span class="code-lang">json</span><span class="code-filename">opencode.json</span><button class="copy-btn">📋 Copiar</button></div>
             <pre>{
@@ -2221,6 +2359,30 @@ opencode --help</pre>
       "type": "remote",
       "url": "https://mcp.sentry.dev/mcp",
       "oauth": {},
+      "enabled": true
+    },
+    "Neon_db": {
+      "type": "remote",
+      "url": "https://mcp.neon.tech/mcp",
+      "enabled": true,
+      "headers": {
+        "Authorization": "Bearer xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+      }
+    },
+    "github": {
+      "type": "local",
+      "command": [
+        "npx",
+        "-y",
+        "@modelcontextprotocol/server-github",
+        "--GITHUB_PERSONAL_ACCESS_TOKEN",
+        "xxxxxxxxxxxxxxxxxxxxxxxxx"
+      ],
+      "enabled": true
+    },
+    "sequential_thinking": {
+      "type": "local",
+      "command": ["npx", "-y", "@modelcontextprotocol/server-sequential-thinking"],
       "enabled": true
     }
   }
@@ -2517,9 +2679,23 @@ opencode mcp logout sentry</pre>
             <span class="objective-tag">🎯 Combinar Skills + MCP para flujos repetibles</span>
           </div>
 
-          <p>Las Skills de OpenCode son instrucciones reutilizables en Markdown. OpenCode las descubre en el repo o en
-            tu home y las carga bajo demanda con la herramienta nativa <code>skill</code>. Para la clase usaremos
+          <p>Las Skills de OpenCode siguen el estándar abierto de <a href="https://agentskills.io/home" target="_blank">Agent Skills</a>:
+            carpetas versionables que contienen instrucciones, metadatos y recursos para que un agente ejecute una tarea
+            especializada de forma consistente. OpenCode las descubre en el repo o en tu home y las carga bajo demanda con
+            la herramienta nativa <code>skill</code>. Para la clase usaremos
             <code>.opencode/skills/&lt;nombre&gt;/SKILL.md</code> porque esa ruta se versiona con el proyecto.</p>
+
+          <h2>Qué es una Skill</h2>
+          <div class="info-box concept">
+            <span class="box-icon">🧠</span>
+            <div class="box-content">
+              <div class="box-title">Procedimiento reusable, no prompt suelto</div>
+              <p>Una skill empaqueta conocimiento operativo: cuándo usarla, qué pasos seguir, qué archivos consultar,
+                qué scripts ejecutar y cómo verificar el resultado. El agente solo ve <code>name</code> y
+                <code>description</code> al inicio; cuando la tarea coincide, carga el <code>SKILL.md</code> completo y
+                los recursos necesarios. Esto mantiene bajo el contexto base y vuelve repetibles los flujos del equipo.</p>
+            </div>
+          </div>
 
           <h2>Ubicaciones que OpenCode puede descubrir</h2>
           <table>
@@ -2553,6 +2729,15 @@ opencode mcp logout sentry</pre>
           <p>OpenCode reconoce frontmatter YAML con <code>name</code> y <code>description</code> como campos requeridos.
             El nombre debe coincidir con la carpeta, estar en minúsculas y usar guiones simples.</p>
           <div class="code-block">
+            <div class="code-header"><span class="code-lang">text</span><span class="code-filename">estructura</span><button class="copy-btn">📋 Copiar</button></div>
+            <pre>my-skill/
+├── SKILL.md       # requerido: metadata + instrucciones
+├── scripts/       # opcional: comandos o utilidades ejecutables
+├── references/    # opcional: documentación, guías, specs
+├── assets/        # opcional: plantillas, ejemplos, recursos
+└── ...            # opcional: archivos adicionales del workflow</pre>
+          </div>
+          <div class="code-block">
             <div class="code-header"><span class="code-lang">markdown</span><span class="code-filename">.opencode/skills/review-pr/SKILL.md</span><button class="copy-btn">📋 Copiar</button></div>
             <pre>---
 name: review-pr
@@ -2575,90 +2760,6 @@ Revisa el PR indicado por el usuario.
 5. No modifiques archivos durante la revisión.</pre>
           </div>
 
-          <h2>Campos clave del frontmatter</h2>
-          <ul>
-            <li><code>name</code>: requerido; debe coincidir con la carpeta y usar formato <code>kebab-case</code>.</li>
-            <li><code>description</code>: requerido; explica cuándo debe cargarse la skill.</li>
-            <li><code>license</code>: opcional; útil si compartes la skill fuera del equipo.</li>
-            <li><code>compatibility</code>: opcional; marca que fue escrita para <code>opencode</code>.</li>
-            <li><code>metadata</code>: opcional; mapa simple para audiencia, workflow, stack o dueño.</li>
-          </ul>
-
-          <h2>Crear una Skill desde terminal</h2>
-          <div class="code-block">
-            <div class="code-header"><span class="code-lang">bash</span><button class="copy-btn">📋 Copiar</button></div>
-            <pre>mkdir -p .opencode/skills/review-pr
-$EDITOR .opencode/skills/review-pr/SKILL.md
-
-# Abrir OpenCode y pedir explícitamente que use la skill
-opencode
-usa la skill review-pr para revisar el PR 42</pre>
-          </div>
-
-          <h2>Skill para MCP + documentación</h2>
-          <div class="code-block">
-            <div class="code-header"><span class="code-lang">markdown</span><span class="code-filename">.opencode/skills/docs-check/SKILL.md</span><button class="copy-btn">📋 Copiar</button></div>
-            <pre>---
-name: docs-check
-description: Consulta documentación actualizada con MCP antes de proponer cambios técnicos.
-compatibility: opencode
-metadata:
-  source: mcp
-  workflow: documentation
----
-
-# Docs Check
-
-Antes de responder:
-1. Identifica la librería o framework relevante.
-2. Usa Context7 si el problema depende de documentación actual.
-3. Resume la recomendación con nombres de API, versión y tradeoffs.
-4. Explica qué archivo del proyecto se vería afectado.
-5. Si no hay evidencia suficiente, dilo antes de proponer código.</pre>
-          </div>
-
-          <h2>Skill de migración segura</h2>
-          <div class="code-block">
-            <div class="code-header"><span class="code-lang">markdown</span><span class="code-filename">.opencode/skills/db-migration/SKILL.md</span><button class="copy-btn">📋 Copiar</button></div>
-            <pre>---
-name: db-migration
-description: Diseña migraciones de base de datos con rollback, verificación y análisis de datos existentes.
-compatibility: opencode
-metadata:
-  workflow: database
-  risk: high
----
-
-# DB Migration
-
-Trabaja en este orden:
-1. Lee el schema y las migraciones existentes.
-2. Usa el MCP postgres solo para inspeccionar estructura y datos no sensibles.
-3. Propón migración forward y rollback.
-4. Explica impacto en índices, locks y datos existentes.
-5. Define comandos de verificación antes y después del deploy.</pre>
-          </div>
-
-          <h2>Permisos de Skills</h2>
-          <p>Los permisos no viven dentro del <code>SKILL.md</code>. Se controlan en <code>opencode.json</code> con
-            patrones por nombre de skill. Usa <code>ask</code> para flujos sensibles, <code>allow</code> para skills
-            de lectura y <code>deny</code> para skills internas que no quieres exponer.</p>
-          <div class="code-block">
-            <div class="code-header"><span class="code-lang">json</span><span class="code-filename">opencode.json</span><button class="copy-btn">📋 Copiar</button></div>
-            <pre>{
-  "$schema": "https://opencode.ai/config.json",
-  "permission": {
-    "skill": {
-      "*": "ask",
-      "review-pr": "allow",
-      "docs-check": "allow",
-      "db-migration": "ask",
-      "internal-*": "deny"
-    }
-  }
-}</pre>
-          </div>
-
           <h2>Permisos por agente</h2>
           <div class="code-block">
             <div class="code-header"><span class="code-lang">json</span><span class="code-filename">opencode.json</span><button class="copy-btn">📋 Copiar</button></div>
@@ -2677,12 +2778,58 @@ Trabaja en este orden:
 }</pre>
           </div>
 
+          <h2>Instalar Skills útiles en OpenCode</h2>
+          <p>Reinicia OpenCode después de instalar skills: el catálogo se carga al iniciar la sesión. Luego verifica con
+            <code>list installed skills</code> o pidiendo explícitamente usar la herramienta <code>skill</code>.</p>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">bash</span><span class="code-filename">frontend-design</span><button class="copy-btn">📋 Copiar</button></div>
+            <pre># Buscar skills disponibles por palabra clave
+npx skills search frontend
+npx skills search design
+
+# Instalar la skill de UI/UX y frontend de Anthropic
+npx skills add https://github.com/anthropics/skills --skill frontend-design
+
+# Verificar dentro de OpenCode
+opencode
+# Prompt: list installed skills
+# Prompt: usa la skill frontend-design para revisar esta interfaz</pre>
+          </div>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">json</span><span class="code-filename">opencode.json</span><button class="copy-btn">📋 Copiar</button></div>
+            <pre>{
+  "$schema": "https://opencode.ai/config.json",
+  "plugin": [
+    "superpowers@git+https://github.com/obra/superpowers.git"
+  ]
+}</pre>
+          </div>
+          <div class="info-box tip">
+            <span class="box-icon">⚙️</span>
+            <div class="box-content">
+              <div class="box-title">Superpowers se instala como plugin</div>
+              <p>En OpenCode, Superpowers recomienda agregar el plugin a <code>opencode.json</code>, reiniciar OpenCode y
+                verificar con el prompt <code>Tell me about your superpowers</code>. Si ya usas Superpowers en Claude Code
+                o Codex, instálalo aparte para OpenCode porque cada harness gestiona sus plugins y skills por separado.</p>
+            </div>
+          </div>
+
           <h2>Marketplaces y Repositorios de Skills para OpenCode</h2>
           <div class="card-grid">
             <div class="card">
               <div class="card-icon">📖</div>
               <div class="card-title">OpenCode Docs: Agent Skills</div>
               <div class="card-desc">Referencia de ubicación, frontmatter, permisos y troubleshooting de skills. <a href="https://opencode.ai/docs/skills/" target="_blank">Documentación</a></div>
+            </div>
+            <div class="card">
+              <div class="card-icon">🌐</div>
+              <div class="card-title">Agent Skills</div>
+              <div class="card-desc">Estándar abierto para <code>SKILL.md</code>, estructura de carpetas y progressive disclosure. <a href="https://agentskills.io/home" target="_blank">Ver estándar</a></div>
+            </div>
+            <div class="card">
+              <div class="card-icon">🧰</div>
+              <div class="card-title">skills CLI</div>
+              <div class="card-desc">Instalador práctico para buscar con <code>npx skills search</code>, traer skills desde repos públicos y detectarlas en agentes compatibles. <a href="https://opencode.school/lessons/skills/" target="_blank">Guía OpenCode School</a></div>
             </div>
             <div class="card">
               <div class="card-icon">🐙</div>
