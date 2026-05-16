@@ -1,4 +1,4 @@
-# 📘 Playbook Estudiante — Estación 4: Diseñando el QUÉ
+# 📘 Runbook Estudiante — Estación 4: Diseñando el QUÉ
 **Spec Driven Development con AI-DLC · Fase Inception**
 
 **Programa:** Hardcore AI | 30X &nbsp;·&nbsp; **Instructor:** Christian Braatz  
@@ -8,7 +8,7 @@
 
 ## 📋 Índice
 
-1. [¿Para qué sirve este playbook?](#para-qué-sirve-este-playbook)
+1. [¿Para qué sirve este runbook?](#para-qué-sirve-este-runbook)
 2. [Fundamento conceptual: por qué las especificaciones importan](#fundamento-conceptual)
 3. [Setup: descarga e inicialización del repositorio](#setup)
 4. [Inicio del framework: el prompt de contexto](#inicio-del-framework)
@@ -26,7 +26,7 @@
 
 ---
 
-## ¿Para qué sirve este playbook?
+## ¿Para qué sirve este runbook?
 
 Este documento es tu guía de trabajo activo durante y después de la sesión. No es una transcripción de clase — es el material que usas con las manos en el teclado.
 
