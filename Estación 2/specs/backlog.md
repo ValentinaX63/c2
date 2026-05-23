@@ -3,7 +3,7 @@
 ### Sistema operativo de los restaurantes colombianos
 **Versión 1.0 (consolidado co-creación iterativa) · Mayo 2026**
 
-> Documento de backlog generado en sesión de co-creación entre la fundadora (Mariana, 911 Hot Burger) y un Product Engineering Lead + Agile Coach. Construido segmento por segmento sobre `specs/prd.md`, `specs/arquitectura.md` y los documentos base.
+> Documento de backlog generado en sesión de co-creación entre la fundadora (Valentina, 911 Hot Burger) y un Product Engineering Lead + Agile Coach. Construido segmento por segmento sobre `specs/prd.md`, `specs/arquitectura.md` y los documentos base.
 
 ---
 
@@ -177,15 +177,15 @@ flowchart TB
 | **E3** | Modo Offline | A6 transversal | F1 | ~22 | ~95 | Cajero · Andrés |
 | **E4** | Plataforma Agentes IA + Reglas | M11 F1 | F1 | ~15 | ~60 | Andrés · Carolina (futuro) |
 | **E5** | Inventario y Mermas | M4 | F1 | ~18 | ~55 | Andrés · Jefe Cocina |
-| **E6** | Multi-tenant + Onboarding | M14 | F1 | ~25 | ~110 | Equipo YARO · Mariana |
-| **E7** | Suscripción + Cobranza FR-15 | M14+M15 | F1 | ~15 | ~60 | Equipo YARO · Mariana |
+| **E6** | Multi-tenant + Onboarding | M14 | F1 | ~25 | ~110 | Equipo YARO · Valentina |
+| **E7** | Suscripción + Cobranza FR-15 | M14+M15 | F1 | ~15 | ~60 | Equipo YARO · Valentina |
 | **E8** | YARO Console | M15 | F1 | ~20 | ~80 | Platform Admin · Support |
 | **E9** | Hardening + Seguridad | A8 transversal | F1 | ~20 | ~85 | Equipo YARO |
 | **E10** | Observabilidad + SLOs | A9 transversal | F1 | ~15 | ~65 | Equipo YARO |
 | **E11** | Personas (Marcación + Dashboards) | M12+M13 | F1 | ~25 | ~90 | Todos |
 | **E12** | Auditoría + Trazabilidad | M16 | F1 | ~12 | ~50 | Transversal |
-| **E13** | Operación Extendida F2 | M7+M8+M9 | F2 | ~33 | ~280 | Jefe CDP · Carolina · Mariana |
-| **E14** | Agentes IA Ampliados | M11 F2+, M10, A6 | F2-F3 | ~50 | ~280 | Carolina · Mariana · Andrés |
+| **E13** | Operación Extendida F2 | M7+M8+M9 | F2 | ~33 | ~280 | Jefe CDP · Carolina · Valentina |
+| **E14** | Agentes IA Ampliados | M11 F2+, M10, A6 | F2-F3 | ~50 | ~280 | Carolina · Valentina · Andrés |
 | **E15** | Escala F3+ | Multi-país, microservicios | F3 | ~40 | ~250 | Todos |
 | **Total F1 Must** | | | | **~267** | **~1.050 SP** | |
 | **Total F2-F3** | | | | **~123** | **~810 SP** | |
@@ -544,7 +544,7 @@ flowchart TB
 | Feature | Stories clave | SP |
 |---|---|:-:|
 | F11.1 Marcación + Bienestar | US-MARC-001 (botón topbar) /002 (😔/😐/😊) /003/004 | 13 |
-| F11.2 Dashboard Mariana | US-DASH-001/002/003/004 | 17 |
+| F11.2 Dashboard Valentina | US-DASH-001/002/003/004 | 17 |
 | F11.3 Dashboard Andrés | US-DASH-005/006/007/008 | 16 |
 | F11.4 Dashboard Carolina | US-DASH-009/010/011 | 11 |
 | F11.5 Dashboard Cajero (minimal) | **US-DASH-012 ⭐ ** /013 | 6 |
@@ -646,7 +646,7 @@ gantt
 | **S4** | **Cobro fire-and-forget < 100ms + Tiquete DIAN sandbox** ⭐ | Cobro real con CUFE en alpha interno |
 | **S5** | **Modo offline funcional + DIAN Tipo 01/03 + Contingencia** ⭐ | DevTools offline + cobro + reconectar = sync |
 | **S6** | KDS + Buzón DIAN + Motor reglas base | Cocina ve órdenes tiempo real, motor clasifica facturas |
-| **S7** | Dashboards por rol + Marcación + Migración 911 | Mariana ve dashboard, equipo 911 capacitado |
+| **S7** | Dashboards por rol + Marcación + Migración 911 | Valentina ve dashboard, equipo 911 capacitado |
 | **S8** | **911 Hot Burger en producción + FR-15 + Iteración** ⭐ | 911 sede Guarne 15 días reales sin caídas |
 
 ### SP por sprint vs velocity
@@ -794,7 +794,7 @@ gantt
 
 | Stakeholder | Update | Frecuencia |
 |---|---|---|
-| Mariana (911) | Sprint Demo + email weekly | Quincenal + semanal |
+| Valentina (911) | Sprint Demo + email weekly | Quincenal + semanal |
 | CFO | Burn-rate + métricas | Mensual |
 | Inversionistas | Métricas + roadmap + lecciones | Trimestral |
 | Cohorte Hardcore AI | Avance + bloqueos | Mensual |
@@ -826,7 +826,7 @@ flowchart LR
 
 ## Adendum — Arqueo Extendido (basado en Excel real 911)
 
-> Capturado del Excel "CIERRE DE CAJA 911 HOT BURGERS.xlsx" + workflow verbal de Mariana.
+> Capturado del Excel "CIERRE DE CAJA 911 HOT BURGERS.xlsx" + workflow verbal de Valentina.
 
 ### Análisis del Excel actual
 
@@ -853,7 +853,7 @@ flowchart LR
 | US-COL-003 | Sistema acumula ventas a colaborador por empleado/mes | Sistema | 5 |
 | US-COL-004 | Andrés ve histórico de ventas a colaboradores con filtros | Andrés | 3 |
 | **US-COL-005 ⭐** | Sistema descuenta automáticamente de nómina (F2 — integración M9) | Sistema | 8 |
-| US-COL-006 | Mariana ve top colaboradores con más consumo | Mariana | 3 |
+| US-COL-006 | Valentina ve top colaboradores con más consumo | Valentina | 3 |
 | US-COL-007 | Admin configura empleados habilitados para ventas internas | Admin | 3 |
 
 #### F1.18 — Control de descuentos estructurado (6 stories · ~25 SP)
@@ -865,7 +865,7 @@ flowchart LR
 | US-DESC-003 | Sistema captura valor + motivo + autorizador en `audit_events` | Sistema | 5 |
 | US-DESC-004 | Admin configura catálogo de motivos por tenant | Admin | 5 |
 | US-DESC-005 | Andrés ve reporte de descuentos por motivo / autorizador / cajero | Andrés | 5 |
-| US-DESC-006 | Sistema alerta a Mariana si descuentos > umbral % ventas mensual | Mariana | 4 |
+| US-DESC-006 | Sistema alerta a Valentina si descuentos > umbral % ventas mensual | Valentina | 4 |
 
 #### F1.19 — Modo "transición desde Toteat" (3 stories · ~13 SP) — solo migración 1-2 meses
 
@@ -875,7 +875,7 @@ flowchart LR
 | US-TRANS-002 | Sistema calcula diferencia YARO vs Toteat con alerta visual | Sistema | 3 |
 | US-TRANS-003 | Admin habilita/deshabilita "modo comparación Toteat" por sede | Admin | 5 |
 
-### Gestión de efectivo cross-day (lo que NO estaba en el Excel principal pero Mariana describió)
+### Gestión de efectivo cross-day (lo que NO estaba en el Excel principal pero Valentina describió)
 
 > El efectivo disponible para consignar se guarda en caja fuerte mientras se consigna. Otra hoja del Excel acumula día a día. Cuando se consigna, se resta del acumulado.
 
@@ -903,7 +903,7 @@ flowchart LR
 | US-CONS-002 | Admin sube foto del comprobante de consignación a S3 | Andrés | 5 |
 | US-CONS-003 | Sistema resta consignación del efectivo disponible y actualiza saldo | Sistema | 5 |
 | US-CONS-004 | Andrés ve histórico de consignaciones por sede + filtros | Andrés | 5 |
-| US-CONS-005 | Mariana ve reporte cross-sede de efectivo + consignaciones | Mariana | 3 |
+| US-CONS-005 | Valentina ve reporte cross-sede de efectivo + consignaciones | Valentina | 3 |
 
 ### Conteo por denominación (3 stories · 13 SP)
 
@@ -1071,7 +1071,7 @@ ALTER TABLE arqueos ADD COLUMN efectivo_para_consignar BIGINT;
 | `docs/overview.md` | Contexto HORECA Colombia |
 | `docs/critica.md` | Riesgos técnicos que las stories mitigan |
 | `docs/pvb.md` | Visión + MOAT (US-CDP-009 implementa MOAT principal) |
-| `docs/icp.md` | 3 perfiles (Mariana, Andrés, Carolina) en cada historia |
+| `docs/icp.md` | 3 perfiles (Valentina, Andrés, Carolina) en cada historia |
 | `CIERRE DE CAJA 911.xlsx` | Workflow real del piloto → adendum Arqueo |
 
 ### Glosario de códigos
@@ -1107,12 +1107,227 @@ ALTER TABLE arqueos ADD COLUMN efectivo_para_consignar BIGINT;
 ### Cambios vs PRD/Arquitectura original
 
 1. **6 agentes IA** (no 5) — A6 Arqueo Inteligente agregado tras análisis Excel real
-2. **37 tablas F1** (no 28) — adendum Arqueo agrega 9 tablas
-3. **~298 stories F1** (no ~265) — +33 stories de Arqueo Extendido
+2. **41 tablas F1** (no 28) — adendums Arqueo + Fraude + Autorizaciones agregan 13 tablas
+3. **~320 stories F1** (no ~265) — +55 stories de Arqueo + Fraude + Autorizaciones
 4. **Modo "transición Toteat"** como feature temporal (1-2 meses sunset)
 5. **Ventas a colaboradores** integradas con M9 Nómina (F2)
 6. **Control de descuentos estructurado** con autorizador explícito (5 motivos catálogo)
 7. **Gestión de efectivo cross-day** con consignaciones formalizadas (US-CONS-*)
+8. **Prevención de Fraude Operativo** (F1.20) con ventanas temporales 5min/1h/bloqueado
+9. **Sistema de Autorizaciones Configurable** (F1.21) con 4 presets + WebSocket real-time
+
+---
+
+## Adendum — Prevención de Fraude Operativo
+
+### El patrón detectado por la fundadora
+
+Patrón común en restaurantes colombianos:
+1. Mesera ingresa correctamente pedido (5 hamburguesas + 3 cocas)
+2. Cliente come, paga **efectivo**, se va sin factura (~70% casos)
+3. **ANTES de cerrar la mesa**, mesera elimina 1 hamburguesa
+4. Mesa cierra por 4 hamburguesas — mesera se queda con dinero de la 5ta
+5. Sin cliente que reclame y sin factura, fraude invisible
+
+### Modelo de 3 ventanas temporales
+
+| Ventana | Acción | Comportamiento |
+|---|---|---|
+| **0-5 min** | Editar/eliminar item | 🟢 Permitido sin fricción · Auditado |
+| **5 min - 30 min** | Editar/eliminar item | 🟡 Requiere autorización admin (in-app) · Comentario obligatorio |
+| **30 min - 1 hora** | Editar/eliminar item | 🟠 Autorización admin **presencial** · Alerta a Valentina si > umbral |
+| **> 1 hora desde KDS=LISTO** | Editar/eliminar item | 🔴 **BLOQUEADO** · Único camino: Nota Crédito post-cobro |
+| **Post-cobro** | Modificar items | 🔴 **PROHIBIDO** · Solo NC Tipo 91 |
+
+> Reloj arranca cuando **KDS pasa a estado "LISTO"** (no cuando se agrega el item).
+
+### F1.20 — Prevención de Fraude Operativo (12 stories · ~55 SP)
+
+#### Control en tiempo real
+
+| Código | Story | Persona | SP |
+|---|---|---|:-:|
+| **US-FRAUDE-001** ⭐ | Sistema bloquea eliminación si > 1h desde KDS=LISTO | Sistema | 5 |
+| **US-FRAUDE-002** ⭐ | Sistema requiere autorización admin entre 5 min y 1h | Sistema | 8 |
+| **US-FRAUDE-003** | Admin recibe push/in-app y aprueba/rechaza en 2 toques | Andrés | 5 |
+| **US-FRAUDE-004** | Sistema bloquea TODA modificación de orden post-cobro (solo NC) | Sistema | 3 |
+| **US-FRAUDE-005** | Sistema alerta si mesa lleva > 2h abierta sin cierre | Andrés | 3 |
+| **US-FRAUDE-006** | Cajero/mesera ve banner "Tienes Xs para corregir libremente" | Cajero/Mesera | 3 |
+| **US-FRAUDE-007** | Sistema registra cada modificación con timestamp + delta | Sistema | 5 |
+
+#### Visibilidad y detección
+
+| Código | Story | Persona | SP |
+|---|---|---|:-:|
+| **US-FRAUDE-008** | Al cierre de caja, admin ve panel anulaciones del turno con tiempo de cada una | Andrés | 5 |
+| **US-FRAUDE-009** | Valentina ve dashboard anulaciones cross-sede + cross-mesera con outliers | Valentina | 5 |
+| **US-FRAUDE-010** | Sistema alerta auto si mesera tiene > X anulaciones/turno o monto > umbral | Sistema | 5 |
+| **US-FRAUDE-011** | Sistema detecta "pre-cuenta sin cierre" sostenido por mesera específica | Sistema | 5 |
+| **US-FRAUDE-012** | Reporte semanal automático a Valentina con top meseras sospechosas | Valentina | 3 |
+
+### Sugerencias adicionales de logs y métricas anti-fraude
+
+#### 10 eventos a loguear obligatoriamente
+
+`Producto agregado` · `Producto modificado` · `Producto eliminado` · `Pre-cuenta generada` · `Cobro registrado` · `Cierre de mesa` · `KDS estado cambio` · `Mesa transferida` · `Descuento aplicado` · `Anulación`
+
+#### 18 métricas para detección de outliers
+
+**Por mesera/cajera:** tasa anulaciones · tiempo promedio mesa abierta · % mesas cierran > 1h post último item · valor promedio descuentos · frecuencia descuadres · % ventas efectivo vs otros métodos
+
+**Por turno/día:** anulaciones vs promedio · descuadres efectivo · % transacciones sin FE · pre-cuentas sin cierre
+
+**Patrones sospechosos:** cajera 3× más anulaciones · misma mesera+día+monto recurrente · cierres muy tarde repetidos · cuadre perfecto recurrente (fraude inverso)
+
+#### 6 alertas activas desde día 1
+
+| Alerta | Trigger | Destinatario |
+|---|---|---|
+| 🚨 Anulación post-1h | Cualquier intento (bloqueado) | Andrés inmediato |
+| 🟠 Anulaciones turno > umbral | Mesera con > 5 anulaciones o > 5% items | Andrés al cerrar turno |
+| 🟡 Tiempo mesa abierta excesivo | Mesa > 2h desde último cobro | Andrés (push) |
+| 🟠 Pre-cuenta sin cierre | Pre-cuenta > 30 min sin cobro | Andrés (push) |
+| 🟡 Descuento sin autorización completa | Descuento sin autorizador registrado | Andrés (revisión) |
+| 🚨 Descuadre + anulaciones tardías misma mesera | Cajera con descuadre + > 2 anulaciones 30min-1h | Valentina + Andrés (crítico) |
+
+### A6 Arqueo Inteligente — features anti-fraude adicionales
+
+| Nueva story A6 | Persona | SP | Fase |
+|---|---|:-:|:-:|
+| US-A6-FRAUDE-001 A6 detecta patrón anulaciones tardías recurrente por mesera | Sistema | 8 | F2 |
+| US-A6-FRAUDE-002 A6 sugiere "esta mesera podría estar haciendo fraude" con evidencia | Sistema | 8 | F2 |
+| US-A6-FRAUDE-003 A6 correlaciona descuadres + anulaciones + pre-cuentas-sin-cierre | Sistema | 13 | F3 |
+| US-A6-FRAUDE-004 A6 entrega reporte mensual "salud anti-fraude" por sede a Valentina | Valentina | 5 | F2 |
+
+> **P5 reforzado:** A6 NUNCA acusa persona — solo presenta patrones + evidencia. Disclaimer obligatorio.
+
+### Schema adicional (2 tablas)
+
+```sql
+-- Anulaciones de items con trazabilidad rica
+CREATE TABLE anulaciones_items (
+  id, tenant_id, orden_id, item_orden_id, producto_id,
+  cantidad_anulada, valor_anulado, motivo (ENUM), comentario,
+  solicitado_por, autorizado_por,
+  tiempo_desde_kds_listo_seg,
+  ventana_temporal (ENUM: LIBRE_0_5MIN | AUTH_REQ_5MIN_30MIN | AUTH_PRESENCIAL_30MIN_1H | BLOQUEADA_GT_1H),
+  created_at
+);
+
+-- Métricas pre-computadas por empleado para detección
+CREATE TABLE empleado_metricas_diarias (
+  tenant_id, sede_id, user_id, fecha, turno_id,
+  items_agregados, items_anulados,
+  anulaciones_libres, anulaciones_con_auth, intentos_bloqueados,
+  descuentos_aplicados, valor_descuentos,
+  precuentas_sin_cierre, descuadres_en_arqueo,
+  flags_sospechosos (TEXT[]),
+  UNIQUE (tenant_id, user_id, fecha, turno_id)
+);
+```
+
+---
+
+## Adendum — Sistema de Autorizaciones Configurable
+
+### Costo técnico: prácticamente CERO adicional
+
+Reutiliza infraestructura ya en F1:
+- ✅ Socket.io WebSocket (ya en M2 KDS)
+- ✅ ElastiCache Valkey Pub/Sub adapter
+- ✅ Push notifications PWA (US-NOTIF-PWA-001 ya en backlog)
+
+**Lo único nuevo:** 2 tablas + 3 endpoints REST + 2 eventos WebSocket + modal UI.
+
+### Configurabilidad por tenant — 4 presets + personalizado
+
+| Preset | Cuándo usarlo | Comportamiento |
+|---|---|---|
+| **🟢 Confiable** | Equipo alta confianza, dueño siempre presente | Anulaciones < $30K auto · Descuentos auto · Solo bloquea > 1h post-KDS |
+| **🟡 Estándar** (default) | Mayoría — equilibrio control/operación | 0-5 min libre · 5min-1h requiere admin · >1h bloqueado · Descuentos > $20K admin |
+| **🟠 Estricto** | Equipo turnover alto, dueño no siempre presente | Toda anulación > 5 min requiere admin · Todo descuento requiere admin · Presencial > 30 min |
+| **🔴 Máximo Control** | Equipo desconocido o post-incidente fraude | Toda modificación requiere admin + comentario · Solo Valentina aprueba > $100K |
+| **⚙️ Personalizado** | Tenant configura granularmente | Por tipo de operación independiente |
+
+### 10 tipos de operación que pueden requerir autorización
+
+`ANULACION_ITEM` · `DESCUENTO` · `TRANSFERENCIA_MESA` · `ANULACION_ORDEN_COMPLETA` · `CAMBIO_METODO_PAGO_POST_COBRO` · `PROPINA_AJUSTE` · `REIMPRESION_FACTURA` · `PRECIO_PUNTUAL` · `CIERRE_FORZADO_MESA` · `VENTA_COLABORADOR_ALTA`
+
+### Flujo end-to-end
+
+1. Cajera/mesera intenta operación
+2. Sistema valida política tenant + ventana temporal + umbral valor
+3. Si requiere auth → crea `solicitud_autorizacion` PENDIENTE
+4. Publica WebSocket event + push PWA al admin de la sede
+5. Admin recibe modal in-app con detalles → aprueba/rechaza en 2 toques
+6. Sistema notifica resultado a cajera via WebSocket en tiempo real
+7. Si timeout 90s → escala a Superadmin (Valentina) por 60s más
+8. Si timeout final: aplica `accion_post_timeout` según política (BLOQUEAR / FLAG_ROJO / AUTO)
+9. Auditoría completa en `audit_events` + `solicitudes_autorizacion`
+
+### F1.21 — Sistema de Autorizaciones (10 stories · ~45 SP)
+
+| Código | Story | Persona | SP | Principios AC |
+|---|---|---|:-:|---|
+| **US-AUTH-001** ⭐ | Sistema modela `politicas_autorizacion` configurables por tenant | Sistema | 8 | P6, P10 |
+| US-AUTH-002 | Sistema crea `solicitud_autorizacion` cuando operación requiere aprobación | Sistema | 5 | P10 |
+| **US-AUTH-003** | Admin recibe modal in-app + push PWA con detalles + acciones rápidas | Andrés | 8 | P9, P7 |
+| US-AUTH-004 | Admin aprueba/rechaza en 2 toques con motivo opcional | Andrés | 3 | P7 |
+| US-AUTH-005 | Cajera ve estado en tiempo real ("⏳/✅/❌") | Cajera | 3 | P7 |
+| US-AUTH-006 | Sistema escalamiento timeout: admin sede (90s) → superadmin (60s) | Sistema | 5 | P9 |
+| US-AUTH-007 | Sistema aplica acción post-timeout según política tenant | Sistema | 3 | P10 |
+| **US-AUTH-008** | Onboarding ofrece 4 presets configurables al activar tenant | Mariana/Valentina | 5 | P6, P8 |
+| US-AUTH-009 | Superadmin configura granularmente cada política en YARO Console | Superadmin | 5 | P6, P10 |
+| US-AUTH-010 | Sistema audita TODA solicitud + decisión | Sistema | 3 | P10 |
+
+### Schema adicional (2 tablas)
+
+```sql
+-- Política configurable por tenant + tipo de operación
+CREATE TABLE politicas_autorizacion (
+  id, tenant_id, tipo_operacion (ENUM 10 tipos),
+  requiere_autorizacion, umbral_tiempo_seg, umbral_valor_cop,
+  nivel_autorizador (ADMIN_SEDE | SUPERADMIN_TENANT | AMBOS),
+  timeout_primer_nivel_seg (90), timeout_segundo_nivel_seg (60),
+  accion_post_timeout (BLOQUEAR | PERMITIR_FLAG_ROJO | PERMITIR_AUTO),
+  registrar_motivo_obligatorio,
+  preset (CONFIABLE | ESTANDAR | ESTRICTO | MAXIMO_CONTROL | PERSONALIZADO),
+  UNIQUE (tenant_id, tipo_operacion)
+);
+
+-- Solicitudes y decisiones de autorización
+CREATE TABLE solicitudes_autorizacion (
+  id, tenant_id, sede_id, tipo_operacion, estado,
+  solicitante_id, motivo_solicitud,
+  recurso_tipo, recurso_id, metadata (JSONB),
+  valor_involucrado, tiempo_desde_kds_listo_seg,
+  autorizador_id, decision_motivo, decidido_at,
+  escalado_a_nivel (1 = primer nivel, 2 = escalado),
+  created_at, expires_at
+);
+```
+
+### 3 endpoints REST nuevos
+
+- `POST /autorizaciones/solicitar` — cajera crea solicitud o ejecuta directo si política no requiere
+- `POST /autorizaciones/:id/decidir` — admin aprueba/rechaza
+- `GET /autorizaciones/:id` — consulta estado (fallback offline)
+
+### 2 eventos WebSocket nuevos
+
+- `autorizacion_solicitada` (canal: tenant_X.sede_Y.admins)
+- `autorizacion_decidida` (canal: tenant_X.sede_Y.cajera_Z)
+
+### Impacto en backlog
+
+| Aspecto | Antes | Después |
+|---|---|---|
+| Tablas F1 | 39 | **41** (+2) |
+| Stories E1 | 95 | **105** (+10) |
+| SP E1 | 305 | **350** (+45) |
+| Stories F1 total | ~310 | **~320** |
+| SP F1 total | ~1.235 | **~1.280** |
+| Sprint asignado | — | S4-S5 (integrado con cobro + DIAN) |
 
 ---
 
