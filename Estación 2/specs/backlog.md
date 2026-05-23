@@ -1331,7 +1331,398 @@ CREATE TABLE solicitudes_autorizacion (
 
 ---
 
+---
+
+## Adendum #3 — CRM básico de clientes FE
+
+> Aprovecha clientes capturados al solicitar FE para base de marketing futura, con consentimiento explícito Ley 1581.
+
+### Stories (11 totales · 56 SP)
+
+| Código | Story | Persona | SP | Fase |
+|---|---|---|:-:|:-:|
+| US-CRM-001 | Sistema captura cliente al solicitar FE (NIT + razón social mínimo) | Sistema | 3 | F1 |
+| US-CRM-002 | Cajera reutiliza cliente existente buscando por NIT (anti-duplicados) | Cajera | 3 | F1 |
+| **US-CRM-003 ⭐** | Cliente acepta opt-in marketing explícito con texto Ley 1581 | Cajera | 5 | F1 |
+| US-CRM-004 | Cajera captura email + teléfono + fecha cumpleaños (opcional) | Cajera | 3 | F1 |
+| US-CRM-005 | Andrés/Valentina ve listado clientes con filtros (frecuencia, lifetime value) | Andrés/Valentina | 5 | F1 |
+| US-CRM-006 | Sistema actualiza métricas cliente al cobrar (LTV, visitas, último pedido) | Sistema | 5 | F1 |
+| US-CRM-007 | Andrés segmenta clientes con tags personalizados | Andrés | 3 | F1 |
+| US-CRM-008 | Valentina exporta CSV con consentimiento (formato Mailchimp) | Valentina | 5 | F1 |
+| US-CRM-009 | Cliente ejerce derechos ARCO (acceso, rectificación, cancelación, oposición) | Cliente | 6 | F1 |
+| US-CRM-010 | Sistema unifica clientes duplicados por NIT | Sistema | 5 | **F2** |
+| US-CRM-011 | Sistema integra WhatsApp Business para campañas masivas | Valentina | 13 | **F3** |
+
+### Schema (extiende `clientes`)
+
+```sql
+ALTER TABLE clientes ADD COLUMN email TEXT;
+ALTER TABLE clientes ADD COLUMN telefono TEXT;
+ALTER TABLE clientes ADD COLUMN fecha_nacimiento DATE;
+ALTER TABLE clientes ADD COLUMN tags JSONB DEFAULT '[]';
+ALTER TABLE clientes ADD COLUMN consentimiento_marketing BOOLEAN NOT NULL DEFAULT FALSE;
+ALTER TABLE clientes ADD COLUMN consentimiento_marketing_at TIMESTAMPTZ;
+ALTER TABLE clientes ADD COLUMN consentimiento_marketing_origen TEXT;
+ALTER TABLE clientes ADD COLUMN fuente_captura TEXT;
+ALTER TABLE clientes ADD COLUMN ultima_compra_at TIMESTAMPTZ;
+ALTER TABLE clientes ADD COLUMN lifetime_value BIGINT NOT NULL DEFAULT 0;
+ALTER TABLE clientes ADD COLUMN num_visitas INT NOT NULL DEFAULT 0;
+ALTER TABLE clientes ADD COLUMN sede_preferida_id UUID REFERENCES sedes(id);
+CREATE INDEX idx_clientes_consentimiento ON clientes(tenant_id, consentimiento_marketing)
+  WHERE consentimiento_marketing = TRUE;
+```
+
+> **Crítico Ley 1581:** sin `consentimiento_marketing=TRUE`, el cliente NO se incluye en exportaciones para marketing. Consentimiento explícito (no pre-marcado).
+
+---
+
+## Adendum #4 — Clasificación de facturas: inventario vs gasto
+
+> Las facturas de proveedor pueden tener líneas mixtas (carne + lapiceros). El sistema clasifica **por línea**, no por factura completa.
+
+### Categorías de clasificación
+
+`INVENTARIO_INSUMO` (carne, verdura, lácteos) · `INVENTARIO_EMPAQUE` (cajas, bolsas) · `INVENTARIO_PRODUCTO_TERMINADO` · `GASTO_OPERATIVO` (aseo, oficina) · `GASTO_SERVICIO_PUBLICO` (energía, agua, gas) · `GASTO_HONORARIOS` · `INVERSION_EQUIPO` · `INVERSION_MOBILIARIO` · `INDEFINIDO`
+
+### Stories (10 totales · 50 SP)
+
+| Código | Story | Persona | SP | Fase |
+|---|---|---|:-:|:-:|
+| **US-CLASIF-001 ⭐** | Sistema parsea líneas individuales de FE proveedor | Sistema | 8 | F1 |
+| **US-CLASIF-002 ⭐** | Sistema clasifica cada línea con motor reglas + flag `mueve_inventario` | Sistema | 8 | F1 |
+| US-CLASIF-003 | Si línea es INVENTARIO + producto reconocido → mueve stock automáticamente | Sistema | 5 | F1 |
+| US-CLASIF-004 | Si línea es GASTO → solo genera asiento contable (no toca stock) | Sistema | 5 | **F2** |
+| US-CLASIF-005 | Andrés revisa clasificación sugerida y puede cambiar cada línea | Andrés | 5 | F1 |
+| US-CLASIF-006 | Sistema aprende del cambio manual (refuerzo tenant_rules) | Sistema | 5 | F1 |
+| US-CLASIF-007 | Andrés configura productos catálogo con flag `mueve_inventario` | Andrés | 3 | F1 |
+| US-CLASIF-008 | Sistema soporta facturas mixtas (líneas inventario + gasto en misma factura) | Sistema | 3 | F1 |
+| US-CLASIF-009 | Carolina ve reporte gastos por categoría con drilldown a facturas | Carolina | 5 | **F2** |
+| US-CLASIF-010 | Sistema sugiere "agregar este producto al catálogo" si aparece >2 veces | Sistema | 3 | **F2** |
+
+### Schema (1 tabla nueva + extensiones)
+
+```sql
+CREATE TYPE clasificacion_linea_enum AS ENUM (
+  'INVENTARIO_INSUMO', 'INVENTARIO_EMPAQUE', 'INVENTARIO_PRODUCTO_TERMINADO',
+  'GASTO_OPERATIVO', 'GASTO_SERVICIO_PUBLICO', 'GASTO_HONORARIOS',
+  'INVERSION_EQUIPO', 'INVERSION_MOBILIARIO', 'INDEFINIDO'
+);
+
+ALTER TABLE productos ADD COLUMN mueve_inventario BOOLEAN NOT NULL DEFAULT TRUE;
+ALTER TABLE productos ADD COLUMN clasificacion_default clasificacion_linea_enum;
+ALTER TABLE productos ADD COLUMN cuenta_puc_compra TEXT;
+
+CREATE TABLE lineas_factura_proveedor (
+  id, tenant_id, factura_proveedor_id, numero_linea,
+  descripcion_original, cantidad, valor_unitario, subtotal,
+  clasificacion (ENUM), cuenta_puc, producto_id,
+  movio_inventario, inventario_movimiento_id, asiento_contable_id,
+  clasificacion_origen ('CATALOGO' | 'TENANT_RULE' | 'IA' | 'MANUAL'),
+  clasificacion_confianza, agent_interaction_id,
+  aprobado_por, aprobado_at, created_at
+);
+```
+
+---
+
+## Adendum #5 — Enlace de gastos con cuentas contables
+
+> Catálogo pre-cargado de tipos de gasto con cuenta PUC mapeada. Sistema enlaza automáticamente facturas recurrentes con gastos fijos.
+
+### Catálogo pre-cargado (CO)
+
+| Tipo | Cuenta PUC | Frecuencia típica | Proveedores comunes |
+|---|---|---|---|
+| ENERGIA | 5220-05 | MENSUAL | EPM, Codensa, EEB |
+| AGUA | 5220-10 | MENSUAL | EPM, EAAB |
+| GAS | 5220-15 | MENSUAL | Vanti, EPM |
+| INTERNET | 5220-25 | MENSUAL | Claro, Tigo, Movistar |
+| TELEFONO | 5220-25 | MENSUAL | Claro, Tigo, Movistar |
+| ARRIENDO | 5205 | MENSUAL | Propietario |
+| ASEO | 5240-10 | MENSUAL | Servicios de aseo |
+| SEGUROS | 5250 | MENSUAL | Sura, Bolívar, Mapfre |
+| HONORARIOS | 5110 | VARIABLE | Contador, abogado |
+| PUBLICIDAD | 5280 | VARIABLE | Agencias digitales |
+
+### Stories (6 totales · 25 SP)
+
+| Código | Story | Persona | SP | Fase |
+|---|---|---|:-:|:-:|
+| US-GASTO-001 | Sistema pre-carga catálogo tipos de gasto con PUC mapeada (CO) | Sistema | 5 | F1 |
+| US-GASTO-002 | Andrés registra gasto manualmente con dropdown tipo + auto-asigna PUC | Andrés | 5 | F1 |
+| US-GASTO-003 | Sistema enlaza factura Buzón DIAN con gasto fijo recurrente | Sistema | 5 | **F2** |
+| US-GASTO-004 | Sistema detecta facturas recurrentes mismo proveedor → sugiere gasto fijo | Sistema | 5 | **F2** |
+| US-GASTO-005 | Sistema alerta gastos próximos a vencer (X días anticipación) | Andrés | 3 | **F2** |
+| US-GASTO-006 | Andrés ve dashboard gastos por categoría/mes con tendencia | Andrés | 5 | **F2** |
+
+### Schema (1 tabla nueva)
+
+```sql
+CREATE TABLE tipos_gasto (
+  id, country_code, codigo, nombre, cuenta_puc, cuenta_puc_descripcion,
+  frecuencia_tipica (ENUM), proveedores_comunes (TEXT[]), activo
+);
+
+CREATE TYPE frecuencia_enum AS ENUM
+  ('MENSUAL', 'BIMESTRAL', 'TRIMESTRAL', 'SEMESTRAL', 'ANUAL', 'IRREGULAR');
+
+-- gastos_fijos ya existe en arquitectura — se extiende:
+ALTER TABLE gastos_fijos ADD COLUMN tipo_gasto_id UUID REFERENCES tipos_gasto(id);
+ALTER TABLE gastos_fijos ADD COLUMN proveedor_nit TEXT;
+ALTER TABLE gastos_fijos ADD COLUMN proveedor_nombre TEXT;
+ALTER TABLE gastos_fijos ADD COLUMN ultima_factura_id UUID;
+ALTER TABLE gastos_fijos ADD COLUMN ultimo_pago_at TIMESTAMPTZ;
+```
+
+---
+
+## Adendum #6 — Inventario con valor monetario
+
+> Stock no solo en cantidad — también en valor COP. Método **Promedio Ponderado** (recomendado para 911 Hot Burger y restaurantes CO típicos).
+
+### Cálculo de costo promedio ponderado
+
+```
+Al recibir factura proveedor con 5kg carne a $50.000/kg:
+
+stock_actual = 23 kg
+costo_actual = $48.000/kg
+
+nuevo_costo = (23 × 48.000 + 5 × 50.000) / (23 + 5)
+            = (1.104.000 + 250.000) / 28
+            = 1.354.000 / 28
+            = $48.357/kg
+
+VALOR INVENTARIO actualizado = 28 kg × $48.357 = $1.354.000
+```
+
+### Stories (6 totales · 28 SP — todas F1)
+
+| Código | Story | Persona | SP | Fase |
+|---|---|---|:-:|:-:|
+| US-INV-VAL-001 | Producto tiene costo_unitario_actual (manual o automático factura) | Sistema | 3 | F1 |
+| **US-INV-VAL-002 ⭐** | Al recibir factura proveedor INVENTARIO → actualiza costo promedio ponderado | Sistema | 8 | F1 |
+| US-INV-VAL-003 | Dashboard inventario muestra columna "Valor COP" por producto | Andrés | 5 | F1 |
+| US-INV-VAL-004 | Sistema calcula valor total inventario por sede | Andrés | 3 | F1 |
+| US-INV-VAL-005 | Superadmin configura método valoración (PROMEDIO/ULTIMO/FIFO) | Superadmin | 3 | F1 |
+| US-INV-VAL-006 | Reporte detallado de valor inventario por categoría + movimientos | Carolina/Andrés | 6 | F1 |
+
+### Schema (1 tabla nueva + extensiones)
+
+```sql
+CREATE TYPE metodo_valoracion_enum AS ENUM ('PROMEDIO_PONDERADO', 'ULTIMO_COSTO', 'FIFO');
+
+ALTER TABLE productos ADD COLUMN costo_unitario_actual BIGINT NOT NULL DEFAULT 0;
+ALTER TABLE productos ADD COLUMN ultimo_costo_factura BIGINT;
+ALTER TABLE productos ADD COLUMN ultima_actualizacion_costo TIMESTAMPTZ;
+ALTER TABLE productos ADD COLUMN metodo_valoracion metodo_valoracion_enum NOT NULL DEFAULT 'PROMEDIO_PONDERADO';
+
+CREATE TABLE inventario_movimientos (
+  id, tenant_id, sede_id, producto_id,
+  tipo (ENUM ENTRADA_COMPRA | SALIDA_VENTA | MERMA | AJUSTE | TRASLADO),
+  cantidad, costo_unitario, valor_total,
+  stock_antes, stock_despues,
+  costo_promedio_antes, costo_promedio_despues,
+  referencia_id, referencia_tipo,
+  responsable_id, comentario, created_at
+);
+```
+
+---
+
+## Adendum #7 — Retención en la fuente del cliente
+
+> Cliente con NIT obligado a retener al pagar (ej. Constructora SAS, hospital, entidad pública). YARO calcula retención, registra venta total pero recibe valor neto, y arqueo muestra retención como línea separada (no como descuadre).
+
+### Ejemplo concreto
+
+```
+ESCENARIO: Constructora XYZ SAS (agente retenedor) almuerza
+─────────────────────────────────────
+Cuenta:              $100.000
+Retención renta 1.5%: -$1.500   ← retiene cliente
+─────────────────────────────────────
+Cliente paga:         $98.500
+Restaurante registra venta total: $100.000
+Restaurante recibe:               $98.500
+$1.500 → cuenta 1355 Anticipo Impuestos (reclamable en declaración bimestral)
+
+EN ARQUEO:
+Total ventas:           $1.500.000
+- Descuentos:              -$30.000
+- Retenciones clientes:    -$22.500  ← LÍNEA NUEVA
+─────────────────────────────────────
+Total esperado en caja: $1.447.500
+Conteo físico:          $1.447.500
+DESCUADRE:                      $0 ✅
+```
+
+### Stories (7 totales · 32 SP)
+
+| Código | Story | Persona | SP | Fase |
+|---|---|---|:-:|:-:|
+| US-RET-001 | Admin marca cliente con NIT como agente retenedor + tipos aplicables | Andrés | 5 | F1 |
+| **US-RET-002 ⭐** | Cajera identifica al cobrar "cliente es agente retenedor" + sugiere aplicar | Cajera | 5 | F1 |
+| US-RET-003 | Sistema calcula retenciones (renta 1.5%, IVA 15% del IVA, ICA municipal) | Sistema | 8 | F1 |
+| US-RET-004 | Cobro registra valor_recibido_real = total - retenciones_cliente | Sistema | 5 | F1 |
+| **US-RET-005 ⭐** | Arqueo muestra retenciones como línea separada (no es descuadre) | Cajera | 3 | F1 |
+| US-RET-006 | Sistema genera asiento contable automático en cuenta 1355 | Sistema | 3 | **F2** |
+| US-RET-007 | Carolina ve reporte retenciones recibidas (declaración bimestral) | Carolina | 3 | **F2** |
+
+### Schema (1 tabla nueva + extensiones)
+
+```sql
+ALTER TABLE clientes ADD COLUMN es_agente_retenedor BOOLEAN NOT NULL DEFAULT FALSE;
+ALTER TABLE clientes ADD COLUMN tipos_retencion_aplicables retencion_tipo_enum[] DEFAULT '{}';
+
+CREATE TYPE retencion_tipo_enum AS ENUM ('RETEFUENTE_RENTA', 'RETEFUENTE_IVA', 'RETEICA');
+
+ALTER TABLE cobros ADD COLUMN cliente_es_agente_retenedor BOOLEAN NOT NULL DEFAULT FALSE;
+ALTER TABLE cobros ADD COLUMN total_retenido_por_cliente BIGINT NOT NULL DEFAULT 0;
+ALTER TABLE cobros ADD COLUMN valor_recibido_real BIGINT;
+
+CREATE TABLE retenciones_recibidas (
+  id, tenant_id, cobro_id, cliente_id,
+  tipo (ENUM), base_calculo, tarifa, valor_retenido,
+  cuenta_puc DEFAULT '1355',
+  certificado_recibido, certificado_s3_key,
+  created_at
+);
+```
+
+---
+
+## Adendum #8 — Inventario manual diario al cierre de caja
+
+> Admin configura productos críticos (default: **bebidas**) que requieren conteo físico al cierre. Cajera cuenta, sistema detecta inconsistencias y alerta admin.
+
+### Productos críticos default (911 Hot Burger)
+
+| Categoría | Productos típicos |
+|---|---|
+| **🥤 Bebidas (default)** | Coca Cola 350ml · Sprite 350ml · Cerveza Águila · Jugos Hit · Agua |
+| Carnes premium (configurable) | Lomo · Costilla · Chuleta |
+| Ingredientes costosos (configurable) | Quesos premium · Salsas importadas |
+| Empaques de marca (configurable) | Cajas con logo · Bolsas |
+
+### Flujo
+
+```mermaid
+flowchart TB
+    A["Admin configura productos<br/>requiere_conteo_periodico=TRUE<br/>(Bebidas default)"] --> B["Cierre de turno"]
+    B --> C["Cajera ve botón<br/>'Inventario diario'"]
+    C --> D["Pantalla: producto · stock sistema · input contado"]
+    D --> E["Cajera cuenta físicamente<br/>e ingresa cantidades"]
+    E --> F{Match?}
+    F -->|"Sí"| G["✅ Continúa cierre"]
+    F -->|"Faltante"| H["⚠️ Pide motivo<br/>(rotura, robo sospecha,<br/>error registro)"]
+    F -->|"Exceso"| I["⚠️ Pide motivo<br/>(devolución, error)"]
+    H --> J["Genera merma automática"]
+    I --> K["Ajuste positivo inventario"]
+    J --> L["Admin recibe alerta<br/>si recurrente"]
+    K --> L
+
+    style G fill:#3d9970,color:#ffffff
+    style H fill:#c0392b,color:#ffffff
+```
+
+### Stories (10 totales · 45 SP)
+
+| Código | Story | Persona | SP | Fase |
+|---|---|---|:-:|:-:|
+| **US-CONT-001 ⭐** | Admin configura productos que requieren conteo periódico + frecuencia | Andrés | 3 | F1 |
+| US-CONT-002 | Sistema muestra botón "Inventario diario" al cerrar caja si productos configurados | Cajera | 3 | F1 |
+| **US-CONT-003 ⭐** | Cajera ingresa cantidad contada con teclado numérico touch | Cajera | 5 | F1 |
+| US-CONT-004 | Sistema calcula diferencia automática (sistema - contado) | Sistema | 3 | F1 |
+| US-CONT-005 | Cajera agrega motivo si hay diferencia (dropdown estructurado) | Cajera | 3 | F1 |
+| US-CONT-006 | Sistema decide acción automática: AJUSTAR_STOCK / REGISTRAR_MERMA / REVISAR | Sistema | 5 | F1 |
+| US-CONT-007 | Sistema alerta al admin si inconsistencia significativa | Sistema | 5 | F1 |
+| US-CONT-008 | Andrés ve histórico de conteos con tendencias y alertas | Andrés | 5 | F1 |
+| **US-CONT-009 ⭐** | A6 Arqueo Inteligente correlaciona inconsistencias con patrones (mesera/turno/día) | Sistema | 8 | **F2** |
+| US-CONT-010 | Reporte mermas detectadas vía conteo vs registradas manualmente | Andrés/Carolina | 5 | **F2** |
+
+### Schema (1 tabla nueva + extensiones)
+
+```sql
+CREATE TYPE frecuencia_conteo_enum AS ENUM ('DIARIO', 'POR_TURNO', 'SEMANAL', 'MENSUAL');
+CREATE TYPE resultado_conteo_enum AS ENUM ('MATCH', 'FALTANTE', 'EXCESO');
+CREATE TYPE motivo_diferencia_enum AS ENUM
+  ('ROTURA', 'ROBO_SOSPECHA', 'ERROR_REGISTRO', 'DEVOLUCION',
+   'PRODUCTO_DAÑADO', 'REGALO_SIN_REGISTRAR', 'PRUEBA_RECETA', 'OTROS');
+CREATE TYPE accion_conteo_enum AS ENUM ('AJUSTAR_STOCK', 'REGISTRAR_MERMA', 'NO_ACCION_REVISAR');
+
+ALTER TABLE productos ADD COLUMN requiere_conteo_periodico BOOLEAN NOT NULL DEFAULT FALSE;
+ALTER TABLE productos ADD COLUMN frecuencia_conteo frecuencia_conteo_enum;
+
+CREATE TABLE conteos_inventario (
+  id, tenant_id, sede_id, turno_id, arqueo_id, producto_id,
+  stock_sistema, stock_contado,
+  diferencia (calculated stock_contado - stock_sistema),
+  resultado (ENUM), motivo (ENUM), comentario,
+  accion_aplicada (ENUM), merma_id, ajuste_inventario_id,
+  responsable_id, created_at
+);
+
+CREATE VIEW v_conteos_inconsistentes AS
+  SELECT producto_id, sede_id, COUNT(*) AS veces_inconsistente,
+         SUM(ABS(diferencia)) AS total_diferencia
+  FROM conteos_inventario
+  WHERE resultado != 'MATCH' AND created_at > NOW() - INTERVAL '30 days'
+  GROUP BY producto_id, sede_id;
+```
+
+---
+
+## 📊 Resumen impacto consolidado de adendums #3-#8
+
+### Decisión de scope F1 (mover ~10 stories a F2)
+
+**Stories movidas a F2** (mantiene F1 = 8 meses):
+- US-CRM-010 unificación duplicados · US-CRM-011 WhatsApp (F3)
+- US-CLASIF-004 asiento gasto · US-CLASIF-009 reporte gastos · US-CLASIF-010 sugerir catálogo
+- US-GASTO-003/004/005/006 (todo enlace automático + alertas)
+- US-RET-006 asiento automático · US-RET-007 reporte declaración
+- US-CONT-009 A6 correlación · US-CONT-010 reporte detectadas
+
+### Tablas nuevas/modificadas
+
+| Adendum | Nuevas tablas | Tablas extendidas |
+|---|---|---|
+| #3 CRM | — | `clientes` (+10 campos) |
+| #4 Clasificación | `lineas_factura_proveedor` | `productos` (+3 campos) |
+| #5 Gastos catálogo | `tipos_gasto` | `gastos_fijos` (+5 campos) |
+| #6 Valor inventario | `inventario_movimientos` | `productos` (+4 campos) |
+| #7 Retención cliente | `retenciones_recibidas` | `clientes` (+2), `cobros` (+3) |
+| #8 Conteo manual | `conteos_inventario` | `productos` (+2 campos) |
+| **TOTAL** | **+6 tablas** | **3 tablas extendidas (32 campos)** |
+
+### Conteo final F1 después de adendums #1-#8
+
+| Aspecto | Antes adendums | Post #1-#2 (Arqueo + Fraude) | Post #3-#8 (Refinamientos) |
+|---|---|---|---|
+| **Tablas F1** | 28 | 41 | **47** (+6) |
+| **Stories F1** | ~265 | ~320 | **~360** (+40 F1 nuevas) |
+| **SP F1** | ~1.050 | ~1.280 | **~1.440** (+160 SP) |
+| **Capacity vs scope** | 96% velocity | 100% velocity | **108% velocity** (tight) |
+| **Decisión gestión** | — | — | **10 stories a F2 + monitoreo mes 4/6** |
+
+### Stories Must Have F1 nuevas por adendum
+
+| Adendum | Stories F1 | Stories F2 | SP F1 | SP F2 |
+|---|:-:|:-:|:-:|:-:|
+| #3 CRM | 9 | 2 | 38 | 18 |
+| #4 Clasificación inv/gasto | 7 | 3 | 37 | 13 |
+| #5 Gastos catálogo | 2 | 4 | 10 | 18 |
+| #6 Valor inventario | 6 | 0 | 28 | 0 |
+| #7 Retención cliente | 5 | 2 | 26 | 6 |
+| #8 Conteo manual | 8 | 2 | 32 | 13 |
+| **TOTAL** | **37** | **13** | **171** | **68** |
+
+> **F1 final: ~360 stories · ~1.440 SP** · F2 + F3 adicionales: ~13 stories · ~68 SP
+
+---
+
 *YARO Backlog · v1.0 consolidado · Mayo 2026*
 *Co-creado entre la fundadora-operadora (911 Hot Burger) y un Product Engineering Lead + Agile Coach.*
-*Documento base: `specs/prd.md`, `specs/arquitectura.md`, `docs/`, y el Excel "CIERRE DE CAJA 911 HOT BURGERS.xlsx".*
+*Documento base: `specs/prd.md`, `specs/arquitectura.md`, `docs/`, Excel "CIERRE DE CAJA 911 HOT BURGERS.xlsx", y 8 adendums de refinamiento.*
 *Output guardado en: `specs/backlog.md`.*
