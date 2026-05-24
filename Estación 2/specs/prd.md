@@ -3,7 +3,7 @@
 ### Sistema operativo de los restaurantes colombianos
 **Versión 1.0 (consolidado co-creación iterativa) · Mayo 2026**
 
-> Documento generado en sesión de co-creación entre la fundadora (Mariana, 911 Hot Burger — Guarne + La Ceja) y un Head of Product + AI/Agent Architect. Construido segmento por segmento sobre los documentos base: `overview.md`, `icp.md`, `mercado.md`, `critica.md`, `pvb.md`.
+> Documento generado en sesión de co-creación entre la fundadora (Valentina, 911 Hot Burger — Guarne + La Ceja) y un Head of Product + AI/Agent Architect. Construido segmento por segmento sobre los documentos base: `overview.md`, `icp.md`, `mercado.md`, `critica.md`, `pvb.md`.
 
 ---
 
@@ -221,12 +221,12 @@ quadrantChart
 - ❌ Hoteles, catering puro, banquetes — **expansión Fase 4+**
 - ❌ Restaurantes con > 4 sedes en Fase 1 (entran como Enterprise Fase 2+)
 
-### 3.2 Buyer personas — Mariana, Andrés, Carolina
+### 3.2 Buyer personas — Valentina, Andrés, Carolina
 
 ```mermaid
 flowchart TB
     subgraph DECISION["Decisión de compra"]
-        D[" Mariana · Dueña / Socia<br/>Decisor y pagador "]
+        D[" Valentina · Dueña / Socia<br/>Decisor y pagador "]
     end
     subgraph ADOPCION["Adopción operativa"]
         A[" Andrés · Admin / Gerente<br/>Usuario principal (8h+/día)<br/>Veto operativo "]
@@ -243,7 +243,7 @@ flowchart TB
     style C fill:#3d9970,stroke:#1a1916,color:#ffffff
 ```
 
-#### Persona 1 — Mariana (Dueña / Socia)
+#### Persona 1 — Valentina (Dueña / Socia)
 
 | Aspecto | Detalle |
 |---|---|
@@ -420,7 +420,7 @@ quadrantChart
 
 | Si eres... | YARO te da... | Lo que ahorras |
 |---|---|---|
-| **Mariana (Dueña)** | Visibilidad financiera en tiempo real + DIAN garantizada + Copiloto en lenguaje claro | $492 USD/mes + 30 días de espera |
+| **Valentina (Dueña)** | Visibilidad financiera en tiempo real + DIAN garantizada + Copiloto en lenguaje claro | $492 USD/mes + 30 días de espera |
 | **Andrés (Admin)** | Arqueo en 10 min, inventario en tiempo real, sin doble digitación | 30 min/día + horas en consolidación |
 | **Carolina (Contadora)** | Buzón DIAN con IA, XMLs válidos, impoconsumo separado, multi-régimen | **3–4 horas DIARIAS** |
 | **Food truck** | Plataforma sin módulos que no necesitas + offline reforzado + DIAN cuando aplique | Forzarte a POS de restaurante con mesa |
@@ -437,7 +437,7 @@ quadrantChart
 | **UC-1** | Buzón DIAN con IA clasifica facturas en lugar del contador | Carolina | D3 + D2 | F1 básico → F2 IA |
 | **UC-2** | Cobro POS con tiquete DIAN en < 100 ms, incluso sin internet | Cajero/Andrés | D2 + D1 | F1 |
 | **UC-3** | Arqueo + cierre de turno en menos de 10 minutos | Andrés | D1 | F1 |
-| **UC-4** | Copiloto del Dueño responde "¿estoy ganando este mes?" | Mariana | D3 | F2 |
+| **UC-4** | Copiloto del Dueño responde "¿estoy ganando este mes?" | Valentina | D3 | F2 |
 | **UC-5** | Food truck opera 8h en evento sin conexión y cumple DIAN al volver | Operador food truck | D4 + D2 | F1 (offline) + F2 (food truck oficial) |
 
 ### UC-1 — Buzón DIAN con IA: el contador deja de clasificar 4–5h/día
@@ -494,7 +494,7 @@ quadrantChart
 ### UC-4 — Copiloto del Dueño
 
 **Pasos:**
-1. Mariana pregunta en lenguaje natural: *"¿Cómo voy este mes vs el mes pasado?"*
+1. Valentina pregunta en lenguaje natural: *"¿Cómo voy este mes vs el mes pasado?"*
 2. Copiloto consulta DB del tenant (con guardrails de aislamiento P3)
 3. Responde en lenguaje no contable con datos verificables + click-through a fuente
 4. Si pregunta es prescriptiva (*"¿debería abrir 3ª sede?"*) → presenta datos pero NO recomienda. Escala a Carolina
@@ -594,7 +594,7 @@ flowchart TB
 5. La manual: nueva, ambigua. Clasifica + YARO le pregunta si crear regla automática
 6. **9:25 AM** — procesó 6 clientes en < 1h. **Antes le tomaba 3–4 horas**. Ahorro ~2.5h/día
 7. Al cierre de mes, descarga XMLs DIAN + libro auxiliar contable en formato compatible
-8. Llama a Mariana: *"Recomendé YARO a 3 clientes más. ¿Hay descuento por referido?"* → **canal de distribución activado**
+8. Llama a Valentina: *"Recomendé YARO a 3 clientes más. ¿Hay descuento por referido?"* → **canal de distribución activado**
 
 **KPI impactado:** horas/día del contador 4–5h → < 1h. NPS contador ≥ 50 al mes 6.
 
@@ -630,16 +630,16 @@ flowchart TB
 - Motor de reglas: sin match (NIT nuevo)
 - Default: marca ✋ Manual + mensaje a Andrés explicando el porqué
 - Andrés escala a Carolina con un clic + tag visual
-- Carolina llama a Mariana para entender el contexto → clasifica como Honorarios Jurídicos (cuenta 5105)
+- Carolina llama a Valentina para entender el contexto → clasifica como Honorarios Jurídicos (cuenta 5105)
 - YARO crea regla automática para futuras facturas de ese NIT
 - Episodio loggeado para eval continua
 
 **Sub-escenario 2B — Copiloto evita prescribir:**
-- Mariana pregunta: *"¿Debería abrir una tercera sede en Rionegro?"*
+- Valentina pregunta: *"¿Debería abrir una tercera sede en Rionegro?"*
 - Copiloto detecta pregunta prescriptiva → **NO recomienda**
 - Responde con datos descriptivos: margen actual, utilización CDP, food cost estable, ventas +18% — y qué NO tiene (mercado Rionegro, financiamiento)
 - Ofrece generar PDF estructurado para llevar a conversación con Carolina + asesor
-- **Mariana toma la decisión con datos + criterio humano**
+- **Valentina toma la decisión con datos + criterio humano**
 
 ---
 
@@ -681,7 +681,7 @@ flowchart TB
 
 #### M4 Personas y onboarding
 - Marcación + bienestar
-- Dashboard por rol (lenguaje no contable para Mariana, técnico para Carolina)
+- Dashboard por rol (lenguaje no contable para Valentina, técnico para Carolina)
 - Wizard onboarding 3 pasos
 - Roles del sistema
 - Buzón DIAN básico (recepción FE de proveedores)
@@ -693,7 +693,7 @@ flowchart TB
 |---|---|---|
 | S1 | Motor de reglas pre-cargadas del Buzón (sin Claude aún) | Carolina recibe valor desde día 1 |
 | S2 | Multi-sede básico (dashboard remoto desde mobile) | 911 multi-sede lo necesita |
-| S3 | Reportes básicos ventas/inventario/food cost estimado | Mariana ve "¿cómo voy hoy?" |
+| S3 | Reportes básicos ventas/inventario/food cost estimado | Valentina ve "¿cómo voy hoy?" |
 | S4 | Notificaciones push PWA | Andrés deja de perder alertas |
 | S5 | Exportación masiva XMLs + libro auxiliar | Carolina exporta cierre mensual |
 | S6 | Auditoría visible (pestaña Historial) | Transparencia al cliente |
@@ -1230,7 +1230,7 @@ quadrantChart
 
 | Variable | Valor |
 |---|---|
-| Equipo F1 | 5–7 personas (1 CTO, 1–2 BE, 1–2 FE, 1 QA, 1 PM + Mariana) |
+| Equipo F1 | 5–7 personas (1 CTO, 1–2 BE, 1–2 FE, 1 QA, 1 PM + Valentina) |
 | Cliente piloto | 911 Hot Burger (Guarne + La Ceja) |
 | Geografía | Antioquia exclusiva |
 | Cadencia | Sprints 2 semanas + demo |
@@ -1295,14 +1295,14 @@ gantt
 - Inventario básico + mermas con causa
 - Marcación + bienestar
 
-**Demo día 60:** Mariana abre turno, cajero cobra 5 mesas con distintos métodos, cada cobro responde < 100ms con DIAN ACCEPTED, se desconecta internet, POS sigue cobrando, reconecta, sync completa < 5 min.
+**Demo día 60:** Valentina abre turno, cajero cobra 5 mesas con distintos métodos, cada cobro responde < 100ms con DIAN ACCEPTED, se desconecta internet, POS sigue cobrando, reconecta, sync completa < 5 min.
 
 ### 13.4 Días 61–90 — Beta con piloto + Métricas iniciales
 
 **Objetivo:** 911 Hot Burger sede Guarne opera 15 días con clientes reales.
 
 **Bloques:**
-- Dashboard por rol (Mariana lenguaje no contable, Andrés operativo, Carolina técnico)
+- Dashboard por rol (Valentina lenguaje no contable, Andrés operativo, Carolina técnico)
 - Notificaciones push PWA
 - Buzón DIAN básico + motor de reglas pre-cargadas (12+ reglas base)
 - Migración asistida 911 Hot Burger
@@ -1311,7 +1311,7 @@ gantt
 - Dataset inicial A1 — 100 facturas etiquetadas con Carolina
 - Red-team pre-launch día 80
 
-**Demo día 90:** 15 días de operación real sin caídas, 0 documentos DIAN rechazados de ~600 emitidos, arqueo promedio < 12 min, Carolina valida XMLs, Mariana valida dashboard, 50%+ facturas auto-clasificadas.
+**Demo día 90:** 15 días de operación real sin caídas, 0 documentos DIAN rechazados de ~600 emitidos, arqueo promedio < 12 min, Carolina valida XMLs, Valentina valida dashboard, 50%+ facturas auto-clasificadas.
 
 ### 13.5 Vista ampliada — meses 4–8 (post-90 días)
 
@@ -1329,7 +1329,7 @@ gantt
 |---|---|---|
 | **Día 30** | Tests aislamiento 100% + MFA operativo + onboarding crea tenants con formatos distintos | Refuerzo 2–4 sem, postergar POS |
 | **Día 60** | Alpha cobra DIAN ACCEPTED + KDS < 200ms + offline funciona + Q7=0 | Extender 4 sem, cortar nice-to-have |
-| **Día 90** | 911 Guarne 15 días sin caída + 0 docs rechazados + arqueo < 12 min + Mariana usa dashboard | Iterar piloto 4–8 sem antes de captar cliente 2 |
+| **Día 90** | 911 Guarne 15 días sin caída + 0 docs rechazados + arqueo < 12 min + Valentina usa dashboard | Iterar piloto 4–8 sem antes de captar cliente 2 |
 
 ### 13.7 Presupuesto estimado primer trimestre
 
@@ -1386,7 +1386,7 @@ gantt
 4. **5 agentes ampliados** (decisión C1) — no solo el clasificador PUC
 5. **6.950 cierres 2024** (no 2.700)
 6. **Caso piloto real** 911 Hot Burger: $670 USD stack vs $178 USD YARO = $492 ahorro
-7. **3 perfiles modelados con nombre** (Mariana, Andrés, Carolina)
+7. **3 perfiles modelados con nombre** (Valentina, Andrés, Carolina)
 8. **Pain del contador = 4–5 horas DIARIAS** (no semanales)
 9. **10 principios no negociables** formalizados (P1–P10)
 10. **Mermaid diagrams** en lugar de ASCII art

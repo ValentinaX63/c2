@@ -42,7 +42,7 @@ Antes de empezar el diseño técnico se identificaron 10 conflictos materiales e
 | **CA3** | Middleware Prisma forzado vs queries cross-tenant legítimas | Flag explícito `__platformQuery: true` con `PlatformAdminGuard` obligatorio + audit log automático en `platform_access_log` |
 | **CA4** | `tipoOperacion` activa módulos — ¿UI o schema? | **Schema único + activación por endpoints/UI**. Tablas siempre existen vacías. Permite migrar entre formatos sin downtime |
 | **CA5** | Schema por fases (14 → +13 → +4) | Schema único en RDS, migraciones aplican a todos. Diferenciación F1/F2/F3 es por features activos por plan |
-| **CA6** | Tiquetes contingencia expirados (> 48h sin transmitir) | **Nunca purgar** — guardar en `failed_fiscal_documents` con alerta legal a Mariana + Carolina |
+| **CA6** | Tiquetes contingencia expirados (> 48h sin transmitir) | **Nunca purgar** — guardar en `failed_fiscal_documents` con alerta legal a Valentina + Carolina |
 | **CA7** | `country_config` con valores fiscales dinámicos | Cada cobro guarda `tax_snapshot_id` referenciando snapshot al momento del cobro — cambios fiscales no afectan retroactivamente |
 | **CA8** | S3 retención 5 años XMLs | **Tier transition automático**: Standard (90d) → Standard-IA (1a) → Glacier Deep Archive (> 1a) |
 | **CA9** | Dataset eval IA — per-tenant vs global | **Híbrido con anonimización**: dataset global anonimizado + reglas per-tenant |
@@ -70,7 +70,7 @@ Antes de empezar el diseño técnico se identificaron 10 conflictos materiales e
 ```mermaid
 flowchart TB
     subgraph USUARIOS["👥 Usuarios del tenant"]
-        M["Mariana<br/>(Dueña)"]
+        M["Valentina<br/>(Dueña)"]
         AN["Andrés<br/>(Admin)"]
         CA["Carolina<br/>(Contadora externa)"]
         CJ["Cajero / Mesero<br/>/ Cocina / CDP"]
@@ -942,7 +942,7 @@ async function syncPendingItems() {
 flowchart TB
     subgraph CONSUMERS["📱 Consumidores"]
         BUZ["Buzón DIAN UI"]
-        DASH["Dashboard Mariana"]
+        DASH["Dashboard Valentina"]
         CONC["Conciliación UI"]
         INVT["Inventario UI"]
     end
@@ -1149,7 +1149,7 @@ flowchart TB
 |---|---|---|
 | Platform Admin (equipo YARO) | Email + password + MFA TOTP | **Obligatorio** |
 | Support Engineer (equipo YARO) | Email + password + MFA TOTP | **Obligatorio** |
-| Superadmin del tenant (Mariana) | Email + password ó Google | Opcional F1, obligatorio F2 |
+| Superadmin del tenant (Valentina) | Email + password ó Google | Opcional F1, obligatorio F2 |
 | Admin de sede (Andrés) | Email + password ó Google | Opcional |
 | Cajero / Mesero / Cocina / CDP | **Google OAuth** recomendado o PIN local | No requerido |
 | Contador externo (Carolina) | Email + password ó Google | Recomendado |
@@ -1737,7 +1737,7 @@ gantt
 ### A13.4 Días 61-90 — Beta piloto + eval infra
 
 **Sprint 5 (57 SP):**
-- YR-050 Dashboard Mariana
+- YR-050 Dashboard Valentina
 - YR-051 Dashboard Andrés
 - YR-052 Dashboard Carolina
 - YR-053 Notificaciones push PWA
@@ -1825,7 +1825,7 @@ gantt
 | `docs/overview.md` | Contexto HORECA Colombia que justifica decisiones específicas (DIAN, impoconsumo, offline) |
 | `docs/critica.md` | Riesgos técnicos detallados. Cada riesgo del PRD §12 tiene mitigación arquitectónica |
 | `docs/pvb.md` | Visión de producto. MOAT de datos + capa agéntica reflejados en A2 + A7 |
-| `docs/icp.md` | 3 perfiles (Mariana, Andrés, Carolina) modelados en A2 BC Identity & Tenancy |
+| `docs/icp.md` | 3 perfiles (Valentina, Andrés, Carolina) modelados en A2 BC Identity & Tenancy |
 
 ### Stack técnico final consolidado
 
