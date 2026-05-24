@@ -1,0 +1,1017 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>YARO — Cajero</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#f0ede8; --bg2:#ece9e3; --surface:#faf9f7; --white:#ffffff;
+  --border:rgba(0,0,0,0.07); --border2:rgba(0,0,0,0.11);
+  --text:#1a1916; --text2:#6b6760; --text3:#a8a49e;
+  --accent:#f7fd9c; --accent-dk:#d4e200; --accent-txt:#6b7200;
+  --green:#3d9970; --green-bg:rgba(61,153,112,0.09);
+  --red:#c0392b; --red-bg:rgba(192,57,43,0.07);
+  --amber:#b7860b; --amber-bg:rgba(183,134,11,0.09);
+  --blue:#2471a3; --blue-bg:rgba(36,113,163,0.07);
+  --shadow-sm:0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
+  --shadow-md:0 4px 16px rgba(0,0,0,.08),0 1px 4px rgba(0,0,0,.04);
+  --shadow-lg:0 8px 32px rgba(0,0,0,.10),0 2px 8px rgba(0,0,0,.05);
+  --radius:14px; --radius-sm:9px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");}
+
+/* TOPBAR */
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 32px;height:64px;background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:200;box-shadow:var(--shadow-sm);}
+.tl{display:flex;align-items:center;gap:16px;}
+.logo-pill{background:var(--text);border-radius:11px;padding:6px 14px;font-size:18px;font-weight:300;color:var(--white);letter-spacing:.4px;}
+.tdiv{width:1px;height:20px;background:var(--border2);}
+.ttitle{font-size:17px;font-weight:600;letter-spacing:-.2px;}
+.tsub{font-size:12px;font-weight:300;color:var(--text3);margin-top:1px;}
+.tr{display:flex;align-items:center;gap:10px;}
+.pill{padding:6px 13px;border-radius:20px;font-size:11px;font-weight:500;box-shadow:var(--shadow-sm);}
+.pill-time{background:var(--white);border:1px solid var(--border2);color:var(--text2);font-size:12px;font-variant-numeric:tabular-nums;}
+.pill-sede{background:rgba(212,226,0,0.1);border:1px solid rgba(212,226,0,0.25);color:var(--accent-txt);}
+
+/* MARCACIÓN BUTTON — siempre visible */
+.marcacion-btn{
+  display:flex;align-items:center;gap:8px;
+  padding:7px 16px;border-radius:20px;
+  font-size:12px;font-weight:600;cursor:pointer;
+  border:none;font-family:'Outfit',sans-serif;
+  transition:all .2s;box-shadow:var(--shadow-sm);
+}
+.marcacion-btn.entrada{background:var(--green);color:#fff;}
+.marcacion-btn.entrada:hover{background:#44aa7d;box-shadow:var(--shadow-md);}
+.marcacion-btn.salida{background:var(--amber);color:#fff;}
+.marcacion-btn.salida:hover{background:#c9920c;box-shadow:var(--shadow-md);}
+.marcacion-btn.marcado{background:var(--bg2);color:var(--text3);border:1px solid var(--border2);cursor:default;}
+.mb-dot{width:7px;height:7px;border-radius:50%;background:currentColor;opacity:.7;animation:pulse 2s ease-in-out infinite;}
+@keyframes pulse{0%,100%{opacity:.7;transform:scale(1)}50%{opacity:.3;transform:scale(.75)}}
+
+/* TURNO STATUS BANNER */
+.turno-banner{
+  display:flex;align-items:center;gap:14px;
+  padding:12px 32px;
+  background:var(--white);
+  border-bottom:1px solid var(--border);
+  box-shadow:var(--shadow-sm);
+  flex-shrink:0;
+}
+.turno-banner.activo{background:rgba(212,226,0,0.07);border-bottom-color:rgba(212,226,0,0.25);}
+.turno-banner.cerrado{background:var(--red-bg);border-bottom-color:rgba(192,57,43,0.18);}
+.turno-indicator{display:flex;align-items:center;gap:7px;}
+.turno-dot{width:8px;height:8px;border-radius:50%;}
+.turno-label{font-size:12px;font-weight:600;}
+.turno-meta{font-size:12px;font-weight:300;color:var(--text3);}
+.turno-actions{margin-left:auto;display:flex;gap:8px;}
+
+/* SHELL */
+.shell{display:flex;height:calc(100vh - 64px - 48px);overflow:hidden;}
+
+/* SIDENAV */
+.sidenav{width:210px;flex-shrink:0;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow-y:auto;}
+.snhead{padding:16px 16px 12px;border-bottom:1px solid var(--border);}
+.cajero-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 12px;}
+.cajero-av{width:32px;height:32px;border-radius:50%;background:var(--text);color:var(--white);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;flex-shrink:0;}
+.nsec{padding:14px 12px 4px;}
+.nlbl{font-size:9px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.12em;padding:0 10px;margin-bottom:5px;}
+.ni{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:var(--radius-sm);font-size:13px;font-weight:400;color:var(--text2);cursor:pointer;transition:all .15s;margin-bottom:1px;}
+.ni:hover{background:var(--bg2);color:var(--text);}
+.ni.active{background:var(--accent);color:var(--accent-txt);font-weight:600;box-shadow:var(--shadow-sm);}
+.ni.disabled{opacity:.4;cursor:not-allowed;pointer-events:none;}
+.ni svg{width:16px;height:16px;flex-shrink:0;opacity:.65;}
+.ni.active svg{opacity:1;}
+.nbadge{margin-left:auto;color:#fff;font-size:10px;font-weight:600;border-radius:10px;padding:1px 6px;}
+.lock-icon{margin-left:auto;font-size:12px;color:var(--text3);}
+
+/* MAIN */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+.toolbar{display:flex;align-items:center;gap:10px;padding:13px 28px;background:var(--surface);border-bottom:1px solid var(--border);flex-shrink:0;flex-wrap:wrap;}
+.sbox{display:flex;align-items:center;gap:8px;background:var(--white);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:0 12px;height:36px;flex:1;max-width:280px;box-shadow:var(--shadow-sm);}
+.sbox input{border:none;outline:none;background:transparent;font-family:'Outfit',sans-serif;font-size:13px;color:var(--text);width:100%;}
+.sbox input::placeholder{color:var(--text3);}
+.fsel{height:36px;padding:0 10px;border:1px solid var(--border2);border-radius:var(--radius-sm);background:var(--white);font-family:'Outfit',sans-serif;font-size:12px;color:var(--text2);outline:none;cursor:pointer;box-shadow:var(--shadow-sm);}
+.btn{height:36px;padding:0 16px;border-radius:var(--radius-sm);font-size:13px;font-weight:600;cursor:pointer;border:none;font-family:'Outfit',sans-serif;transition:all .15s;white-space:nowrap;}
+.b-primary{background:var(--text);color:var(--white);}
+.b-primary:hover{background:#2d2c28;box-shadow:var(--shadow-md);}
+.b-outline{background:var(--white);color:var(--text2);border:1px solid var(--border2);font-weight:400;}
+.b-outline:hover{background:var(--bg2);}
+.b-accent{background:rgba(212,226,0,0.12);color:var(--accent-txt);border:1px solid rgba(212,226,0,0.28);}
+.b-accent:hover{background:rgba(212,226,0,0.2);}
+.b-green{background:var(--green);color:#fff;font-weight:700;}
+.b-green:hover{background:#44aa7d;box-shadow:var(--shadow-md);}
+.b-red{background:var(--red-bg);color:var(--red);border:1px solid rgba(192,57,43,0.2);}
+.b-red:hover{background:rgba(192,57,43,0.12);}
+.b-amber{background:var(--amber-bg);color:var(--amber);border:1px solid rgba(183,134,11,0.2);}
+.b-sm{height:28px;padding:0 10px;font-size:11px;}
+.content{flex:1;overflow-y:auto;padding:22px 28px;}
+
+/* CARDS */
+.card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-md);padding:20px 22px;animation:fu .4s cubic-bezier(.22,1,.36,1) both;transition:box-shadow .2s,transform .2s;}
+.card:hover{box-shadow:var(--shadow-lg);transform:translateY(-1px);}
+@keyframes fu{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.clbl{font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.09em;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;}
+.ctag{font-size:10px;font-weight:400;padding:2px 8px;border-radius:6px;background:var(--bg2);color:var(--text3);border:1px solid var(--border);text-transform:none;letter-spacing:0;}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px;}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:18px;}
+
+/* KPI */
+.krow{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px;}
+.kpi{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-md);padding:16px 18px 14px;position:relative;overflow:hidden;animation:fu .4s cubic-bezier(.22,1,.36,1) both;transition:box-shadow .2s,transform .2s;}
+.kpi:hover{box-shadow:var(--shadow-lg);transform:translateY(-1px);}
+.kpi::after{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--kb,var(--border2));border-radius:var(--radius) var(--radius) 0 0;}
+.klbl{font-size:10px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;}
+.kval{font-size:20px;font-weight:700;letter-spacing:-.5px;margin-bottom:6px;}
+.kfoot{font-size:11px;font-weight:300;color:var(--text3);}
+
+/* TABLE */
+.twrap{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-md);overflow:hidden;margin-bottom:18px;}
+.dt{width:100%;border-collapse:collapse;}
+.dt thead th{text-align:left;padding:11px 14px;font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;border-bottom:1px solid var(--border);background:var(--surface);white-space:nowrap;}
+.dt tbody tr{border-bottom:1px solid var(--border);transition:background .12s;}
+.dt tbody tr:last-child{border-bottom:none;}
+.dt tbody tr:hover{background:rgba(0,0,0,.015);}
+.dt tbody td{padding:12px 14px;font-size:13px;vertical-align:middle;}
+
+/* STATUS */
+.sp{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:6px;font-size:10px;font-weight:600;}
+.sp-ok{background:var(--green-bg);color:var(--green);}
+.sp-pend{background:var(--amber-bg);color:var(--amber);}
+.sp-err{background:var(--red-bg);color:var(--red);}
+.sp-blue{background:var(--blue-bg);color:var(--blue);}
+.sp-gray{background:var(--bg2);color:var(--text3);}
+
+/* MESA GRID */
+.mesa-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:12px;margin-bottom:18px;}
+.mesa-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-md);padding:0;cursor:pointer;transition:all .15s;overflow:hidden;position:relative;}
+.mesa-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-lg);border-color:var(--border2);}
+.mesa-card.selected{border-color:var(--text);box-shadow:var(--shadow-lg),0 0 0 2px rgba(26,25,22,.12);}
+.mesa-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--mc,var(--border2));}
+.mesa-inner{padding:14px;}
+.mesa-num{font-size:17px;font-weight:700;letter-spacing:-.3px;margin-bottom:6px;}
+.mesa-status-pill{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:6px;font-size:10px;font-weight:600;margin-bottom:8px;}
+.mesa-meta{font-size:11px;font-weight:300;color:var(--text3);line-height:1.4;}
+.mesa-dots{display:flex;gap:3px;margin-top:6px;flex-wrap:wrap;}
+.mesa-dot{width:7px;height:7px;border-radius:50%;}
+
+/* COBRO PANEL */
+.cobro-layout{display:grid;grid-template-columns:1fr 360px;gap:16px;height:100%;}
+.cobro-left{display:flex;flex-direction:column;gap:14px;overflow-y:auto;}
+.cobro-right{display:flex;flex-direction:column;gap:10px;overflow-y:auto;}
+.ticket{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-md);padding:20px;}
+.ticket-header{border-bottom:1px solid var(--border);padding-bottom:12px;margin-bottom:12px;}
+.ticket-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;}
+.ticket-row:last-child{border-bottom:none;}
+.tr-qty{font-size:12px;font-weight:700;color:var(--accent-dk);min-width:24px;}
+.tr-name{flex:1;font-weight:500;}
+.tr-price{font-weight:600;font-variant-numeric:tabular-nums;}
+.tr-del{width:24px;height:24px;border-radius:6px;background:var(--bg2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:12px;color:var(--text3);transition:all .15s;}
+.tr-del:hover{background:var(--red-bg);color:var(--red);}
+.ticket-total{border-top:2px solid var(--border2);padding-top:12px;margin-top:8px;}
+.tt-row{display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px;}
+.tt-row.main{font-size:16px;font-weight:700;margin-top:4px;}
+
+/* METHOD SELECTOR */
+.method-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.method-btn{padding:10px 8px;border-radius:var(--radius-sm);font-size:12px;font-weight:500;cursor:pointer;border:1.5px solid var(--border2);background:var(--white);color:var(--text2);font-family:'Outfit',sans-serif;transition:all .15s;text-align:center;}
+.method-btn:hover{border-color:var(--border2);background:var(--bg2);}
+.method-btn.sel{border-color:var(--text);background:var(--text);color:var(--white);font-weight:600;}
+
+/* BIENESTAR */
+.bienestar-grid{display:flex;gap:10px;justify-content:center;margin:8px 0;}
+.bw-btn{width:56px;height:56px;border-radius:50%;border:2px solid var(--border2);background:var(--white);font-size:26px;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;}
+.bw-btn:hover{transform:scale(1.1);box-shadow:var(--shadow-md);}
+.bw-btn.sel{border-color:var(--accent-dk);background:var(--accent);transform:scale(1.15);box-shadow:var(--shadow-md);}
+
+/* ARQUEO */
+.arqueo-method{display:flex;align-items:center;gap:14px;padding:14px 16px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);margin-bottom:8px;}
+.am-icon{font-size:20px;flex-shrink:0;}
+.am-name{flex:1;font-size:13px;font-weight:500;}
+.am-sistema{font-size:12px;font-weight:300;color:var(--text3);margin-top:1px;}
+.am-input{width:130px;height:38px;border:1.5px solid var(--border2);border-radius:var(--radius-sm);background:var(--white);font-family:'Outfit',sans-serif;font-size:14px;font-weight:600;text-align:right;padding:0 12px;outline:none;transition:border-color .15s;font-variant-numeric:tabular-nums;}
+.am-input:focus{border-color:var(--accent-dk);}
+.am-diff{font-size:12px;font-weight:600;min-width:80px;text-align:right;font-variant-numeric:tabular-nums;}
+
+/* FLUJO TURNO */
+.flujo-step{display:flex;align-items:center;gap:12px;padding:16px 20px;border-radius:var(--radius);border:1.5px solid var(--border);background:var(--white);margin-bottom:10px;transition:all .2s;}
+.flujo-step.done{border-color:rgba(61,153,112,.3);background:var(--green-bg);}
+.flujo-step.active{border-color:var(--accent-dk);background:rgba(212,226,0,.07);box-shadow:var(--shadow-sm);}
+.flujo-step.locked{opacity:.4;}
+.fs-num{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0;}
+.fs-meta{flex:1;}
+.fs-title{font-size:14px;font-weight:600;margin-bottom:2px;}
+.fs-desc{font-size:12px;font-weight:300;color:var(--text3);}
+
+/* INFO BOXES */
+.ibox{background:var(--blue-bg);border:1px solid rgba(36,113,163,.15);border-radius:var(--radius-sm);padding:10px 14px;font-size:12px;color:var(--blue);line-height:1.5;margin-bottom:14px;}
+.wbox{background:var(--amber-bg);border:1px solid rgba(183,134,11,.18);border-radius:var(--radius-sm);padding:10px 14px;font-size:12px;color:var(--amber);line-height:1.5;margin-bottom:14px;}
+.sbox2{background:var(--green-bg);border:1px solid rgba(61,153,112,.18);border-radius:var(--radius-sm);padding:10px 14px;font-size:12px;color:var(--green);line-height:1.5;margin-bottom:14px;}
+
+/* MODAL */
+.mo{position:fixed;inset:0;z-index:500;background:rgba(240,237,232,.82);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s;}
+.mo.open{opacity:1;pointer-events:all;}
+.modal{background:var(--white);border-radius:var(--radius);border:1px solid var(--border2);box-shadow:var(--shadow-lg);width:100%;transform:translateY(16px);transition:transform .25s;overflow:hidden;max-height:92vh;display:flex;flex-direction:column;}
+.mo.open .modal{transform:translateY(0);}
+.modal.sm{max-width:420px;}
+.modal.md{max-width:520px;}
+.modal.lg{max-width:680px;}
+.mh{padding:20px 24px 16px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;justify-content:space-between;flex-shrink:0;}
+.mh-t{font-size:17px;font-weight:600;}
+.mh-sub{font-size:12px;font-weight:300;color:var(--text3);margin-top:3px;}
+.mcl{width:28px;height:28px;border-radius:7px;background:var(--bg2);border:none;cursor:pointer;font-size:15px;color:var(--text3);font-family:'Outfit',sans-serif;display:flex;align-items:center;justify-content:center;}
+.mcl:hover{background:var(--border2);}
+.mb{padding:20px 24px;display:flex;flex-direction:column;gap:14px;overflow-y:auto;}
+.mf{padding:14px 24px 20px;border-top:1px solid var(--border);display:flex;gap:8px;flex-shrink:0;}
+.mf .btn{flex:1;height:40px;}
+.fr{display:flex;flex-direction:column;gap:5px;}
+.fr2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.flbl{font-size:11px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;}
+.fi{height:38px;padding:0 12px;border:1px solid var(--border2);border-radius:var(--radius-sm);background:var(--surface);font-family:'Outfit',sans-serif;font-size:13px;color:var(--text);outline:none;transition:border-color .15s;width:100%;}
+.fi:focus{border-color:var(--accent-dk);background:var(--white);}
+.fi::placeholder{color:var(--text3);}
+.fsel2{height:38px;padding:0 12px;border:1px solid var(--border2);border-radius:var(--radius-sm);background:var(--surface);font-family:'Outfit',sans-serif;font-size:13px;color:var(--text2);outline:none;cursor:pointer;width:100%;}
+.ftextarea{padding:10px 12px;border:1px solid var(--border2);border-radius:var(--radius-sm);background:var(--surface);font-family:'Outfit',sans-serif;font-size:13px;color:var(--text);outline:none;transition:border-color .15s;width:100%;resize:vertical;min-height:72px;}
+.ftextarea:focus{border-color:var(--accent-dk);background:var(--white);}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(8px);background:var(--text);color:var(--white);border-radius:10px;padding:10px 20px;font-size:13px;font-weight:500;box-shadow:var(--shadow-lg);z-index:999;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;white-space:nowrap;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+::-webkit-scrollbar{width:4px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="tl">
+    <div class="logo-pill">yaro</div>
+    <div class="tdiv"></div>
+    <div>
+      <div class="ttitle">Cajero · Punto de Venta</div>
+      <div class="tsub">Guarne · Sandra López</div>
+    </div>
+  </div>
+  <div class="tr">
+    <div class="pill pill-sede">📍 Guarne</div>
+    <!-- BOTÓN MARCACIÓN — siempre visible -->
+    <button class="marcacion-btn entrada" id="marcacion-btn" onclick="openMarcacion()">
+      <div class="mb-dot"></div>
+      <span id="marcacion-txt">Marcar entrada</span>
+    </button>
+    <div class="pill pill-time" id="clock">--:--</div>
+  </div>
+</div>
+
+<!-- BANNER ESTADO DE TURNO -->
+<div class="turno-banner" id="turno-banner">
+  <div class="turno-indicator">
+    <div class="turno-dot" id="turno-dot" style="background:var(--amber)"></div>
+    <span class="turno-label" id="turno-label" style="color:var(--amber)">Sin turno activo</span>
+  </div>
+  <span class="turno-meta" id="turno-meta">Debes abrir el turno y la caja antes de operar</span>
+  <div class="turno-actions">
+    <button class="btn b-primary" id="turno-action-btn" onclick="setNav('turno', document.querySelector('.ni'))">Abrir turno →</button>
+  </div>
+</div>
+
+<div class="shell">
+  <!-- SIDENAV -->
+  <nav class="sidenav">
+    <div class="snhead">
+      <div class="cajero-card">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div class="cajero-av">SL</div>
+          <div>
+            <div style="font-size:13px;font-weight:500">Sandra López</div>
+            <div style="font-size:10px;font-weight:300;color:var(--text3)">Cajera · Guarne</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="nsec">
+      <div class="nlbl">Turno</div>
+      <div class="ni active" id="nav-turno" onclick="setNav('turno',this)">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="10" cy="10" r="7.5"/><path d="M10 6v4l3 2" stroke-linecap="round"/></svg>
+        Apertura / Cierre
+      </div>
+    </div>
+    <div class="nsec">
+      <div class="nlbl">Operación</div>
+      <div class="ni disabled" id="nav-mesas" onclick="setNav('mesas',this)">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="5" width="14" height="10" rx="2"/><line x1="3" y1="10" x2="17" y2="10" stroke-linecap="round"/><line x1="10" y1="5" x2="10" y2="15" stroke-linecap="round"/><line x1="5" y1="3" x2="5" y2="5" stroke-linecap="round"/><line x1="15" y1="3" x2="15" y2="5" stroke-linecap="round"/><line x1="5" y1="15" x2="5" y2="17" stroke-linecap="round"/><line x1="15" y1="15" x2="15" y2="17" stroke-linecap="round"/></svg>
+        Plano de mesas
+        <span class="lock-icon" id="lock-mesas">🔒</span>
+      </div>
+      <div class="ni disabled" id="nav-cobro" onclick="setNav('cobro',this)">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="6" width="16" height="10" rx="1.5"/><line x1="2" y1="10" x2="18" y2="10" stroke-linecap="round"/><line x1="6" y1="13.5" x2="9" y2="13.5" stroke-linecap="round"/><line x1="11" y1="13.5" x2="14" y2="13.5" stroke-linecap="round"/></svg>
+        Cobro activo
+        <span class="lock-icon" id="lock-cobro">🔒</span>
+      </div>
+    </div>
+    <div class="nsec">
+      <div class="nlbl">Cierre</div>
+      <div class="ni disabled" id="nav-arqueo" onclick="setNav('arqueo',this)">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 15V8m4 7V4m4 11V7m4 9V5"/></svg>
+        Arqueo de caja
+        <span class="lock-icon" id="lock-arqueo">🔒</span>
+      </div>
+      <div class="ni disabled" id="nav-resumen" onclick="setNav('resumen',this)">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="2" width="14" height="16" rx="1.5"/><line x1="7" y1="7" x2="13" y2="7" stroke-linecap="round"/><line x1="7" y1="10" x2="13" y2="10" stroke-linecap="round"/><line x1="7" y1="13" x2="10" y2="13" stroke-linecap="round"/></svg>
+        Resumen del turno
+        <span class="lock-icon" id="lock-resumen">🔒</span>
+      </div>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <div class="main">
+    <div class="toolbar" id="tbar"></div>
+    <div class="content" id="cont"></div>
+  </div>
+</div>
+
+<!-- ═══ MODAL: MARCACIÓN ═══ -->
+<div class="mo" id="m-marcacion">
+  <div class="modal sm">
+    <div class="mh">
+      <div>
+        <div class="mh-t" id="marc-title">Registrar entrada</div>
+        <div class="mh-sub" id="marc-sub">Hoy · <span id="marc-hora"></span></div>
+      </div>
+      <button class="mcl" onclick="cm('m-marcacion')">✕</button>
+    </div>
+    <div class="mb">
+      <div id="marc-bw-section">
+        <div class="flbl" style="margin-bottom:12px" id="marc-bw-lbl">¿Cómo llegas hoy?</div>
+        <div class="bienestar-grid">
+          <div class="bw-btn" onclick="selBW(this,'😔')" title="Regular">😔</div>
+          <div class="bw-btn" onclick="selBW(this,'😐')" title="Bien">😐</div>
+          <div class="bw-btn" onclick="selBW(this,'😊')" title="Muy bien">😊</div>
+        </div>
+      </div>
+      <div class="fr">
+        <div class="flbl" id="marc-nov-lbl">¿Alguna novedad antes de iniciar?</div>
+        <textarea class="ftextarea" id="marc-novedad" placeholder="Opcional — ej: llegué tarde por paro de transporte, tengo una lesión leve..." rows="3"></textarea>
+      </div>
+    </div>
+    <div class="mf">
+      <button class="btn b-outline" onclick="cm('m-marcacion')">Cancelar</button>
+      <button class="btn b-green" id="marc-confirm-btn" onclick="confirmarMarcacion()">✓ Confirmar entrada</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ MODAL: APERTURA CAJA ═══ -->
+<div class="mo" id="m-apertura">
+  <div class="modal sm">
+    <div class="mh">
+      <div><div class="mh-t">Apertura de caja</div><div class="mh-sub">Declara el efectivo disponible al iniciar</div></div>
+      <button class="mcl" onclick="cm('m-apertura')">✕</button>
+    </div>
+    <div class="mb">
+      <div class="ibox">El monto inicial es el efectivo físico que hay en la caja antes de iniciar ventas. Este valor se usará para calcular el descuadre al cierre.</div>
+      <div class="fr">
+        <div class="flbl">Monto base en efectivo</div>
+        <input class="fi" type="number" id="base-caja" placeholder="Ej: 200000" style="font-size:18px;font-weight:700;height:48px;text-align:center">
+        <div style="font-size:11px;font-weight:300;color:var(--text3);margin-top:4px;text-align:center">Ingresa el valor en pesos colombianos</div>
+      </div>
+    </div>
+    <div class="mf">
+      <button class="btn b-outline" onclick="cm('m-apertura')">Cancelar</button>
+      <button class="btn b-primary" onclick="confirmarApertura()">Abrir caja →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ MODAL: COBRO ═══ -->
+<div class="mo" id="m-cobro">
+  <div class="modal lg">
+    <div class="mh">
+      <div>
+        <div class="mh-t" id="cobro-title">Cobro — Mesa 4</div>
+        <div class="mh-sub">Selecciona método de pago y completa el cobro</div>
+      </div>
+      <button class="mcl" onclick="cm('m-cobro')">✕</button>
+    </div>
+    <div class="mb">
+      <!-- RESUMEN ORDEN -->
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px 16px;">
+        <div style="font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px">Ítems de la orden</div>
+        <div id="cobro-items"></div>
+        <div style="border-top:1px solid var(--border2);margin-top:10px;padding-top:10px">
+          <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px"><span style="color:var(--text2)">Subtotal</span><span style="font-weight:600;font-variant-numeric:tabular-nums" id="cobro-sub">$0</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px"><span style="color:var(--text3)">Impoconsumo (8%)</span><span style="color:var(--text3);font-variant-numeric:tabular-nums" id="cobro-imp">$0</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:16px;font-weight:700;margin-top:6px"><span>Total</span><span id="cobro-total" style="font-variant-numeric:tabular-nums">$0</span></div>
+        </div>
+      </div>
+
+      <!-- DESCUENTO -->
+      <div class="fr2">
+        <div class="fr">
+          <div class="flbl">Descuento (%)</div>
+          <input class="fi" type="number" min="0" max="100" placeholder="0" id="desc-pct" oninput="calcCobro()">
+        </div>
+        <div class="fr">
+          <div class="flbl">Motivo del descuento <span style="color:var(--red)">*</span></div>
+          <input class="fi" placeholder="Obligatorio si hay descuento" id="desc-motivo">
+        </div>
+      </div>
+
+      <!-- PROPINA -->
+      <div class="fr">
+        <div class="flbl">Propina (opcional)</div>
+        <input class="fi" type="number" placeholder="0" id="propina-val" oninput="calcCobro()">
+        <div style="font-size:11px;font-weight:300;color:var(--text3);margin-top:3px">La propina va directamente al personal — no aparece en reportes financieros</div>
+      </div>
+
+      <!-- CLIENTE -->
+      <div class="fr">
+        <div class="flbl">Cliente (opcional)</div>
+        <div style="display:flex;gap:8px">
+          <input class="fi" placeholder="Buscar por nombre, NIT o cédula..." id="cliente-search" style="flex:1">
+          <button class="btn b-outline" onclick="showToast('Buscando cliente...')">Buscar</button>
+          <button class="btn b-accent" onclick="showToast('Abriendo formulario de cliente...')">+ Crear</button>
+        </div>
+        <div style="font-size:11px;font-weight:300;color:var(--text3);margin-top:3px">Sin cliente → se emite tiquete POS o factura a consumidor final 222...222</div>
+      </div>
+
+      <!-- MÉTODO DE PAGO -->
+      <div class="fr">
+        <div class="flbl">Método de pago</div>
+        <div class="method-grid">
+          <div class="method-btn" onclick="selMethod(this,'efectivo')">💵 Efectivo</div>
+          <div class="method-btn" onclick="selMethod(this,'tarjeta_cred')">💳 Tarjeta crédito</div>
+          <div class="method-btn" onclick="selMethod(this,'tarjeta_deb')">🏧 Tarjeta débito</div>
+          <div class="method-btn" onclick="selMethod(this,'nequi')">📱 Nequi / Daviplata</div>
+          <div class="method-btn" onclick="selMethod(this,'qr')">📲 QR / Transferencia</div>
+          <div class="method-btn" onclick="selMethod(this,'mixto')">🔀 Mixto</div>
+        </div>
+      </div>
+
+      <!-- EFECTIVO RECIBIDO -->
+      <div class="fr2" id="efectivo-section" style="display:none">
+        <div class="fr">
+          <div class="flbl">Efectivo recibido</div>
+          <input class="fi" type="number" id="efectivo-rec" placeholder="0" oninput="calcVuelto()" style="font-size:16px;font-weight:700">
+        </div>
+        <div class="fr">
+          <div class="flbl">Vuelto a entregar</div>
+          <input class="fi fi-ro" id="vuelto-val" readonly placeholder="0" style="font-size:16px;font-weight:700;color:var(--green);background:var(--green-bg)">
+        </div>
+      </div>
+
+      <!-- DOCUMENTO DE COBRO -->
+      <div class="fr">
+        <div class="flbl">Documento de cobro</div>
+        <div style="display:flex;gap:8px">
+          <button class="method-btn" id="doc-pos" onclick="selDoc(this,'pos')" style="flex:1">🧾 Tiquete POS</button>
+          <button class="method-btn" id="doc-fe" onclick="selDoc(this,'fe')" style="flex:1">📄 Factura electrónica</button>
+        </div>
+      </div>
+
+      <!-- TOTAL CON DESCUENTO -->
+      <div style="background:var(--text);border-radius:var(--radius-sm);padding:16px;text-align:center">
+        <div style="font-size:13px;font-weight:300;color:rgba(255,255,255,.6);margin-bottom:4px">Total a cobrar</div>
+        <div style="font-size:32px;font-weight:700;color:var(--white);font-variant-numeric:tabular-nums" id="total-final">$0</div>
+        <div style="font-size:11px;color:rgba(255,255,255,.5);margin-top:2px" id="desc-info"></div>
+      </div>
+    </div>
+    <div class="mf">
+      <button class="btn b-outline" onclick="cm('m-cobro')">Cancelar</button>
+      <button class="btn b-accent" onclick="imprimirPrecuenta()">🖨 Pre-cuenta</button>
+      <button class="btn b-green" onclick="procesarCobro()" style="flex:2">✓ Cobrar y cerrar mesa</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ MODAL: CIERRE TURNO ═══ -->
+<div class="mo" id="m-cierre">
+  <div class="modal sm">
+    <div class="mh">
+      <div><div class="mh-t" id="cierre-title">Marcar salida</div><div class="mh-sub">Registra tu salida del turno</div></div>
+      <button class="mcl" onclick="cm('m-cierre')">✕</button>
+    </div>
+    <div class="mb">
+      <div class="flbl" style="margin-bottom:12px">¿Cómo te vas hoy?</div>
+      <div class="bienestar-grid">
+        <div class="bw-btn" onclick="selBW(this,'😔')">😔</div>
+        <div class="bw-btn" onclick="selBW(this,'😐')">😐</div>
+        <div class="bw-btn" onclick="selBW(this,'😊')">😊</div>
+      </div>
+      <div class="fr">
+        <div class="flbl">Novedades del turno para el admin</div>
+        <textarea class="ftextarea" placeholder="Opcional — ej: la freidora hizo ruido extraño, cliente dejó objeto olvidado..." rows="3"></textarea>
+      </div>
+    </div>
+    <div class="mf">
+      <button class="btn b-outline" onclick="cm('m-cierre')">Cancelar</button>
+      <button class="btn b-amber" onclick="confirmarSalida()">Confirmar salida</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── CLOCK ──
+setInterval(()=>{ document.getElementById('clock').textContent=new Date().toLocaleTimeString('es-CO',{hour:'2-digit',minute:'2-digit'}); },1000);
+document.getElementById('clock').textContent=new Date().toLocaleTimeString('es-CO',{hour:'2-digit',minute:'2-digit'});
+
+function fp(n){ return '$'+Math.round(n).toLocaleString('es-CO'); }
+function cm(id){ document.getElementById(id).classList.toggle('open'); }
+function showToast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2800); }
+
+// ── ESTADO GLOBAL ──
+let turnoActivo = false;
+let cajaAbierta = false;
+let arqueoHecho = false;
+let marcado = false; // entrada marcada
+let bwSelected = null;
+let methodSelected = null;
+let docSelected = 'pos';
+let mesaSeleccionada = null;
+
+// ── MARCACIÓN ──
+function openMarcacion(){
+  const ahora = new Date().toLocaleTimeString('es-CO',{hour:'2-digit',minute:'2-digit'});
+  document.getElementById('marc-hora').textContent = ahora;
+  if(!marcado){
+    document.getElementById('marc-title').textContent = 'Registrar entrada';
+    document.getElementById('marc-bw-lbl').textContent = '¿Cómo llegas hoy?';
+    document.getElementById('marc-nov-lbl').textContent = '¿Alguna novedad antes de iniciar?';
+    document.getElementById('marc-confirm-btn').textContent = '✓ Confirmar entrada';
+    document.getElementById('marc-confirm-btn').className = 'btn b-green';
+  } else {
+    cm('m-marcacion'); cm('m-cierre'); return;
+  }
+  bwSelected = null;
+  document.querySelectorAll('.bw-btn').forEach(b=>b.classList.remove('sel'));
+  cm('m-marcacion');
+}
+
+function selBW(el, emoji){
+  document.querySelectorAll('.bw-btn').forEach(b=>b.classList.remove('sel'));
+  el.classList.add('sel');
+  bwSelected = emoji;
+}
+
+function confirmarMarcacion(){
+  marcado = true;
+  const btn = document.getElementById('marcacion-btn');
+  const txt = document.getElementById('marcacion-txt');
+  btn.className = 'marcacion-btn salida';
+  txt.textContent = 'Marcar salida';
+  cm('m-marcacion');
+  showToast('✓ Entrada registrada — ' + new Date().toLocaleTimeString('es-CO',{hour:'2-digit',minute:'2-digit'}));
+}
+
+function confirmarSalida(){
+  marcado = false;
+  const btn = document.getElementById('marcacion-btn');
+  const txt = document.getElementById('marcacion-txt');
+  btn.className = 'marcacion-btn marcado';
+  txt.textContent = 'Salida registrada';
+  cm('m-cierre');
+  showToast('✓ Salida registrada — hasta mañana!');
+}
+
+// ── NAV ──
+let currentNav = 'turno';
+function setNav(n, el){
+  const locked = ['mesas','cobro','arqueo','resumen'];
+  if(locked.includes(n) && !turnoActivo) return;
+  if(n==='arqueo' && !turnoActivo) return;
+  currentNav = n;
+  document.querySelectorAll('.ni').forEach(i=>i.classList.remove('active'));
+  if(el) el.classList.add('active');
+  document.getElementById('nav-'+n)?.classList.add('active');
+  render();
+}
+
+function unlockOps(){
+  ['mesas','cobro','arqueo','resumen'].forEach(id=>{
+    const ni=document.getElementById('nav-'+id);
+    const lk=document.getElementById('lock-'+id);
+    if(ni){ ni.classList.remove('disabled'); }
+    if(lk){ lk.style.display='none'; }
+  });
+}
+
+function lockOps(){
+  ['mesas','cobro','arqueo','resumen'].forEach(id=>{
+    const ni=document.getElementById('nav-'+id);
+    const lk=document.getElementById('lock-'+id);
+    if(ni){ ni.classList.add('disabled'); }
+    if(lk){ lk.style.display=''; }
+  });
+}
+
+// ── BANNER ──
+function updateBanner(){
+  const banner = document.getElementById('turno-banner');
+  const dot    = document.getElementById('turno-dot');
+  const label  = document.getElementById('turno-label');
+  const meta   = document.getElementById('turno-meta');
+  const btn    = document.getElementById('turno-action-btn');
+
+  if(!turnoActivo){
+    banner.className='turno-banner';
+    dot.style.background='var(--amber)'; label.style.color='var(--amber)';
+    label.textContent='Sin turno activo';
+    meta.textContent='Debes abrir el turno y la caja antes de operar';
+    btn.textContent='Abrir turno →'; btn.style.display='';
+    lockOps();
+  } else {
+    banner.className='turno-banner activo';
+    dot.style.background='var(--green)'; label.style.color='var(--green)';
+    label.textContent='Turno activo · Caja abierta';
+    meta.textContent='Iniciado a las 8:00 am · Base de caja: $200.000';
+    btn.style.display='none';
+    unlockOps();
+  }
+}
+
+// ── RENDER ──
+function render(){
+  const map={turno:renderTurno,mesas:renderMesas,cobro:renderCobro,arqueo:renderArqueo,resumen:renderResumen};
+  (map[currentNav]||renderTurno)();
+}
+
+// ═══ TURNO ═══
+function renderTurno(){
+  document.getElementById('tbar').innerHTML=`<div style="font-size:14px;font-weight:600">Control de turno y caja</div><div style="font-size:12px;font-weight:300;color:var(--text3);margin-left:8px">Flujo obligatorio — cada paso desbloquea el siguiente</div>`;
+
+  const pasos=[
+    {n:'Apertura de turno',desc:'Activa la operación del restaurante. Sin turno activo, ninguna acción puede ejecutarse.',done:turnoActivo,active:!turnoActivo,action:'abrirTurno()'},
+    {n:'Apertura de caja',desc:'Declara el efectivo inicial disponible en caja.',done:cajaAbierta,active:turnoActivo&&!cajaAbierta,action:"cm('m-apertura')"},
+    {n:'Operación del turno',desc:'Cobros, mesas, pedidos y pagos durante el turno activo.',done:false,active:turnoActivo&&cajaAbierta,action:''},
+    {n:'Arqueo de caja',desc:'Registra cuánto hay por cada método de pago. Debe completarse antes de cerrar.',done:arqueoHecho,active:turnoActivo&&cajaAbierta,action:"setNav('arqueo',document.getElementById('nav-arqueo'))"},
+    {n:'Cierre de caja',desc:'Confirma el arqueo y registra el comentario de cierre.',done:false,active:arqueoHecho,action:'cerrarCaja()'},
+    {n:'Cierre de turno',desc:'Finaliza la operación del restaurante. Los módulos operativos quedan bloqueados.',done:false,active:false,action:'cerrarTurno()'},
+  ];
+
+  const icons=['⏱','💰','🛎','📊','🔒','✅'];
+
+  document.getElementById('cont').innerHTML=`
+    <div class="ibox">El turno es del restaurante — aunque tú lo activas, afecta a todos los usuarios de esta sede. Sin turno activo, el KDS, las mesas y el cobro están bloqueados.</div>
+    <div style="max-width:560px;margin:0 auto">
+      ${pasos.map((p,i)=>`
+      <div class="flujo-step ${p.done?'done':p.active?'active':'locked'}">
+        <div class="fs-num" style="background:${p.done?'var(--green)':p.active?'var(--accent-dk)':'var(--bg2)'};color:${p.done||p.active?'var(--white)':'var(--text3)'}">
+          ${p.done?'✓':icons[i]}
+        </div>
+        <div class="fs-meta">
+          <div class="fs-title">${p.n}</div>
+          <div class="fs-desc">${p.desc}</div>
+        </div>
+        ${p.active&&p.action?`<button class="btn b-primary" style="font-size:12px;height:32px" onclick="${p.action}">${i===2?'Ir a mesas →':'Ejecutar →'}</button>`:
+          p.done?`<span class="sp sp-ok" style="flex-shrink:0">✓ Listo</span>`:''}
+      </div>`).join('')}
+    </div>`;
+}
+
+function abrirTurno(){
+  turnoActivo=true;
+  updateBanner();
+  showToast('Turno abierto · 8:00 am ✓');
+  cm('m-apertura');
+  render();
+}
+
+function confirmarApertura(){
+  const base=document.getElementById('base-caja').value;
+  if(!base){ showToast('Ingresa el monto base'); return; }
+  cajaAbierta=true;
+  cm('m-apertura');
+  showToast(`Caja abierta · Base: ${fp(parseInt(base))} ✓`);
+  updateBanner();
+  render();
+}
+
+function cerrarCaja(){
+  if(!arqueoHecho){ showToast('Primero debes hacer el arqueo de caja'); return; }
+  showToast('Caja cerrada ✓');
+}
+function cerrarTurno(){
+  turnoActivo=false; cajaAbierta=false; arqueoHecho=false;
+  updateBanner(); lockOps();
+  showToast('Turno cerrado · Gracias! ✓');
+  render();
+}
+
+// ═══ MESAS ═══
+const mesas=[
+  {id:1,num:'Mesa 1',cap:4,status:'ocupada',comensales:2,elapsed:3600,items:[{qty:2,name:'La Criminal',price:38000},{qty:1,name:'Papas cargadas',price:18000}],total:94000},
+  {id:2,num:'Mesa 2',cap:2,status:'libre',comensales:0,elapsed:0,items:[],total:0},
+  {id:3,num:'Mesa 3',cap:4,status:'libre',comensales:0,elapsed:0,items:[],total:0},
+  {id:4,num:'Mesa 4',cap:6,status:'ocupada',comensales:4,elapsed:1800,items:[{qty:4,name:'Combo BBQ',price:32000},{qty:2,name:'La Perla',price:36000}],total:200000},
+  {id:5,num:'Mesa 5',cap:2,status:'cuenta',comensales:2,elapsed:5400,items:[{qty:1,name:'La Criminal',price:38000},{qty:1,name:'Smash Classic',price:22000}],total:60000},
+  {id:6,num:'Mesa 6',cap:4,status:'libre',comensales:0,elapsed:0,items:[],total:0},
+  {id:7,num:'Mesa 7',cap:4,status:'ocupada',comensales:3,elapsed:900,items:[{qty:3,name:'Smash Classic',price:22000}],total:66000},
+  {id:8,num:'Mesa 8',cap:8,status:'reservada',comensales:0,elapsed:0,reserva:'7:30 pm · 6 pax',items:[],total:0},
+  {id:9,num:'Barra',cap:4,status:'libre',comensales:0,elapsed:0,items:[],total:0},
+  {id:10,num:'Dom. 1',cap:1,status:'domicilio',comensales:0,elapsed:600,items:[{qty:2,name:'Combo BBQ',price:32000}],total:64000},
+];
+
+const statusCfg={
+  libre:    {color:'var(--green)',  bg:'var(--green-bg)',  label:'Libre',    pill:'sp-ok'},
+  ocupada:  {color:'var(--red)',    bg:'var(--red-bg)',    label:'Ocupada',  pill:'sp-err'},
+  cuenta:   {color:'var(--amber)', bg:'var(--amber-bg)', label:'Cuenta',   pill:'sp-pend'},
+  reservada:{color:'var(--blue)',  bg:'var(--blue-bg)',  label:'Reservada',pill:'sp-blue'},
+  domicilio:{color:'var(--amber)', bg:'var(--amber-bg)', label:'Domicilio',pill:'sp-pend'},
+};
+
+function fmt(s){ return `${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`; }
+
+function renderMesas(){
+  document.getElementById('tbar').innerHTML=`
+    <div class="sbox"><span style="color:var(--text3)">🔍</span><input placeholder="Buscar mesa..."></div>
+    <select class="fsel"><option>Todos los estados</option><option>Libre</option><option>Ocupada</option><option>Cuenta pendiente</option></select>
+    <div style="margin-left:auto;display:flex;gap:8px">
+      <button class="btn b-accent" onclick="openCobro(null)">+ Nueva orden</button>
+    </div>`;
+
+  document.getElementById('cont').innerHTML=`
+    <div class="mesa-grid">
+      ${mesas.map((m,i)=>{
+        const sc=statusCfg[m.status]||statusCfg.libre;
+        const dots=Array.from({length:m.cap}).map((_,j)=>`<div class="mesa-dot" style="background:${j<m.comensales?sc.color:'var(--border2)'}"></div>`).join('');
+        const isSelected=mesaSeleccionada===m.id;
+        let extra='';
+        if(m.status==='ocupada'||m.status==='cuenta'||m.status==='domicilio'){
+          extra=`<div class="mesa-meta" style="margin-top:4px;font-size:11px;font-weight:600;font-variant-numeric:tabular-nums">${fp(m.total)}</div>`;
+        } else if(m.status==='reservada'){
+          extra=`<div class="mesa-meta">${m.reserva}</div>`;
+        }
+        return `
+        <div class="mesa-card ${isSelected?'selected':''}" style="--mc:${sc.color};animation-delay:${i*.03}s" onclick="selectMesa(${m.id})">
+          <div class="mesa-inner">
+            <div class="mesa-num">${m.num}</div>
+            <span class="mesa-status-pill ${sc.pill}" style="background:${sc.bg};color:${sc.color}">${sc.label}</span>
+            <div class="mesa-dots">${dots}</div>
+            ${extra}
+          </div>
+        </div>`;
+      }).join('')}
+    </div>
+
+    <!-- DETAIL PANEL si hay mesa seleccionada -->
+    <div id="mesa-detail"></div>`;
+}
+
+function selectMesa(id){
+  mesaSeleccionada = mesaSeleccionada===id ? null : id;
+  renderMesas();
+  if(!mesaSeleccionada) return;
+  const m=mesas.find(x=>x.id===id);
+  const sc=statusCfg[m.status]||statusCfg.libre;
+  const detail=document.getElementById('mesa-detail');
+  detail.innerHTML=`
+    <div class="card" style="animation:fu .3s cubic-bezier(.22,1,.36,1) both">
+      <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px">
+        <div>
+          <div style="font-size:18px;font-weight:700">${m.num}</div>
+          <div style="font-size:12px;font-weight:300;color:var(--text3)">${m.cap} sillas · ${m.comensales} comensales</div>
+        </div>
+        <span class="sp ${sc.pill}" style="background:${sc.bg};color:${sc.color}">${sc.label}</span>
+        <div style="margin-left:auto;display:flex;gap:8px">
+          ${m.status==='libre'||m.status==='reservada'?`<button class="btn b-primary" onclick="openCobro(${id})">+ Abrir orden</button>`:''}
+          ${m.status==='ocupada'||m.status==='domicilio'?`<button class="btn b-accent" onclick="openCobro(${id})">+ Agregar ítems</button><button class="btn b-primary" onclick="openCobro(${id})">💳 Cobrar</button>`:''}
+          ${m.status==='cuenta'?`<button class="btn b-green" onclick="openCobro(${id})">💳 Cobrar ahora</button>`:''}
+        </div>
+      </div>
+      ${m.items.length>0?`
+      <div style="font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">Ítems actuales</div>
+      ${m.items.map(it=>`<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px"><span style="font-weight:500">${it.qty}× ${it.name}</span><span style="font-weight:600;font-variant-numeric:tabular-nums">${fp(it.price*it.qty)}</span></div>`).join('')}
+      <div style="display:flex;justify-content:space-between;padding:12px 0 0;font-size:15px;font-weight:700"><span>Total</span><span style="font-variant-numeric:tabular-nums">${fp(m.total)}</span></div>`:'<div style="font-size:13px;font-weight:300;color:var(--text3)">Mesa sin ítems aún</div>'}
+    </div>`;
+}
+
+function openCobro(mesaId){
+  const m=mesaId?mesas.find(x=>x.id===mesaId):null;
+  document.getElementById('cobro-title').textContent=m?`Cobro — ${m.num}`:'Nueva orden';
+  const items=m&&m.items.length>0?m.items:[{qty:2,name:'La Criminal',price:38000},{qty:1,name:'Papas cargadas',price:18000}];
+  let sub=items.reduce((a,i)=>a+(i.price*i.qty),0);
+  document.getElementById('cobro-items').innerHTML=items.map(it=>`
+    <div style="display:flex;justify-content:space-between;font-size:12px;padding:5px 0;border-bottom:1px solid var(--border)">
+      <span style="font-weight:500">${it.qty}× ${it.name}</span>
+      <span style="font-variant-numeric:tabular-nums">${fp(it.price*it.qty)}</span>
+    </div>`).join('');
+  document.getElementById('cobro-sub').textContent=fp(sub);
+  document.getElementById('cobro-imp').textContent=fp(sub*0.08);
+  document.getElementById('cobro-total').textContent=fp(sub*1.08);
+  document.getElementById('total-final').textContent=fp(sub*1.08);
+  document.getElementById('desc-info').textContent='';
+  document.getElementById('desc-pct').value='';
+  document.getElementById('propina-val').value='';
+  document.getElementById('efectivo-section').style.display='none';
+  methodSelected=null; docSelected='pos';
+  document.querySelectorAll('.method-btn').forEach(b=>b.classList.remove('sel'));
+  document.getElementById('doc-pos').classList.add('sel');
+  cm('m-cobro');
+}
+
+function renderCobro(){
+  document.getElementById('tbar').innerHTML=`<div style="font-size:13px;font-weight:300;color:var(--text3)">Selecciona una mesa para cobrar</div>`;
+  document.getElementById('cont').innerHTML=`<div class="ibox">Selecciona una mesa desde el Plano de mesas para iniciar el proceso de cobro.</div>`;
+  renderMesas();
+}
+
+// ── CALC COBRO ──
+function calcCobro(){
+  const base=190000; // ejemplo
+  const dsc=parseFloat(document.getElementById('desc-pct').value)||0;
+  const prop=parseFloat(document.getElementById('propina-val').value)||0;
+  const total=base*(1-dsc/100);
+  document.getElementById('total-final').textContent=fp(total+prop);
+  document.getElementById('desc-info').textContent=dsc?`${dsc}% descuento aplicado · Propina: ${fp(prop)}`:prop?`Propina: ${fp(prop)}`:'';
+  if(methodSelected==='efectivo') calcVuelto();
+}
+
+function calcVuelto(){
+  const total=parseFloat(document.getElementById('total-final').textContent.replace(/\D/g,''))||0;
+  const rec=parseFloat(document.getElementById('efectivo-rec').value)||0;
+  const vuelto=Math.max(0,rec-total);
+  document.getElementById('vuelto-val').value=fp(vuelto);
+}
+
+function selMethod(el,method){
+  methodSelected=method;
+  document.querySelectorAll('.method-btn').forEach(b=>b.classList.remove('sel'));
+  el.classList.add('sel');
+  document.getElementById('efectivo-section').style.display=method==='efectivo'||method==='mixto'?'grid':'none';
+}
+
+function selDoc(el,doc){
+  docSelected=doc;
+  document.querySelectorAll('[id^="doc-"]').forEach(b=>b.classList.remove('sel'));
+  el.classList.add('sel');
+}
+
+function imprimirPrecuenta(){ showToast('Pre-cuenta enviada a impresora ✓'); }
+function procesarCobro(){
+  if(!methodSelected){ showToast('Selecciona un método de pago'); return; }
+  const dsc=parseFloat(document.getElementById('desc-pct').value)||0;
+  const mot=document.getElementById('desc-motivo').value.trim();
+  if(dsc>0&&!mot){ showToast('El descuento requiere un motivo'); return; }
+  cm('m-cobro');
+  showToast(`Cobro registrado · ${docSelected==='fe'?'FE emitida y transmitida a la DIAN':'Tiquete POS generado'} ✓`);
+  mesaSeleccionada=null;
+}
+
+// ═══ ARQUEO ═══
+const ventasPorMetodo=[
+  {id:'efectivo',nombre:'Efectivo',icon:'💵',sistema:320000},
+  {id:'tarjeta_cred',nombre:'Tarjeta crédito',icon:'💳',sistema:580000},
+  {id:'tarjeta_deb',nombre:'Tarjeta débito',icon:'🏧',sistema:210000},
+  {id:'nequi',nombre:'Nequi / Daviplata',icon:'📱',sistema:90000},
+  {id:'qr',nombre:'QR / Transferencia',icon:'📲',sistema:140000},
+];
+const totalSistema=ventasPorMetodo.reduce((a,m)=>a+m.sistema,0);
+
+function renderArqueo(){
+  document.getElementById('tbar').innerHTML=`<div style="font-size:14px;font-weight:600">Arqueo de caja</div><div style="font-size:12px;font-weight:300;color:var(--text3);margin-left:8px">Ingresa lo que tienes por cada método de pago</div>`;
+
+  document.getElementById('cont').innerHTML=`
+    <div style="max-width:620px;margin:0 auto">
+      <div class="ibox">El sistema registra ${fp(totalSistema)} en ventas durante este turno. Ingresa cuánto tienes por cada método. El total que reportes se comparará con el total del sistema — no importa si hay diferencias por método, solo importa el total.</div>
+
+      <div style="margin-bottom:18px">
+        ${ventasPorMetodo.map(m=>`
+        <div class="arqueo-method">
+          <div class="am-icon">${m.icon}</div>
+          <div style="flex:1">
+            <div class="am-name">${m.nombre}</div>
+            <div class="am-sistema">Sistema registra: ${fp(m.sistema)}</div>
+          </div>
+          <input class="am-input" type="number" placeholder="0" id="am-${m.id}" oninput="calcArqueo()">
+          <div class="am-diff" id="diff-${m.id}">—</div>
+        </div>`).join('')}
+      </div>
+
+      <!-- TOTALES -->
+      <div class="card">
+        <div class="clbl">Comparativo final <span class="ctag">Sistema vs Cajero</span></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:16px">
+          <div style="text-align:center;padding:14px;background:var(--bg2);border-radius:var(--radius-sm)">
+            <div style="font-size:20px;font-weight:700;font-variant-numeric:tabular-nums">${fp(totalSistema)}</div>
+            <div style="font-size:10px;color:var(--text3);margin-top:3px;text-transform:uppercase;letter-spacing:.06em">Total sistema</div>
+          </div>
+          <div style="text-align:center;padding:14px;background:var(--bg2);border-radius:var(--radius-sm)">
+            <div style="font-size:20px;font-weight:700;font-variant-numeric:tabular-nums" id="total-cajero">$0</div>
+            <div style="font-size:10px;color:var(--text3);margin-top:3px;text-transform:uppercase;letter-spacing:.06em">Total cajero</div>
+          </div>
+          <div style="text-align:center;padding:14px;border-radius:var(--radius-sm);background:var(--bg2)" id="diff-box">
+            <div style="font-size:20px;font-weight:700;font-variant-numeric:tabular-nums" id="diff-total">—</div>
+            <div style="font-size:10px;color:var(--text3);margin-top:3px;text-transform:uppercase;letter-spacing:.06em">Descuadre</div>
+          </div>
+        </div>
+
+        <div class="fr" style="margin-bottom:14px">
+          <div class="flbl" id="comentario-lbl">Comentario de cierre <span id="comentario-req" style="color:var(--text3)">(opcional si cuadra)</span></div>
+          <textarea class="ftextarea" id="arqueo-comentario" placeholder="Ej: Todo cuadra. / Faltaron $5.000 en efectivo, posible error en cambio de mesa 5." rows="3"></textarea>
+        </div>
+
+        <button class="btn b-primary" style="width:100%;height:44px;font-size:14px" onclick="confirmarArqueo()">✓ Confirmar arqueo y cerrar caja</button>
+      </div>
+    </div>`;
+}
+
+function calcArqueo(){
+  let totalCajero=0;
+  ventasPorMetodo.forEach(m=>{
+    const val=parseFloat(document.getElementById('am-'+m.id).value)||0;
+    totalCajero+=val;
+    const diff=val-m.sistema;
+    const el=document.getElementById('diff-'+m.id);
+    el.textContent=val?`${diff>=0?'+':''}${fp(diff)}`:'—';
+    el.style.color=val?(diff===0?'var(--green)':diff>0?'var(--amber)':'var(--red)'):'var(--text3)';
+  });
+  const diff=totalCajero-totalSistema;
+  document.getElementById('total-cajero').textContent=fp(totalCajero);
+  const dt=document.getElementById('diff-total');
+  const db=document.getElementById('diff-box');
+  if(totalCajero===0){ dt.textContent='—'; db.style.background='var(--bg2)'; }
+  else if(diff===0){ dt.textContent='✓ Cuadrado'; dt.style.color='var(--green)'; db.style.background='var(--green-bg)'; }
+  else { dt.textContent=`${diff>0?'+':''}${fp(diff)}`; dt.style.color='var(--red)'; db.style.background='var(--red-bg)';
+    document.getElementById('comentario-lbl').innerHTML='Comentario de cierre <span style="color:var(--red)">* Obligatorio — hay descuadre</span>'; }
+}
+
+function confirmarArqueo(){
+  arqueoHecho=true;
+  showToast('Arqueo registrado ✓ — datos guardados para el administrador');
+  render();
+}
+
+// ═══ RESUMEN ═══
+function renderResumen(){
+  document.getElementById('tbar').innerHTML=`<div style="font-size:14px;font-weight:600">Resumen del turno</div><div style="font-size:12px;font-weight:300;color:var(--text3);margin-left:8px">Ventas de este turno — no incluye datos financieros</div>`;
+
+  const ventas=[
+    {n:'La Criminal',qty:32,unit:38000},
+    {n:'Smash Classic',qty:24,unit:22000},
+    {n:'Combo BBQ',qty:18,unit:32000},
+    {n:'La Perla',qty:9,unit:36000},
+    {n:'Papas cargadas',qty:28,unit:18000},
+    {n:'Onion rings',qty:14,unit:14000},
+  ];
+  const total=ventas.reduce((a,v)=>a+v.qty*v.unit,0);
+  const totalUnd=ventas.reduce((a,v)=>a+v.qty,0);
+  const maxQty=Math.max(...ventas.map(v=>v.qty));
+
+  document.getElementById('cont').innerHTML=`
+    <div class="krow">
+      <div class="kpi" style="--kb:var(--accent-dk)"><div class="klbl">Órdenes cerradas</div><div class="kval">47</div><div class="kfoot">este turno</div></div>
+      <div class="kpi" style="--kb:var(--green)"><div class="klbl">Unidades vendidas</div><div class="kval" style="color:var(--green)">${totalUnd}</div><div class="kfoot">total de ítems</div></div>
+      <div class="kpi" style="--kb:var(--blue)"><div class="klbl">Métodos de pago</div><div class="kval">5</div><div class="kfoot">tarjeta, efectivo, Nequi...</div></div>
+      <div class="kpi" style="--kb:var(--text)"><div class="klbl">Total del turno</div><div class="kval" style="font-size:16px">${fp(total)}</div><div class="kfoot">sin food cost ni márgenes</div></div>
+    </div>
+
+    <div class="g2">
+      <div class="card" style="animation-delay:.05s">
+        <div class="clbl">Productos vendidos <span class="ctag">este turno</span></div>
+        ${ventas.map(v=>`
+        <div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border);font-size:13px">
+          <div style="flex:1">
+            <div style="font-weight:500;margin-bottom:4px">${v.n}</div>
+            <div style="height:4px;background:var(--bg2);border-radius:2px;overflow:hidden"><div style="height:100%;width:${Math.round((v.qty/maxQty)*100)}%;background:var(--accent-dk);border-radius:2px"></div></div>
+          </div>
+          <div style="text-align:right;flex-shrink:0">
+            <div style="font-weight:700;font-variant-numeric:tabular-nums">${v.qty} und</div>
+            <div style="font-size:11px;color:var(--text3);font-variant-numeric:tabular-nums">${fp(v.qty*v.unit)}</div>
+          </div>
+        </div>`).join('')}
+      </div>
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <div class="card" style="animation-delay:.1s">
+          <div class="clbl">Ventas por método de pago</div>
+          ${ventasPorMetodo.map(m=>`
+          <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);font-size:12px">
+            <span>${m.icon}</span>
+            <span style="flex:1;font-weight:500">${m.nombre}</span>
+            <span style="font-weight:700;font-variant-numeric:tabular-nums">${fp(m.sistema)}</span>
+          </div>`).join('')}
+          <div style="display:flex;justify-content:space-between;padding:12px 0 0;font-size:14px;font-weight:700"><span>Total turno</span><span style="font-variant-numeric:tabular-nums">${fp(totalSistema)}</span></div>
+        </div>
+        <div class="card" style="animation-delay:.15s">
+          <div class="clbl">Propinas del turno <span class="ctag">no financiero</span></div>
+          <div style="font-size:22px;font-weight:700;color:var(--green);font-variant-numeric:tabular-nums;margin-bottom:4px">$48.000</div>
+          <div style="font-size:12px;font-weight:300;color:var(--text3)">Distribuidas entre el equipo — excluidas de todos los reportes financieros</div>
+        </div>
+      </div>
+    </div>`;
+}
+
+// ── INIT ──
+updateBanner();
+render();
+</script>
+</body>
+</html>

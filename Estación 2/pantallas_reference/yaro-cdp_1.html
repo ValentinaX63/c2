@@ -1,0 +1,942 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>YARO — Centro de Producción</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#f0ede8; --bg2:#ece9e3; --surface:#faf9f7; --white:#ffffff;
+  --border:rgba(0,0,0,0.07); --border2:rgba(0,0,0,0.11);
+  --text:#1a1916; --text2:#6b6760; --text3:#a8a49e;
+  --accent:#f7fd9c; --accent-dk:#d4e200; --accent-txt:#6b7200;
+  --green:#3d9970; --green-bg:rgba(61,153,112,0.09);
+  --red:#c0392b; --red-bg:rgba(192,57,43,0.07);
+  --amber:#b7860b; --amber-bg:rgba(183,134,11,0.09);
+  --blue:#2471a3; --blue-bg:rgba(36,113,163,0.07);
+  --purple:#534AB7; --purple-bg:rgba(83,74,183,0.09);
+  --shadow-sm:0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
+  --shadow-md:0 4px 16px rgba(0,0,0,.08),0 1px 4px rgba(0,0,0,.04);
+  --shadow-lg:0 8px 32px rgba(0,0,0,.10),0 2px 8px rgba(0,0,0,.05);
+  --radius:14px; --radius-sm:9px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");}
+
+/* TOPBAR */
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 32px;height:64px;background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:200;box-shadow:var(--shadow-sm);}
+.tl{display:flex;align-items:center;gap:16px;}
+.logo-pill{background:var(--text);border-radius:11px;padding:6px 14px;font-size:18px;font-weight:300;color:var(--white);letter-spacing:.4px;}
+.tdiv{width:1px;height:20px;background:var(--border2);}
+.ttitle{font-size:17px;font-weight:600;letter-spacing:-.2px;}
+.tsub{font-size:12px;font-weight:300;color:var(--text3);margin-top:1px;}
+.tr{display:flex;align-items:center;gap:10px;}
+.pill{padding:6px 13px;border-radius:20px;font-size:11px;font-weight:500;box-shadow:var(--shadow-sm);}
+.pill-time{background:var(--white);border:1px solid var(--border2);color:var(--text2);font-size:12px;font-variant-numeric:tabular-nums;}
+.pill-cdp{background:var(--red-bg);border:1px solid rgba(192,57,43,0.2);color:var(--red);}
+.pill-user{background:var(--white);border:1px solid var(--border2);color:var(--text);font-weight:500;}
+
+/* SHELL */
+.shell{display:flex;height:calc(100vh - 64px);overflow:hidden;}
+
+/* SIDENAV */
+.sidenav{width:218px;flex-shrink:0;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow-y:auto;}
+.snhead{padding:18px 16px;border-bottom:1px solid var(--border);}
+.cdp-badge{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 12px;margin-bottom:8px;}
+.cdp-lbl{font-size:9px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;margin-bottom:2px;}
+.cdp-name{font-size:13px;font-weight:600;}
+.cdp-sub{font-size:11px;font-weight:300;color:var(--text3);}
+.prog-pill{display:flex;align-items:center;gap:6px;padding:8px 10px;background:var(--accent);border:1px solid rgba(212,226,0,0.3);border-radius:var(--radius-sm);}
+.prog-dot{width:6px;height:6px;border-radius:50%;background:var(--accent-txt);animation:pulse 2s ease-in-out infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+.prog-txt{font-size:11px;font-weight:600;color:var(--accent-txt);}
+.nsec{padding:14px 12px 4px;}
+.nlbl{font-size:9px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.12em;padding:0 10px;margin-bottom:5px;}
+.ni{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:var(--radius-sm);font-size:13px;font-weight:400;color:var(--text2);cursor:pointer;transition:all .15s;margin-bottom:1px;}
+.ni:hover{background:var(--bg2);color:var(--text);}
+.ni.active{background:var(--accent);color:var(--accent-txt);font-weight:600;box-shadow:var(--shadow-sm);}
+.ni svg{width:16px;height:16px;flex-shrink:0;opacity:.65;}
+.ni.active svg{opacity:1;}
+.nbadge{margin-left:auto;color:#fff;font-size:10px;font-weight:600;border-radius:10px;padding:1px 6px;}
+
+/* MAIN */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+.subtabs{display:flex;align-items:center;background:var(--white);border-bottom:1px solid var(--border);padding:0 28px;height:48px;flex-shrink:0;box-shadow:var(--shadow-sm);overflow-x:auto;}
+.st{padding:0 16px;height:100%;display:flex;align-items:center;font-size:13px;font-weight:500;color:var(--text3);cursor:pointer;border-bottom:2px solid transparent;transition:all .15s;white-space:nowrap;gap:6px;}
+.st:hover{color:var(--text2);}
+.st.active{color:var(--text);border-bottom-color:var(--accent-dk);font-weight:600;}
+.toolbar{display:flex;align-items:center;gap:10px;padding:13px 28px;background:var(--surface);border-bottom:1px solid var(--border);flex-shrink:0;flex-wrap:wrap;}
+.sbox{display:flex;align-items:center;gap:8px;background:var(--white);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:0 12px;height:36px;flex:1;max-width:280px;box-shadow:var(--shadow-sm);}
+.sbox input{border:none;outline:none;background:transparent;font-family:'Outfit',sans-serif;font-size:13px;color:var(--text);width:100%;}
+.sbox input::placeholder{color:var(--text3);}
+.fsel{height:36px;padding:0 10px;border:1px solid var(--border2);border-radius:var(--radius-sm);background:var(--white);font-family:'Outfit',sans-serif;font-size:12px;color:var(--text2);outline:none;cursor:pointer;box-shadow:var(--shadow-sm);}
+.btn{height:36px;padding:0 16px;border-radius:var(--radius-sm);font-size:13px;font-weight:600;cursor:pointer;border:none;font-family:'Outfit',sans-serif;transition:all .15s;white-space:nowrap;}
+.b-primary{background:var(--text);color:var(--white);}
+.b-primary:hover{background:#2d2c28;box-shadow:var(--shadow-md);}
+.b-outline{background:var(--white);color:var(--text2);border:1px solid var(--border2);font-weight:400;}
+.b-outline:hover{background:var(--bg2);}
+.b-accent{background:rgba(212,226,0,0.12);color:var(--accent-txt);border:1px solid rgba(212,226,0,0.28);}
+.b-accent:hover{background:rgba(212,226,0,0.2);}
+.b-green{background:var(--green-bg);color:var(--green);border:1px solid rgba(61,153,112,0.2);}
+.b-green:hover{background:rgba(61,153,112,0.14);}
+.b-red{background:var(--red-bg);color:var(--red);border:1px solid rgba(192,57,43,0.2);}
+.b-red:hover{background:rgba(192,57,43,0.12);}
+.b-sm{height:28px;padding:0 10px;font-size:11px;}
+.content{flex:1;overflow-y:auto;padding:22px 28px;}
+
+/* CARDS */
+.card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-md);padding:20px 22px;animation:fu .4s cubic-bezier(.22,1,.36,1) both;transition:box-shadow .2s,transform .2s;}
+.card:hover{box-shadow:var(--shadow-lg);transform:translateY(-1px);}
+@keyframes fu{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.clbl{font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.09em;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;}
+.ctag{font-size:10px;font-weight:400;padding:2px 8px;border-radius:6px;background:var(--bg2);color:var(--text3);border:1px solid var(--border);text-transform:none;letter-spacing:0;}
+
+/* KPI */
+.krow{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px;}
+.kpi{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-md);padding:16px 18px 14px;position:relative;overflow:hidden;animation:fu .4s cubic-bezier(.22,1,.36,1) both;transition:box-shadow .2s,transform .2s;}
+.kpi:hover{box-shadow:var(--shadow-lg);transform:translateY(-1px);}
+.kpi::after{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--kb,var(--border2));border-radius:var(--radius) var(--radius) 0 0;}
+.klbl{font-size:10px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;}
+.kval{font-size:20px;font-weight:700;letter-spacing:-.5px;margin-bottom:6px;}
+.kfoot{font-size:11px;font-weight:300;color:var(--text3);display:flex;align-items:center;gap:6px;}
+.d{font-size:10px;font-weight:600;padding:2px 6px;border-radius:5px;}
+.dup{background:var(--green-bg);color:var(--green);}
+.ddn{background:var(--red-bg);color:var(--red);}
+.dwn{background:var(--amber-bg);color:var(--amber);}
+
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px;}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:18px;}
+
+/* TABLE */
+.twrap{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-md);overflow:hidden;margin-bottom:18px;animation:fu .4s cubic-bezier(.22,1,.36,1) both;}
+.dt{width:100%;border-collapse:collapse;}
+.dt thead th{text-align:left;padding:11px 14px;font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;border-bottom:1px solid var(--border);background:var(--surface);white-space:nowrap;}
+.dt tbody tr{border-bottom:1px solid var(--border);transition:background .12s;cursor:pointer;}
+.dt tbody tr:last-child{border-bottom:none;}
+.dt tbody tr:hover{background:rgba(0,0,0,.018);}
+.dt tbody td{padding:12px 14px;font-size:13px;vertical-align:middle;}
+.sp{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:6px;font-size:10px;font-weight:600;}
+.sp-ok{background:var(--green-bg);color:var(--green);}
+.sp-pend{background:var(--amber-bg);color:var(--amber);}
+.sp-err{background:var(--red-bg);color:var(--red);}
+.sp-blue{background:var(--blue-bg);color:var(--blue);}
+.sp-gray{background:var(--bg2);color:var(--text3);}
+.ra-wrap{display:flex;gap:5px;align-items:center;}
+.ra{width:26px;height:26px;border-radius:6px;background:var(--bg2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:12px;cursor:pointer;transition:all .15s;color:var(--text2);}
+.ra:hover{background:var(--border2);color:var(--text);}
+
+/* PRODUCCION CARD */
+.prod-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-md);overflow:hidden;margin-bottom:12px;animation:fu .4s cubic-bezier(.22,1,.36,1) both;}
+.prod-head{display:flex;align-items:center;gap:14px;padding:16px 20px;border-bottom:1px solid var(--border);}
+.prod-icon{width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+.prod-meta{flex:1;}
+.prod-name{font-size:15px;font-weight:600;margin-bottom:2px;}
+.prod-sub{font-size:12px;font-weight:300;color:var(--text3);}
+.prod-rinde{text-align:right;}
+.prod-rinde-val{font-size:16px;font-weight:700;font-variant-numeric:tabular-nums;}
+.prod-rinde-lbl{font-size:10px;font-weight:300;color:var(--text3);margin-top:1px;}
+.prod-body{padding:16px 20px;}
+.ing-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);font-size:12px;}
+.ing-row:last-child{border-bottom:none;}
+.ing-name{flex:1;font-weight:500;}
+.ing-cant{font-variant-numeric:tabular-nums;font-weight:600;min-width:60px;text-align:right;}
+.ing-stock{font-size:11px;padding:2px 7px;border-radius:5px;flex-shrink:0;}
+.ing-ok{background:var(--green-bg);color:var(--green);}
+.ing-low{background:var(--amber-bg);color:var(--amber);}
+.ing-err{background:var(--red-bg);color:var(--red);}
+.prod-footer{padding:12px 20px;border-top:1px solid var(--border);display:flex;gap:8px;align-items:center;}
+.prog-bar-wrap{flex:1;display:flex;align-items:center;gap:10px;}
+.prog-track{flex:1;height:6px;background:var(--bg2);border-radius:3px;overflow:hidden;}
+.prog-fill{height:100%;border-radius:3px;transition:width .8s cubic-bezier(.22,1,.36,1);}
+.prog-pct{font-size:11px;font-weight:600;font-variant-numeric:tabular-nums;min-width:32px;text-align:right;}
+
+/* RECEPCION */
+.recep-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-md);padding:18px 20px;margin-bottom:10px;animation:fu .4s cubic-bezier(.22,1,.36,1) both;position:relative;overflow:hidden;}
+.recep-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--rc,var(--border2));}
+.recep-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.recep-nombre{font-size:14px;font-weight:600;}
+.recep-proveedor{font-size:11px;font-weight:300;color:var(--text3);margin-top:2px;}
+.calidad-btns{display:flex;gap:6px;}
+.cal-btn{padding:5px 12px;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;border:none;font-family:'Outfit',sans-serif;transition:all .15s;}
+.cal-btn.bueno{background:var(--green-bg);color:var(--green);border:1px solid rgba(61,153,112,0.2);}
+.cal-btn.bueno.sel{background:var(--green);color:#fff;}
+.cal-btn.regular{background:var(--amber-bg);color:var(--amber);border:1px solid rgba(183,134,11,0.2);}
+.cal-btn.regular.sel{background:var(--amber);color:#fff;}
+.cal-btn.rechazado{background:var(--red-bg);color:var(--red);border:1px solid rgba(192,57,43,0.2);}
+.cal-btn.rechazado.sel{background:var(--red);color:#fff;}
+.recep-fields{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:10px;}
+.rf-lbl{font-size:10px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;}
+.rf-val{font-size:13px;font-weight:600;font-variant-numeric:tabular-nums;}
+.rf-input{height:34px;padding:0 10px;border:1px solid var(--border2);border-radius:var(--radius-sm);background:var(--surface);font-family:'Outfit',sans-serif;font-size:13px;color:var(--text);outline:none;transition:border-color .15s;width:100%;}
+.rf-input:focus{border-color:var(--accent-dk);background:var(--white);}
+
+/* TRASLADO */
+.traslado-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-md);padding:20px 22px;animation:fu .4s cubic-bezier(.22,1,.36,1) both;}
+.sede-arrow{display:flex;align-items:center;gap:12px;padding:14px 0;border-bottom:1px solid var(--border);}
+.sede-box{flex:1;text-align:center;padding:12px;background:var(--bg2);border-radius:var(--radius-sm);border:1px solid var(--border);}
+.sede-box-name{font-size:14px;font-weight:600;}
+.sede-box-sub{font-size:11px;font-weight:300;color:var(--text3);margin-top:2px;}
+.arrow-mid{font-size:22px;color:var(--text3);flex-shrink:0;}
+.traslado-item{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);font-size:13px;}
+.traslado-item:last-child{border-bottom:none;}
+.ti-name{flex:1;font-weight:500;}
+.ti-lote{font-size:10px;font-weight:600;padding:2px 8px;border-radius:6px;background:var(--purple-bg);color:var(--purple);}
+.ti-cant{font-weight:700;font-variant-numeric:tabular-nums;min-width:70px;text-align:right;}
+.ti-vence{font-size:11px;color:var(--text3);min-width:80px;text-align:right;}
+
+/* ETIQUETA TICKET */
+.etiqueta{background:var(--white);border:2px solid var(--text);border-radius:var(--radius);padding:18px 20px;max-width:320px;font-family:'Outfit',sans-serif;}
+.et-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid var(--border2);}
+.et-logo{font-size:16px;font-weight:300;background:var(--text);color:var(--white);border-radius:7px;padding:4px 10px;}
+.et-tipo{font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;}
+.et-row{display:flex;justify-content:space-between;align-items:baseline;padding:5px 0;font-size:13px;}
+.et-lbl{color:var(--text3);font-weight:300;}
+.et-val{font-weight:600;}
+.et-lote{font-size:18px;font-weight:700;text-align:center;margin:10px 0;letter-spacing:2px;color:var(--text);}
+.et-vence{text-align:center;font-size:11px;color:var(--text3);margin-bottom:10px;}
+.et-vence strong{color:var(--red);font-weight:600;}
+.et-barcode{height:40px;background:repeating-linear-gradient(90deg,var(--text) 0px,var(--text) 2px,transparent 2px,transparent 4px);border-radius:3px;margin-top:10px;opacity:.6;}
+
+/* CONFIRMACION RENDIMIENTO */
+.rend-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-md);padding:20px 22px;margin-bottom:12px;animation:fu .4s cubic-bezier(.22,1,.36,1) both;}
+.rend-header{display:flex;align-items:center;gap:14px;margin-bottom:16px;}
+.rend-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;}
+.rend-meta{flex:1;}
+.rend-name{font-size:15px;font-weight:600;}
+.rend-sub{font-size:12px;font-weight:300;color:var(--text3);}
+.rend-compare{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:14px;}
+.rc-box{text-align:center;padding:12px 10px;border-radius:var(--radius-sm);border:1px solid var(--border);}
+.rc-val{font-size:20px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:-.5px;}
+.rc-lbl{font-size:10px;font-weight:400;color:var(--text3);margin-top:3px;text-transform:uppercase;letter-spacing:.06em;}
+.rend-input-wrap{display:flex;align-items:center;gap:12px;background:var(--bg2);border-radius:var(--radius-sm);padding:14px 16px;border:1px solid var(--border);}
+.ri-label{font-size:12px;font-weight:500;color:var(--text2);flex:1;}
+.ri-input{width:100px;height:38px;border:1px solid var(--border2);border-radius:var(--radius-sm);background:var(--white);font-family:'Outfit',sans-serif;font-size:15px;font-weight:700;text-align:center;outline:none;transition:border-color .15s;}
+.ri-input:focus{border-color:var(--accent-dk);}
+.ri-unit{font-size:13px;color:var(--text3);font-weight:400;}
+
+/* MODAL */
+.mo{position:fixed;inset:0;z-index:400;background:rgba(240,237,232,0.78);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s;}
+.mo.open{opacity:1;pointer-events:all;}
+.modal{background:var(--white);border-radius:var(--radius);border:1px solid var(--border2);box-shadow:var(--shadow-lg);width:100%;max-width:500px;transform:translateY(16px);transition:transform .25s;overflow:hidden;max-height:90vh;display:flex;flex-direction:column;}
+.mo.open .modal{transform:translateY(0);}
+.mh{padding:20px 24px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.mh-t{font-size:16px;font-weight:600;}
+.mcl{width:28px;height:28px;border-radius:7px;background:var(--bg2);border:none;cursor:pointer;font-size:15px;color:var(--text3);font-family:'Outfit',sans-serif;display:flex;align-items:center;justify-content:center;transition:background .15s;}
+.mcl:hover{background:var(--border2);}
+.mb{padding:20px 24px;display:flex;flex-direction:column;gap:12px;overflow-y:auto;}
+.mf{padding:14px 24px 20px;border-top:1px solid var(--border);display:flex;gap:8px;flex-shrink:0;}
+.mf .btn{flex:1;height:40px;}
+.fr{display:flex;flex-direction:column;gap:5px;}
+.fr2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.fr3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
+.flbl{font-size:11px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;}
+.fi{height:38px;padding:0 12px;border:1px solid var(--border2);border-radius:var(--radius-sm);background:var(--surface);font-family:'Outfit',sans-serif;font-size:13px;color:var(--text);outline:none;transition:border-color .15s;width:100%;}
+.fi:focus{border-color:var(--accent-dk);background:var(--white);}
+.fi::placeholder{color:var(--text3);}
+.fi-ro{background:var(--bg2);color:var(--text3);}
+.fsel2{height:38px;padding:0 12px;border:1px solid var(--border2);border-radius:var(--radius-sm);background:var(--surface);font-family:'Outfit',sans-serif;font-size:13px;color:var(--text2);outline:none;cursor:pointer;width:100%;}
+.fblock{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px 16px;}
+.fblock-lbl{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px;}
+
+/* INFO BOXES */
+.ibox{background:var(--blue-bg);border:1px solid rgba(36,113,163,0.15);border-radius:var(--radius-sm);padding:10px 14px;font-size:12px;color:var(--blue);line-height:1.5;margin-bottom:14px;}
+.wbox{background:var(--amber-bg);border:1px solid rgba(183,134,11,0.18);border-radius:var(--radius-sm);padding:10px 14px;font-size:12px;color:var(--amber);line-height:1.5;margin-bottom:14px;}
+.sbox2{background:var(--green-bg);border:1px solid rgba(61,153,112,0.18);border-radius:var(--radius-sm);padding:10px 14px;font-size:12px;color:var(--green);line-height:1.5;margin-bottom:14px;}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(8px);background:var(--text);color:var(--white);border-radius:10px;padding:10px 20px;font-size:13px;font-weight:500;box-shadow:var(--shadow-lg);z-index:999;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;white-space:nowrap;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+::-webkit-scrollbar{width:4px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="tl">
+    <div class="logo-pill">yaro</div>
+    <div class="tdiv"></div>
+    <div>
+      <div class="ttitle">Centro de Producción</div>
+      <div class="tsub">CDP — Guarne · Control de producción y traslados</div>
+    </div>
+  </div>
+  <div class="tr">
+    <div class="pill pill-cdp">🏭 CDP</div>
+    <div class="pill pill-user">👤 Ana González · Jefe CDP</div>
+    <div class="pill pill-time" id="clock">--:--</div>
+  </div>
+</div>
+
+<div class="shell">
+
+  <!-- SIDENAV -->
+  <nav class="sidenav">
+    <div class="snhead">
+      <div class="cdp-badge">
+        <div class="cdp-lbl">Centro de Producción</div>
+        <div class="cdp-name">CDP Guarne</div>
+        <div class="cdp-sub">Bodega central · 911 Hot Burger</div>
+      </div>
+      <div class="prog-pill">
+        <div class="prog-dot"></div>
+        <div>
+          <div class="prog-txt">3 recetas en producción</div>
+          <div style="font-size:10px;font-weight:300;color:var(--accent-txt);opacity:.8">hoy · 11 mayo 2026</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="nsec">
+      <div class="nlbl">Operaciones diarias</div>
+      <div class="ni active" onclick="setNav('panel',this)">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2.5" y="2.5" width="6" height="6" rx="1"/><rect x="11.5" y="2.5" width="6" height="6" rx="1"/><rect x="2.5" y="11.5" width="6" height="6" rx="1"/><rect x="11.5" y="11.5" width="6" height="6" rx="1"/></svg>
+        Panel del día
+      </div>
+      <div class="ni" onclick="setNav('recepcion',this)">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10 2v11M7 11l3 3 3-3"/><path d="M4 17h12"/></svg>
+        Recepción de insumos
+        <span class="nbadge" style="background:var(--blue)">2</span>
+      </div>
+      <div class="ni" onclick="setNav('produccion',this)">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="10" cy="10" r="7.5"/><path d="M10 6v4l3 2" stroke-linecap="round"/></svg>
+        Programar producción
+      </div>
+      <div class="ni" onclick="setNav('rendimiento',this)">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 15V8m4 7V4m4 11V7m4 9V5"/></svg>
+        Confirmar rendimiento
+        <span class="nbadge" style="background:var(--amber)">3</span>
+      </div>
+      <div class="ni" onclick="setNav('empaque',this)">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10 2L18 6v8l-8 4L2 14V6l8-4z" stroke-linecap="round" stroke-linejoin="round"/><path d="M10 2v12M2 6l8 4 8-4" stroke-linecap="round"/></svg>
+        Empaque y etiquetas
+      </div>
+      <div class="ni" onclick="setNav('traslados',this)">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 10h12M12 6l4 4-4 4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Traslados a sedes
+      </div>
+    </div>
+
+    <div class="nsec">
+      <div class="nlbl">Inventario CDP</div>
+      <div class="ni" onclick="setNav('stock',this)">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="4" width="16" height="14" rx="1.5"/><line x1="2" y1="9" x2="18" y2="9" stroke-linecap="round"/><line x1="6" y1="4" x2="6" y2="9" stroke-linecap="round"/><line x1="14" y1="4" x2="14" y2="9" stroke-linecap="round"/></svg>
+        Stock de insumos
+      </div>
+      <div class="ni" onclick="setNav('productos',this)">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 2h9l4 4v12a1 1 0 01-1 1H4a1 1 0 01-1-1V3a1 1 0 011-1z" stroke-linecap="round" stroke-linejoin="round"/><path d="M13 2v5h5" stroke-linecap="round"/></svg>
+        Productos terminados
+      </div>
+      <div class="ni" onclick="setNav('historial',this)">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10 5v5l3.5 3.5"/><circle cx="10" cy="10" r="8"/></svg>
+        Historial de lotes
+      </div>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <div class="main">
+    <div class="subtabs" id="stabs"></div>
+    <div class="toolbar" id="tbar"></div>
+    <div class="content" id="cont"></div>
+  </div>
+</div>
+
+<!-- MODAL NUEVA RECEPCION -->
+<div class="mo" id="m-recepcion">
+  <div class="modal">
+    <div class="mh"><div class="mh-t">Registrar recepción de insumo</div><button class="mcl" onclick="cm('m-recepcion')">✕</button></div>
+    <div class="mb">
+      <div class="fr2">
+        <div class="fr"><div class="flbl">Insumo</div>
+          <select class="fsel2"><option>Carne de res</option><option>Tocineta ahumada</option><option>Queso cheddar</option><option>Pan brioche</option><option>Aguacate</option><option>Lechuga romana</option><option>Papas R12</option></select>
+        </div>
+        <div class="fr"><div class="flbl">Proveedor</div>
+          <select class="fsel2"><option>Carnes Antioqueñas</option><option>Dist. La Montaña</option><option>PanArtesanal SAS</option></select>
+        </div>
+      </div>
+      <div class="fr3">
+        <div class="fr"><div class="flbl">Cantidad recibida</div><input class="fi" type="number" placeholder="10.0" id="rec-cant"></div>
+        <div class="fr"><div class="flbl">Unidad</div>
+          <select class="fsel2"><option>kg</option><option>L</option><option>und</option><option>g</option></select>
+        </div>
+        <div class="fr"><div class="flbl">Fecha recepción</div><input class="fi" type="date" id="rec-fecha"></div>
+      </div>
+      <div class="fr">
+        <div class="flbl">Calidad del insumo recibido</div>
+        <div style="display:flex;gap:8px;margin-top:6px">
+          <button class="cal-btn bueno" onclick="selectCal(this,'bueno')">✓ Bueno</button>
+          <button class="cal-btn regular" onclick="selectCal(this,'regular')">~ Regular</button>
+          <button class="cal-btn rechazado" onclick="selectCal(this,'rechazado')">✕ Rechazado</button>
+        </div>
+      </div>
+      <div class="fr"><div class="flbl">Observaciones</div><input class="fi" placeholder="Ej: Llegó ligeramente húmedo, se aceptó con descuento" id="rec-obs"></div>
+      <div class="ibox" id="recep-info">💡 Si el insumo es rechazado, se genera una alerta automática a la orden de compra pendiente y el ítem vuelve a estado "por recibir".</div>
+    </div>
+    <div class="mf">
+      <button class="btn b-outline" onclick="cm('m-recepcion')">Cancelar</button>
+      <button class="btn b-primary" onclick="guardarRecepcion()">Registrar recepción</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL PROGRAMAR RECETA -->
+<div class="mo" id="m-receta">
+  <div class="modal">
+    <div class="mh"><div class="mh-t">Programar receta del día</div><button class="mcl" onclick="cm('m-receta')">✕</button></div>
+    <div class="mb">
+      <div class="fr"><div class="flbl">Receta / Producto a preparar</div>
+        <select class="fsel2" id="rec-receta" onchange="calcReceta()">
+          <option value="">Seleccionar...</option>
+          <option value="guacamole">Guacamole base</option>
+          <option value="salsabbq">Salsa BBQ artesanal</option>
+          <option value="papas">Papas pre-fritas</option>
+          <option value="smash">Mix de carne smash</option>
+          <option value="mayo">Mayonesa de la casa</option>
+        </select>
+      </div>
+      <div class="fr2">
+        <div class="fr"><div class="flbl">Lotes a producir</div><input class="fi" type="number" placeholder="1" id="rec-lotes" oninput="calcReceta()" value="1"></div>
+        <div class="fr"><div class="flbl">Código de lote</div><input class="fi fi-ro" id="rec-lote-code" value="MDB-2026-031" readonly></div>
+      </div>
+      <div id="receta-preview" style="display:none">
+        <div class="fblock">
+          <div class="fblock-lbl">Insumos necesarios</div>
+          <div id="receta-ings"></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px">
+          <div style="background:var(--green-bg);border:1px solid rgba(61,153,112,0.15);border-radius:var(--radius-sm);padding:12px;text-align:center">
+            <div style="font-size:18px;font-weight:700;color:var(--green)" id="rec-rinde">—</div>
+            <div style="font-size:10px;font-weight:400;color:var(--green);text-transform:uppercase;letter-spacing:.06em;margin-top:2px">Rendimiento esperado</div>
+          </div>
+          <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px;text-align:center">
+            <div style="font-size:18px;font-weight:700" id="rec-tiempo">—</div>
+            <div style="font-size:10px;font-weight:400;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-top:2px">Tiempo estimado</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="mf">
+      <button class="btn b-outline" onclick="cm('m-receta')">Cancelar</button>
+      <button class="btn b-primary" onclick="iniciarProduccion()">Iniciar producción →</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL TRASLADO -->
+<div class="mo" id="m-traslado">
+  <div class="modal">
+    <div class="mh"><div class="mh-t">Nuevo traslado a sede</div><button class="mcl" onclick="cm('m-traslado')">✕</button></div>
+    <div class="mb">
+      <div class="ibox">Los productos trasladados desaparecen del inventario del CDP y aparecen en el inventario de la sede destino con su lote y trazabilidad completa.</div>
+      <div class="fr2">
+        <div class="fr"><div class="flbl">Origen</div><input class="fi fi-ro" value="CDP Guarne" readonly></div>
+        <div class="fr"><div class="flbl">Sede destino</div>
+          <select class="fsel2" id="tras-sede"><option>Guarne</option><option>La Ceja</option></select>
+        </div>
+      </div>
+      <div class="fr2">
+        <div class="fr"><div class="flbl">Fecha de traslado</div><input class="fi" type="date" id="tras-fecha"></div>
+        <div class="fr"><div class="flbl">Responsable entrega</div><input class="fi" value="Ana González" readonly style="background:var(--bg2);color:var(--text3)"></div>
+      </div>
+      <div class="fblock">
+        <div class="fblock-lbl">Productos a trasladar</div>
+        <div id="tras-items" style="display:flex;flex-direction:column;gap:8px">
+          <div style="display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center">
+            <select class="fsel2"><option>Guacamole base — Lote MDB-2026-029</option><option>Salsa BBQ — Lote MDB-2026-028</option><option>Papas pre-fritas — Lote MDB-2026-027</option><option>Mix smash — Lote MDB-2026-026</option></select>
+            <input class="fi" type="number" placeholder="kg" style="width:70px">
+            <button class="btn b-outline" style="height:38px;padding:0 10px;font-size:18px" onclick="addTrasItem()">+</button>
+          </div>
+        </div>
+      </div>
+      <div class="fr"><div class="flbl">Precio de transferencia (por kg/und)</div><input class="fi" type="number" placeholder="0" id="tras-precio"><div style="font-size:11px;font-weight:300;color:var(--text3);margin-top:4px">Precio libre definido por el CDP. Genera registro contable en ambas sedes.</div></div>
+    </div>
+    <div class="mf">
+      <button class="btn b-outline" onclick="cm('m-traslado')">Cancelar</button>
+      <button class="btn b-primary" onclick="confirmarTraslado()">Confirmar traslado →</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+setInterval(()=>{ document.getElementById('clock').textContent=new Date().toLocaleTimeString('es-CO',{hour:'2-digit',minute:'2-digit'}); },1000);
+document.getElementById('clock').textContent=new Date().toLocaleTimeString('es-CO',{hour:'2-digit',minute:'2-digit'});
+
+const today=new Date().toISOString().split('T')[0];
+document.getElementById('rec-fecha')&&(document.getElementById('rec-fecha').value=today);
+document.getElementById('tras-fecha')&&(document.getElementById('tras-fecha').value=today);
+
+function fp(n){return '$'+Math.round(n).toLocaleString('es-CO');}
+function cm(id){document.getElementById(id).classList.toggle('open');}
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2800);}
+
+function selectCal(btn,tipo){
+  document.querySelectorAll('.cal-btn').forEach(b=>b.classList.remove('sel'));
+  btn.classList.add('sel');
+  const info=document.getElementById('recep-info');
+  if(tipo==='rechazado'){info.className='wbox';info.innerHTML='⚠️ El insumo rechazado generará una alerta en la orden de compra. El ítem volverá a estado "por recibir" y se notificará al proveedor.';}
+  else if(tipo==='regular'){info.className='ibox';info.innerHTML='ℹ️ Insumo aceptado con observación. El stock se actualizará y quedará registrada la calidad para trazabilidad.';}
+  else{info.className='sbox2';info.innerHTML='✓ Insumo en buen estado. El stock se actualizará automáticamente al confirmar la recepción.';}
+}
+
+function guardarRecepcion(){
+  cm('m-recepcion');
+  showToast('Recepción registrada · Stock del CDP actualizado ✓');
+}
+
+// RECETA DATA
+const recetas={
+  guacamole:{ings:[{n:'Aguacate',cant:'5.0 kg',ok:true},{n:'Limón',cant:'0.5 kg',ok:true},{n:'Cebolla cabezona',cant:'0.3 kg',ok:true},{n:'Cilantro',cant:'0.1 kg',ok:false},{n:'Sal y especias',cant:'0.05 kg',ok:true}],rinde:'3.2 kg',tiempo:'45 min'},
+  salsabbq:{ings:[{n:'Tomate',cant:'3.0 kg',ok:true},{n:'Azúcar morena',cant:'0.5 kg',ok:true},{n:'Vinagre balsámico',cant:'0.2 L',ok:true},{n:'Especias BBQ',cant:'0.1 kg',ok:true}],rinde:'2.8 L',tiempo:'1h 20min'},
+  papas:{ings:[{n:'Papas R12',cant:'20.0 kg',ok:true},{n:'Aceite de girasol',cant:'3.0 L',ok:true},{n:'Sal',cant:'0.1 kg',ok:true}],rinde:'14.0 kg',tiempo:'2h 30min'},
+  smash:{ings:[{n:'Carne de res',cant:'8.0 kg',ok:true},{n:'Grasa bovina',cant:'0.8 kg',ok:false},{n:'Sal y pimienta',cant:'0.05 kg',ok:true}],rinde:'7.2 kg',tiempo:'30 min'},
+  mayo:{ings:[{n:'Aceite de girasol',cant:'2.0 L',ok:true},{n:'Huevos',cant:'6 und',ok:true},{n:'Mostaza',cant:'0.05 kg',ok:true},{n:'Limón',cant:'0.1 kg',ok:true}],rinde:'1.8 L',tiempo:'20 min'},
+};
+
+function calcReceta(){
+  const key=document.getElementById('rec-receta').value;
+  const lotes=parseInt(document.getElementById('rec-lotes').value)||1;
+  const prev=document.getElementById('receta-preview');
+  if(!key){prev.style.display='none';return;}
+  const r=recetas[key];
+  prev.style.display='block';
+  document.getElementById('rec-rinde').textContent=`${(parseFloat(r.rinde)*lotes).toFixed(1)} ${r.rinde.replace(/[\d.]/g,'').trim()}`;
+  document.getElementById('rec-tiempo').textContent=r.tiempo;
+  document.getElementById('receta-ings').innerHTML=r.ings.map(i=>`
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);font-size:12px;">
+      <span style="font-weight:500">${i.n}</span>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span style="font-variant-numeric:tabular-nums;font-weight:600">${(parseFloat(i.cant)*lotes).toFixed(i.cant.includes('.')?1:0)} ${i.cant.replace(/[\d.]/g,'').trim()}</span>
+        <span class="sp ${i.ok?'sp-ok':'sp-err'}" style="font-size:9px">${i.ok?'Hay stock':'Sin stock'}</span>
+      </div>
+    </div>`).join('');
+}
+
+function iniciarProduccion(){
+  const key=document.getElementById('rec-receta').value;
+  if(!key){showToast('Selecciona una receta');return;}
+  cm('m-receta');
+  showToast('Producción iniciada · Insumos descontados del inventario CDP ✓');
+}
+
+function addTrasItem(){
+  document.getElementById('tras-items').insertAdjacentHTML('beforeend',`
+    <div style="display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;margin-top:4px">
+      <select class="fsel2"><option>Guacamole base — Lote MDB-2026-029</option><option>Salsa BBQ — Lote MDB-2026-028</option><option>Papas pre-fritas — Lote MDB-2026-027</option></select>
+      <input class="fi" type="number" placeholder="kg" style="width:70px">
+    </div>`);
+}
+
+function confirmarTraslado(){
+  const sede=document.getElementById('tras-sede').value;
+  cm('m-traslado');
+  showToast(`Traslado confirmado → ${sede} · Inventario actualizado en ambas sedes ✓`);
+}
+
+let currentNav='panel';
+function setNav(n,el){
+  currentNav=n;
+  document.querySelectorAll('.ni').forEach(i=>i.classList.remove('active'));
+  el.classList.add('active');
+  render();
+}
+
+function render(){
+  const map={panel:renderPanel,recepcion:renderRecepcion,produccion:renderProduccion,rendimiento:renderRendimiento,empaque:renderEmpaque,traslados:renderTraslados,stock:renderStock,productos:renderProductos,historial:renderHistorial};
+  (map[currentNav]||renderPanel)();
+}
+
+// ═══ PANEL ═══
+function renderPanel(){
+  document.getElementById('stabs').innerHTML=`<div class="st active">Hoy · 11 mayo 2026</div>`;
+  document.getElementById('tbar').innerHTML=`<div style="font-size:13px;font-weight:300;color:var(--text3)">Resumen operativo del día — CDP Guarne</div><div style="margin-left:auto;display:flex;gap:8px"><button class="btn b-accent" onclick="cm('m-receta')">+ Programar receta</button><button class="btn b-primary" onclick="cm('m-traslado')">→ Nuevo traslado</button></div>`;
+
+  document.getElementById('cont').innerHTML=`
+    <div class="krow">
+      <div class="kpi" style="--kb:var(--accent-dk)"><div class="klbl">Recetas programadas</div><div class="kval">5</div><div class="kfoot">3 en proceso · 2 pendientes</div></div>
+      <div class="kpi" style="--kb:var(--green)"><div class="klbl">Insumos recibidos</div><div class="kval" style="color:var(--green)">3</div><div class="kfoot"><span class="d dup">2 buenos · 1 regular</span></div></div>
+      <div class="kpi" style="--kb:var(--blue)"><div class="klbl">Traslados del día</div><div class="kval" style="color:var(--blue)">4</div><div class="kfoot">Guarne: 2 · La Ceja: 2</div></div>
+      <div class="kpi" style="--kb:var(--amber)"><div class="klbl">Por confirmar</div><div class="kval" style="color:var(--amber)">3</div><div class="kfoot">rendimiento pendiente</div></div>
+    </div>
+
+    <div class="g2">
+      <div class="card">
+        <div class="clbl">Producción del día <span class="ctag">en curso</span></div>
+        ${[
+          {n:'Guacamole base',icon:'🥑',prog:100,estado:'Listo · 3.2 kg'},
+          {n:'Salsa BBQ artesanal',icon:'🍅',prog:75,estado:'En proceso'},
+          {n:'Papas pre-fritas',icon:'🥔',prog:45,estado:'En proceso'},
+          {n:'Mix de carne smash',icon:'🥩',prog:100,estado:'Listo · 14.4 kg'},
+          {n:'Mayonesa de la casa',icon:'🥚',prog:0,estado:'Pendiente'},
+        ].map(r=>`
+          <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);">
+            <div style="font-size:20px;flex-shrink:0">${r.icon}</div>
+            <div style="flex:1">
+              <div style="font-size:13px;font-weight:500;margin-bottom:4px">${r.n}</div>
+              <div style="height:5px;background:var(--bg2);border-radius:3px;overflow:hidden"><div style="height:100%;width:${r.prog}%;background:${r.prog===100?'var(--green)':r.prog>0?'var(--accent-dk)':'var(--bg2)'};border-radius:3px;transition:width .8s"></div></div>
+            </div>
+            <div style="font-size:11px;font-weight:${r.prog===100?'600':'400'};color:${r.prog===100?'var(--green)':r.prog>0?'var(--amber)':'var(--text3)'};text-align:right;flex-shrink:0">${r.estado}</div>
+          </div>`).join('')}
+      </div>
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <div class="card">
+          <div class="clbl">Traslados del día <span class="ctag">enviados</span></div>
+          ${[
+            {sede:'Guarne',prod:'Guacamole base',cant:'1.5 kg',lote:'MDB-029',hora:'7:30 am'},
+            {sede:'La Ceja',prod:'Salsa BBQ',cant:'2.0 L',lote:'MDB-028',hora:'7:30 am'},
+            {sede:'Guarne',prod:'Mix smash',cant:'3.6 kg',lote:'MDB-026',hora:'8:00 am'},
+            {sede:'La Ceja',prod:'Papas pre-fritas',cant:'5.0 kg',lote:'MDB-027',hora:'8:00 am'},
+          ].map(t=>`
+            <div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border);font-size:12px;">
+              <div style="font-size:18px">→</div>
+              <div style="flex:1">
+                <div style="font-weight:500">${t.prod} <span style="font-size:10px;font-weight:600;padding:1px 6px;border-radius:4px;background:var(--purple-bg);color:var(--purple)">${t.lote}</span></div>
+                <div style="color:var(--text3);font-weight:300">📍 ${t.sede} · ${t.cant}</div>
+              </div>
+              <div style="color:var(--text3);font-size:11px">${t.hora}</div>
+            </div>`).join('')}
+        </div>
+        <div class="card">
+          <div class="clbl">Stock bajo en CDP <span class="ctag">alertas</span></div>
+          ${[{n:'Aguacate',s:'0.8 kg',m:'2 kg',c:'var(--red)'},{n:'Cilantro fresco',s:'50 g',m:'200 g',c:'var(--red)'},{n:'Vinagre balsámico',s:'0.3 L',m:'0.5 L',c:'var(--amber)'}].map(a=>`
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:12px;">
+              <span style="font-weight:500">${a.n}</span>
+              <div style="display:flex;align-items:center;gap:8px">
+                <span style="font-variant-numeric:tabular-nums">${a.s}</span>
+                <span class="sp sp-err" style="font-size:9px">Bajo</span>
+              </div>
+            </div>`).join('')}
+        </div>
+      </div>
+    </div>`;
+}
+
+// ═══ RECEPCION ═══
+function renderRecepcion(){
+  document.getElementById('stabs').innerHTML=`<div class="st active">Pendientes de recibir</div><div class="st">Historial</div>`;
+  document.getElementById('tbar').innerHTML=`<div style="font-size:13px;font-weight:300;color:var(--text3)">Insumos esperados hoy según órdenes de compra activas</div><div style="margin-left:auto"><button class="btn b-primary" onclick="cm('m-recepcion')">+ Registrar recepción</button></div>`;
+
+  const items=[
+    {n:'Aguacate',prov:'Dist. La Montaña',cant:'10 kg',oc:'OC-2026-041',estado:'pendiente'},
+    {n:'Cilantro fresco',prov:'Dist. La Montaña',cant:'500 g',oc:'OC-2026-041',estado:'pendiente'},
+    {n:'Carne de res',prov:'Carnes Antioqueñas',cant:'15 kg',oc:'OC-2026-040',estado:'recibido',cal:'Bueno'},
+    {n:'Pan brioche',prov:'PanArtesanal SAS',cant:'200 und',oc:'OC-2026-039',estado:'recibido',cal:'Bueno'},
+    {n:'Tocineta ahumada',prov:'Carnes Antioqueñas',cant:'5 kg',oc:'OC-2026-038',estado:'rechazado',cal:'Rechazado'},
+  ];
+
+  document.getElementById('cont').innerHTML=`
+    <div class="wbox" id="recep-alert">⚠️ Tocineta ahumada de Carnes Antioqueñas fue rechazada. La OC-2026-038 ha sido marcada como pendiente y el proveedor fue notificado. Se requiere nuevo despacho.</div>
+    <div class="twrap">
+      <table class="dt">
+        <thead><tr><th>Insumo</th><th>Proveedor</th><th>Cant. esperada</th><th>OC</th><th>Estado</th><th>Calidad</th><th></th></tr></thead>
+        <tbody>
+          ${items.map(i=>`
+          <tr>
+            <td style="font-weight:600">${i.n}</td>
+            <td style="font-size:12px;color:var(--text2)">${i.prov}</td>
+            <td style="font-weight:500;font-variant-numeric:tabular-nums">${i.cant}</td>
+            <td style="font-size:11px;color:var(--blue);font-weight:500">${i.oc}</td>
+            <td>${i.estado==='pendiente'?'<span class="sp sp-pend">Pendiente</span>':i.estado==='recibido'?'<span class="sp sp-ok">Recibido</span>':'<span class="sp sp-err">Rechazado</span>'}</td>
+            <td>${i.cal?`<span class="sp ${i.cal==='Bueno'?'sp-ok':i.cal==='Regular'?'sp-pend':'sp-err'}">${i.cal}</span>`:'<span style="color:var(--text3);font-size:12px">—</span>'}</td>
+            <td><div class="ra-wrap">
+              ${i.estado==='pendiente'?`<button class="btn b-accent b-sm" onclick="cm('m-recepcion')">Registrar</button>`:''}
+            </div></td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>`;
+}
+
+// ═══ PRODUCCION ═══
+function renderProduccion(){
+  document.getElementById('stabs').innerHTML=`<div class="st active">En producción</div><div class="st">Programadas</div><div class="st">Completadas hoy</div>`;
+  document.getElementById('tbar').innerHTML=`<div style="font-size:13px;font-weight:500">3 recetas activas · CDP Guarne</div><div style="margin-left:auto"><button class="btn b-primary" onclick="cm('m-receta')">+ Programar receta</button></div>`;
+
+  const recetasActivas=[
+    {n:'Salsa BBQ artesanal',icon:'🍅',lote:'MDB-2026-031',prog:75,inicio:'6:30 am',rinde:'2.8 L',ings:[{n:'Tomate',c:'3 kg',ok:true},{n:'Azúcar morena',c:'0.5 kg',ok:true},{n:'Vinagre balsámico',c:'0.2 L',ok:true}]},
+    {n:'Papas pre-fritas',icon:'🥔',lote:'MDB-2026-032',prog:45,inicio:'7:00 am',rinde:'14 kg',ings:[{n:'Papas R12',c:'20 kg',ok:true},{n:'Aceite',c:'3 L',ok:true}]},
+    {n:'Mayonesa de la casa',icon:'🥚',lote:'MDB-2026-033',prog:0,inicio:'Pendiente',rinde:'1.8 L',ings:[{n:'Aceite',c:'2 L',ok:true},{n:'Huevos',c:'6 und',ok:true},{n:'Limón',c:'0.1 kg',ok:true}]},
+  ];
+
+  document.getElementById('cont').innerHTML=`
+    ${recetasActivas.map((r,i)=>`
+    <div class="prod-card" style="animation-delay:${i*.08}s">
+      <div class="prod-head">
+        <div class="prod-icon" style="background:${r.prog===0?'var(--bg2)':'rgba(212,226,0,0.15)'}">${r.icon}</div>
+        <div class="prod-meta">
+          <div class="prod-name">${r.n}</div>
+          <div class="prod-sub">Lote <strong>${r.lote}</strong> · Inicio: ${r.inicio}</div>
+        </div>
+        <div class="prod-rinde">
+          <div class="prod-rinde-val" style="color:${r.prog===100?'var(--green)':r.prog>0?'var(--accent-dk)':'var(--text3)'}">${r.rinde}</div>
+          <div class="prod-rinde-lbl">rendimiento esperado</div>
+        </div>
+      </div>
+      <div class="prod-body">
+        <div style="margin-bottom:12px">
+          <div style="font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px">Insumos</div>
+          ${r.ings.map(ing=>`
+          <div class="ing-row">
+            <span class="ing-name">${ing.n}</span>
+            <span class="ing-cant">${ing.c}</span>
+            <span class="ing-stock ${ing.ok?'ing-ok':'ing-err'}">${ing.ok?'✓ Disponible':'Sin stock'}</span>
+          </div>`).join('')}
+        </div>
+      </div>
+      <div class="prod-footer">
+        <div class="prog-bar-wrap">
+          <div style="font-size:11px;color:var(--text3);min-width:40px">Avance</div>
+          <div class="prog-track"><div class="prog-fill" style="width:${r.prog}%;background:${r.prog===100?'var(--green)':'var(--accent-dk)'}"></div></div>
+          <div class="prog-pct" style="color:${r.prog===100?'var(--green)':'var(--text2)'}">${r.prog}%</div>
+        </div>
+        ${r.prog===0?`<button class="btn b-accent" onclick="showToast('Producción de ${r.n} iniciada ✓')">Iniciar</button>`:r.prog<100?`<button class="btn b-primary" onclick="showToast('Marcando como listo...')">✓ Listo</button>`:`<button class="btn b-green">✓ Completado</button>`}
+      </div>
+    </div>`).join('')}`;
+}
+
+// ═══ RENDIMIENTO ═══
+function renderRendimiento(){
+  document.getElementById('stabs').innerHTML=`<div class="st active">Pendientes de confirmar (3)</div><div class="st">Historial</div>`;
+  document.getElementById('tbar').innerHTML=`<div style="font-size:13px;font-weight:300;color:var(--text3)">Confirma el rendimiento real al finalizar cada receta del día</div>`;
+
+  const items=[
+    {n:'Guacamole base',icon:'🥑',lote:'MDB-2026-029',esperado:3.2,unit:'kg',inicio:'5:30 am',fin:'6:15 am'},
+    {n:'Mix de carne smash',icon:'🥩',lote:'MDB-2026-026',esperado:14.4,unit:'kg',inicio:'4:00 am',fin:'4:45 am'},
+    {n:'Salsa BBQ artesanal',icon:'🍅',lote:'MDB-2026-028',esperado:2.8,unit:'L',inicio:'6:30 am',fin:'8:00 am'},
+  ];
+
+  document.getElementById('cont').innerHTML=`
+    <div class="ibox">Al confirmar el rendimiento real, YARO ajusta automáticamente el inventario del CDP. Si hay diferencia con lo esperado, se registra como merma con tu comentario.</div>
+    ${items.map((item,i)=>`
+    <div class="rend-card" style="animation-delay:${i*.08}s">
+      <div class="rend-header">
+        <div class="rend-icon" style="background:rgba(212,226,0,0.15)">${item.icon}</div>
+        <div class="rend-meta">
+          <div class="rend-name">${item.n}</div>
+          <div class="rend-sub">Lote ${item.lote} · ${item.inicio} → ${item.fin}</div>
+        </div>
+      </div>
+      <div class="rend-compare">
+        <div class="rc-box" style="background:var(--bg2)">
+          <div class="rc-val">${item.esperado} ${item.unit}</div>
+          <div class="rc-lbl">Esperado</div>
+        </div>
+        <div class="rc-box" style="background:var(--green-bg);border-color:rgba(61,153,112,0.2)">
+          <div class="rc-val" style="color:var(--green)" id="rend-real-${i}">—</div>
+          <div class="rc-lbl" style="color:var(--green)">Real obtenido</div>
+        </div>
+        <div class="rc-box" style="background:var(--amber-bg);border-color:rgba(183,134,11,0.2)">
+          <div class="rc-val" style="color:var(--amber)" id="rend-dif-${i}">—</div>
+          <div class="rc-lbl" style="color:var(--amber)">Diferencia</div>
+        </div>
+      </div>
+      <div class="rend-input-wrap">
+        <div class="ri-label">¿Cuántos ${item.unit} salieron realmente?</div>
+        <input type="number" class="ri-input" placeholder="${item.esperado}" step="0.1"
+          oninput="calcRendimiento(this.value,${item.esperado},'${item.unit}',${i})">
+        <span class="ri-unit">${item.unit}</span>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:12px">
+        <input style="flex:1;height:36px;padding:0 12px;border:1px solid var(--border2);border-radius:var(--radius-sm);background:var(--surface);font-family:'Outfit',sans-serif;font-size:13px;outline:none" placeholder="Comentario de merma (opcional)">
+        <button class="btn b-primary" onclick="showToast('${item.n} — rendimiento confirmado ✓ · Inventario actualizado')">Confirmar</button>
+      </div>
+    </div>`).join('')}`;
+}
+
+function calcRendimiento(val,esp,unit,i){
+  const real=parseFloat(val);
+  if(isNaN(real)){
+    document.getElementById(`rend-real-${i}`).textContent='—';
+    document.getElementById(`rend-dif-${i}`).textContent='—';
+    return;
+  }
+  const dif=real-esp;
+  document.getElementById(`rend-real-${i}`).textContent=`${real} ${unit}`;
+  document.getElementById(`rend-dif-${i}`).textContent=`${dif>=0?'+':''}${dif.toFixed(1)} ${unit}`;
+}
+
+// ═══ EMPAQUE ═══
+function renderEmpaque(){
+  document.getElementById('stabs').innerHTML=`<div class="st active">Listos para empacar</div><div class="st">Etiquetas impresas</div>`;
+  document.getElementById('tbar').innerHTML=`<div style="font-size:13px;font-weight:300;color:var(--text3)">Genera e imprime las etiquetas de vacío para cada lote producido</div><div style="margin-left:auto"><button class="btn b-outline" onclick="showToast('Imprimiendo todas las etiquetas pendientes...')">🖨 Imprimir todas</button></div>`;
+
+  const lotes=[
+    {n:'Guacamole base',lote:'MDB-2026-029',cant:'3.2 kg',prod:'11 may 2026',vence:'14 may 2026',dias:3},
+    {n:'Mix de carne smash',lote:'MDB-2026-026',cant:'14.4 kg',prod:'11 may 2026',vence:'13 may 2026',dias:2},
+    {n:'Salsa BBQ artesanal',lote:'MDB-2026-028',cant:'2.8 L',prod:'11 may 2026',vence:'18 may 2026',dias:7},
+  ];
+
+  document.getElementById('cont').innerHTML=`
+    <div class="g3">
+      ${lotes.map((l,i)=>`
+      <div style="display:flex;flex-direction:column;gap:12px;animation:fu .4s cubic-bezier(.22,1,.36,1) ${i*.08}s both">
+        <div class="etiqueta">
+          <div class="et-header">
+            <div class="et-logo">yaro</div>
+            <div class="et-tipo">Empaque al vacío<br>CDP Guarne</div>
+          </div>
+          <div class="et-lote">${l.lote}</div>
+          <div class="et-row"><span class="et-lbl">Producto</span><span class="et-val">${l.n}</span></div>
+          <div class="et-row"><span class="et-lbl">Cantidad</span><span class="et-val">${l.cant}</span></div>
+          <div class="et-row"><span class="et-lbl">Producción</span><span class="et-val">${l.prod}</span></div>
+          <div class="et-vence">Vence: <strong>${l.vence}</strong></div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+            <span class="sp ${l.dias<=2?'sp-err':l.dias<=4?'sp-pend':'sp-ok'}" style="font-size:10px">${l.dias} días de vida útil</span>
+            <span style="font-size:10px;color:var(--text3)">911 Hot Burger · NIT 901.234.567-8</span>
+          </div>
+          <div class="et-barcode"></div>
+        </div>
+        <button class="btn b-primary" style="width:100%" onclick="showToast('Etiqueta ${l.lote} enviada a impresora ✓')">🖨 Imprimir etiqueta</button>
+      </div>`).join('')}
+    </div>`;
+}
+
+// ═══ TRASLADOS ═══
+function renderTraslados(){
+  document.getElementById('stabs').innerHTML=`<div class="st active">Hoy</div><div class="st">Esta semana</div><div class="st">Historial</div>`;
+  document.getElementById('tbar').innerHTML=`
+    <select class="fsel"><option>Ambas sedes</option><option>→ Guarne</option><option>→ La Ceja</option></select>
+    <div style="margin-left:auto;display:flex;gap:8px">
+      <button class="btn b-outline" onclick="showToast('Exportando remisiones...')">↓ Remisiones</button>
+      <button class="btn b-primary" onclick="cm('m-traslado')">+ Nuevo traslado</button>
+    </div>`;
+
+  const traslados=[
+    {n:'TRS-2026-041',prod:'Guacamole base',lote:'MDB-029',cant:'1.5 kg',destino:'Guarne',precio:28000,total:42000,hora:'7:30 am',estado:'ok'},
+    {n:'TRS-2026-042',prod:'Salsa BBQ',lote:'MDB-028',cant:'2.0 L',destino:'La Ceja',precio:18000,total:36000,hora:'7:30 am',estado:'ok'},
+    {n:'TRS-2026-043',prod:'Mix de carne smash',lote:'MDB-026',cant:'3.6 kg',destino:'Guarne',precio:35000,total:126000,hora:'8:00 am',estado:'ok'},
+    {n:'TRS-2026-044',prod:'Papas pre-fritas',lote:'MDB-027',cant:'5.0 kg',destino:'La Ceja',precio:9000,total:45000,hora:'8:00 am',estado:'ok'},
+  ];
+
+  const total=traslados.reduce((a,t)=>a+t.total,0);
+
+  document.getElementById('cont').innerHTML=`
+    <div class="krow">
+      <div class="kpi" style="--kb:var(--blue)"><div class="klbl">Traslados hoy</div><div class="kval">${traslados.length}</div><div class="kfoot">2 sedes · CDP Guarne</div></div>
+      <div class="kpi" style="--kb:var(--green)"><div class="klbl">Valor transferido</div><div class="kval" style="color:var(--green)">${fp(total)}</div><div class="kfoot">precio CDP libre</div></div>
+      <div class="kpi" style="--kb:var(--text)"><div class="klbl">→ Sede Guarne</div><div class="kval">${fp(traslados.filter(t=>t.destino==='Guarne').reduce((a,t)=>a+t.total,0))}</div><div class="kfoot">2 traslados</div></div>
+      <div class="kpi" style="--kb:var(--text3)"><div class="klbl">→ La Ceja</div><div class="kval">${fp(traslados.filter(t=>t.destino==='La Ceja').reduce((a,t)=>a+t.total,0))}</div><div class="kfoot">2 traslados</div></div>
+    </div>
+
+    <div class="ibox">Los traslados generan automáticamente un registro contable en ambas sedes: el CDP registra un ingreso al precio de transferencia, y la sede registra el ingreso al inventario al mismo valor.</div>
+
+    <div class="twrap">
+      <table class="dt">
+        <thead><tr><th>N° Traslado</th><th>Producto</th><th>Lote</th><th>Cantidad</th><th>Destino</th><th>Precio CDP</th><th>Total</th><th>Hora</th><th>Estado</th><th></th></tr></thead>
+        <tbody>
+          ${traslados.map(t=>`
+          <tr>
+            <td style="font-size:12px;font-weight:500;color:var(--blue)">${t.n}</td>
+            <td style="font-weight:600">${t.prod}</td>
+            <td><span style="font-size:10px;font-weight:600;padding:2px 8px;border-radius:6px;background:var(--purple-bg);color:var(--purple)">${t.lote}</span></td>
+            <td style="font-variant-numeric:tabular-nums;font-weight:600">${t.cant}</td>
+            <td style="font-size:12px;color:var(--text2)">📍 ${t.destino}</td>
+            <td style="font-size:12px;font-variant-numeric:tabular-nums">${fp(t.precio)}/kg</td>
+            <td style="font-weight:700;font-variant-numeric:tabular-nums">${fp(t.total)}</td>
+            <td style="font-size:12px;color:var(--text3)">${t.hora}</td>
+            <td><span class="sp sp-ok">✓ Entregado</span></td>
+            <td><div class="ra-wrap"><div class="ra" onclick="showToast('Descargando remisión PDF...')">↓</div></div></td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>`;
+}
+
+// ═══ STOCK ═══
+function renderStock(){
+  document.getElementById('stabs').innerHTML=`<div class="st active">Insumos CDP</div>`;
+  document.getElementById('tbar').innerHTML=`<div style="margin-left:auto;display:flex;gap:8px"><button class="btn b-outline">↓ Exportar</button><button class="btn b-primary" onclick="cm('m-recepcion')">+ Registrar ingreso</button></div>`;
+  document.getElementById('cont').innerHTML=`
+    <div class="twrap">
+      <table class="dt">
+        <thead><tr><th>Insumo</th><th>Stock CDP</th><th>Mínimo</th><th>Estado</th><th>Último ingreso</th></tr></thead>
+        <tbody>
+          ${[
+            {n:'Carne de res',s:'12.8 kg',m:'5 kg',ok:true,ult:'Hoy 6:00 am'},
+            {n:'Aguacate',s:'0.8 kg',m:'2 kg',ok:false,ult:'Ayer'},
+            {n:'Tomate',s:'8.5 kg',m:'3 kg',ok:true,ult:'Hoy 5:30 am'},
+            {n:'Papas R12',s:'22 kg',m:'10 kg',ok:true,ult:'Ayer'},
+            {n:'Aceite de girasol',s:'6 L',m:'3 L',ok:true,ult:'Lun 9 may'},
+            {n:'Cilantro fresco',s:'50 g',m:'200 g',ok:false,ult:'Ayer'},
+          ].map(i=>`<tr>
+            <td style="font-weight:600">${i.n}</td>
+            <td style="font-weight:700;font-variant-numeric:tabular-nums;color:${i.ok?'var(--text)':'var(--red)'}">${i.s}</td>
+            <td style="font-size:12px;color:var(--text3)">${i.m}</td>
+            <td><span class="sp ${i.ok?'sp-ok':'sp-err'}">${i.ok?'OK':'Crítico'}</span></td>
+            <td style="font-size:12px;color:var(--text3)">${i.ult}</td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>`;
+}
+
+// ═══ PRODUCTOS TERMINADOS ═══
+function renderProductos(){
+  document.getElementById('stabs').innerHTML=`<div class="st active">En bodega CDP</div><div class="st">Todos los lotes</div>`;
+  document.getElementById('tbar').innerHTML=`<div style="margin-left:auto;display:flex;gap:8px"><button class="btn b-primary" onclick="cm('m-traslado')">→ Trasladar</button></div>`;
+  document.getElementById('cont').innerHTML=`
+    <div class="twrap">
+      <table class="dt">
+        <thead><tr><th>Producto</th><th>Lote</th><th>Cant. en bodega</th><th>Fecha producción</th><th>Vence</th><th>Vida útil</th><th></th></tr></thead>
+        <tbody>
+          ${[
+            {n:'Guacamole base',lote:'MDB-2026-029',cant:'1.7 kg',prod:'11 may',vence:'14 may',dias:3},
+            {n:'Salsa BBQ artesanal',lote:'MDB-2026-028',cant:'0.8 L',prod:'11 may',vence:'18 may',dias:7},
+            {n:'Papas pre-fritas',lote:'MDB-2026-027',cant:'4.0 kg',prod:'10 may',vence:'12 may',dias:1},
+            {n:'Mix de carne smash',lote:'MDB-2026-026',cant:'10.8 kg',prod:'11 may',vence:'13 may',dias:2},
+            {n:'Mayonesa de la casa',lote:'MDB-2026-025',cant:'1.2 L',prod:'09 may',vence:'16 may',dias:5},
+          ].map(p=>`<tr>
+            <td style="font-weight:600">${p.n}</td>
+            <td><span style="font-size:10px;font-weight:600;padding:2px 8px;border-radius:6px;background:var(--purple-bg);color:var(--purple)">${p.lote}</span></td>
+            <td style="font-weight:700;font-variant-numeric:tabular-nums">${p.cant}</td>
+            <td style="font-size:12px;color:var(--text2)">${p.prod}</td>
+            <td style="font-size:12px;font-weight:600;color:${p.dias<=2?'var(--red)':p.dias<=4?'var(--amber)':'var(--text2)'}">${p.vence}</td>
+            <td><span class="sp ${p.dias<=2?'sp-err':p.dias<=4?'sp-pend':'sp-ok'}">${p.dias}d</span></td>
+            <td><div class="ra-wrap"><button class="btn b-outline b-sm" onclick="cm('m-traslado')">→ Trasladar</button><div class="ra" onclick="showToast('Descargando etiqueta...')">🖨</div></div></td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>`;
+}
+
+// ═══ HISTORIAL ═══
+function renderHistorial(){
+  document.getElementById('stabs').innerHTML=`<div class="st active">Mayo 2026</div><div class="st">Abril 2026</div>`;
+  document.getElementById('tbar').innerHTML=`<div style="margin-left:auto"><button class="btn b-outline">↓ Exportar historial</button></div>`;
+  document.getElementById('cont').innerHTML=`
+    <div class="twrap">
+      <table class="dt">
+        <thead><tr><th>Lote</th><th>Producto</th><th>Producido</th><th>Rendimiento real vs esperado</th><th>Destino</th><th>Fecha</th></tr></thead>
+        <tbody>
+          ${[
+            {l:'MDB-2026-029',n:'Guacamole base',cant:'3.2 kg',esp:'3.2 kg',dest:'Guarne (1.5kg) · La Ceja (1.7kg)',fecha:'11 may'},
+            {l:'MDB-2026-028',n:'Salsa BBQ',cant:'2.6 L',esp:'2.8 L',dest:'La Ceja (2.0L) · CDP (0.6L)',fecha:'11 may'},
+            {l:'MDB-2026-026',n:'Mix de carne smash',cant:'14.4 kg',esp:'14.4 kg',dest:'Guarne (3.6kg) · CDP (10.8kg)',fecha:'11 may'},
+            {l:'MDB-2026-024',n:'Mayonesa de la casa',cant:'1.8 L',esp:'1.8 L',dest:'Guarne (0.6L) · La Ceja (1.0L) · CDP (0.2L)',fecha:'09 may'},
+            {l:'MDB-2026-022',n:'Papas pre-fritas',cant:'13.2 kg',esp:'14.0 kg',dest:'Ambas sedes',fecha:'08 may'},
+          ].map(h=>`<tr>
+            <td><span style="font-size:10px;font-weight:600;padding:2px 8px;border-radius:6px;background:var(--purple-bg);color:var(--purple)">${h.l}</span></td>
+            <td style="font-weight:600">${h.n}</td>
+            <td style="font-weight:700;font-variant-numeric:tabular-nums">${h.cant}</td>
+            <td style="font-size:12px;color:var(--text2)">Esp: ${h.esp} <span style="color:${h.cant===h.esp?'var(--green)':'var(--amber)'}">· ${h.cant===h.esp?'✓ Exacto':'Diferencia registrada'}</span></td>
+            <td style="font-size:11px;color:var(--text3)">${h.dest}</td>
+            <td style="font-size:12px;color:var(--text3)">${h.fecha}</td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>`;
+}
+
+// ── INIT ──
+render();
+</script>
+</body>
+</html>

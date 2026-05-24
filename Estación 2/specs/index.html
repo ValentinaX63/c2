@@ -1,0 +1,2198 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="YARO — Documento de Arquitectura Técnica para validación con arquitecto externo. 15 diagramas que cubren el sistema operativo de restaurantes colombianos.">
+<title>YARO · Arquitectura Técnica · Validación</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    /* YARO design tokens (de pvb.md) */
+    --yaro-bg: #f0ede8;
+    --yaro-bg2: #ece9e3;
+    --yaro-surface: #faf9f7;
+    --yaro-white: #ffffff;
+    --yaro-text: #1a1916;
+    --yaro-text-2: #6b6760;
+    --yaro-text-3: #a8a49e;
+    --yaro-accent: #f7fd9c;
+    --yaro-accent-dk: #d4e200;
+    --yaro-accent-txt: #6b7200;
+    --yaro-green: #3d9970;
+    --yaro-red: #c0392b;
+    --yaro-amber: #b7860b;
+    --yaro-blue: #2471a3;
+    --yaro-purple: #534AB7;
+    --shadow-sm: 0 1px 2px rgba(26, 25, 22, 0.06);
+    --shadow-md: 0 4px 12px rgba(26, 25, 22, 0.08);
+    --shadow-lg: 0 12px 32px rgba(26, 25, 22, 0.12);
+    --radius: 14px;
+    --radius-sm: 9px;
+    --radius-xs: 6px;
+    --font-sans: 'Outfit', system-ui, -apple-system, sans-serif;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    margin: 0;
+    font-family: var(--font-sans);
+    background: var(--yaro-bg);
+    color: var(--yaro-text);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    font-feature-settings: 'cv11', 'ss01';
+  }
+
+  /* ===== HEADER / HERO ===== */
+  .hero {
+    background: linear-gradient(135deg, var(--yaro-text) 0%, #2c2a25 100%);
+    color: var(--yaro-white);
+    padding: 80px 24px 100px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -50%; right: -10%;
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, var(--yaro-accent-dk) 0%, transparent 70%);
+    opacity: 0.15;
+    pointer-events: none;
+  }
+
+  .hero-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+  }
+
+  .brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 32px;
+  }
+
+  .brand-logo {
+    width: 48px; height: 48px;
+    background: var(--yaro-accent);
+    border-radius: var(--radius);
+    display: grid; place-items: center;
+    font-weight: 800; font-size: 22px;
+    color: var(--yaro-text);
+    letter-spacing: -1px;
+  }
+
+  .brand-name {
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+  }
+
+  .hero h1 {
+    font-size: clamp(36px, 5vw, 56px);
+    font-weight: 800;
+    margin: 0 0 16px;
+    line-height: 1.1;
+    letter-spacing: -1.5px;
+  }
+
+  .hero p.tagline {
+    font-size: 20px;
+    color: rgba(255, 255, 255, 0.75);
+    max-width: 680px;
+    margin: 0 0 40px;
+    font-weight: 400;
+  }
+
+  .hero-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 32px;
+    margin-top: 24px;
+  }
+
+  .meta-item {
+    border-left: 3px solid var(--yaro-accent);
+    padding-left: 14px;
+  }
+
+  .meta-label {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: rgba(255, 255, 255, 0.5);
+    margin-bottom: 4px;
+  }
+
+  .meta-value {
+    font-size: 16px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.95);
+  }
+
+  /* ===== STATS BAR ===== */
+  .stats {
+    background: var(--yaro-surface);
+    border-top: 1px solid rgba(26, 25, 22, 0.06);
+    border-bottom: 1px solid rgba(26, 25, 22, 0.06);
+    padding: 24px;
+    position: sticky;
+    top: 0;
+    z-index: 90;
+    backdrop-filter: blur(12px);
+    background: rgba(250, 249, 247, 0.92);
+  }
+
+  .stats-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 24px;
+  }
+
+  .stat {
+    text-align: center;
+  }
+
+  .stat-value {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--yaro-text);
+    line-height: 1;
+  }
+
+  .stat-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--yaro-text-2);
+    margin-top: 4px;
+  }
+
+  /* ===== LAYOUT MAIN ===== */
+  .layout {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 48px 24px;
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 48px;
+    align-items: start;
+  }
+
+  @media (max-width: 1024px) {
+    .layout { grid-template-columns: 1fr; }
+    .sidebar { position: static !important; }
+  }
+
+  /* ===== SIDEBAR TOC ===== */
+  .sidebar {
+    position: sticky;
+    top: 100px;
+    max-height: calc(100vh - 120px);
+    overflow-y: auto;
+    padding-right: 8px;
+  }
+
+  .sidebar h3 {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--yaro-text-2);
+    margin: 0 0 12px;
+    padding-left: 12px;
+  }
+
+  .toc {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .toc li {
+    margin-bottom: 2px;
+  }
+
+  .toc a {
+    display: block;
+    padding: 8px 12px;
+    text-decoration: none;
+    color: var(--yaro-text-2);
+    font-size: 14px;
+    font-weight: 500;
+    border-radius: var(--radius-xs);
+    transition: background 0.2s, color 0.2s;
+    border-left: 2px solid transparent;
+  }
+
+  .toc a:hover {
+    background: var(--yaro-bg2);
+    color: var(--yaro-text);
+  }
+
+  .toc a.active {
+    background: var(--yaro-accent);
+    color: var(--yaro-text);
+    border-left-color: var(--yaro-accent-dk);
+    font-weight: 600;
+  }
+
+  /* ===== MAIN CONTENT ===== */
+  .content {
+    min-width: 0;
+  }
+
+  .vista {
+    background: var(--yaro-surface);
+    border-radius: var(--radius);
+    padding: 40px;
+    margin-bottom: 32px;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid rgba(26, 25, 22, 0.04);
+  }
+
+  .vista-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+    margin-bottom: 24px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--yaro-bg2);
+  }
+
+  .vista-number {
+    background: var(--yaro-accent);
+    color: var(--yaro-text);
+    font-weight: 800;
+    font-size: 14px;
+    padding: 6px 14px;
+    border-radius: 999px;
+    white-space: nowrap;
+    letter-spacing: -0.3px;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .vista-title {
+    margin: 0;
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.8px;
+    line-height: 1.2;
+    color: var(--yaro-text);
+  }
+
+  .vista-subtitle {
+    color: var(--yaro-text-2);
+    margin: 8px 0 0;
+    font-size: 16px;
+    font-weight: 400;
+  }
+
+  h3 {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--yaro-text);
+    margin: 32px 0 12px;
+    letter-spacing: -0.3px;
+  }
+
+  h3:first-of-type {
+    margin-top: 0;
+  }
+
+  p {
+    margin: 0 0 16px;
+    color: var(--yaro-text);
+  }
+
+  p.intro {
+    color: var(--yaro-text-2);
+    font-size: 15px;
+    margin-bottom: 24px;
+  }
+
+  /* ===== DIAGRAM CONTAINER ===== */
+  .diagram-wrapper {
+    background: var(--yaro-white);
+    border-radius: var(--radius-sm);
+    padding: 24px;
+    margin: 16px 0 24px;
+    border: 1px solid var(--yaro-bg2);
+    overflow-x: auto;
+    overflow-y: hidden;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .mermaid {
+    text-align: center;
+    min-height: 100px;
+  }
+
+  .mermaid svg {
+    max-width: 100%;
+    height: auto !important;
+  }
+
+  /* ===== TABLES ===== */
+  .table-wrapper {
+    overflow-x: auto;
+    margin: 16px 0 24px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--yaro-bg2);
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+    background: var(--yaro-white);
+  }
+
+  thead {
+    background: var(--yaro-bg2);
+  }
+
+  th {
+    text-align: left;
+    padding: 14px 16px;
+    font-weight: 600;
+    color: var(--yaro-text);
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    border-bottom: 2px solid var(--yaro-bg);
+  }
+
+  td {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--yaro-bg);
+    vertical-align: top;
+    line-height: 1.5;
+  }
+
+  tr:last-child td { border-bottom: 0; }
+  tr:hover td { background: rgba(247, 253, 156, 0.08); }
+
+  /* ===== QUESTIONS BOX ===== */
+  .questions {
+    background: linear-gradient(135deg, var(--yaro-accent) 0%, #fdf894 100%);
+    border-radius: var(--radius-sm);
+    padding: 24px 28px;
+    margin-top: 24px;
+    border-left: 4px solid var(--yaro-accent-dk);
+  }
+
+  .questions-title {
+    font-size: 14px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--yaro-accent-txt);
+    margin: 0 0 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .questions-title::before {
+    content: '⭐';
+    font-size: 18px;
+  }
+
+  .questions ol {
+    margin: 0;
+    padding-left: 22px;
+    color: var(--yaro-text);
+  }
+
+  .questions ol li {
+    margin-bottom: 10px;
+    line-height: 1.6;
+  }
+
+  .questions ol li:last-child { margin-bottom: 0; }
+
+  /* ===== TAGS & BADGES ===== */
+  .badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+    margin-right: 6px;
+    line-height: 1.6;
+  }
+
+  .badge-green {
+    background: rgba(61, 153, 112, 0.12);
+    color: var(--yaro-green);
+  }
+
+  .badge-amber {
+    background: rgba(183, 134, 11, 0.12);
+    color: var(--yaro-amber);
+  }
+
+  .badge-red {
+    background: rgba(192, 57, 43, 0.12);
+    color: var(--yaro-red);
+  }
+
+  .badge-blue {
+    background: rgba(36, 113, 163, 0.12);
+    color: var(--yaro-blue);
+  }
+
+  .badge-purple {
+    background: rgba(83, 74, 183, 0.12);
+    color: var(--yaro-purple);
+  }
+
+  .badge-star {
+    background: var(--yaro-accent);
+    color: var(--yaro-accent-txt);
+  }
+
+  code {
+    background: var(--yaro-bg2);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.9em;
+    font-family: 'SF Mono', Menlo, monospace;
+  }
+
+  /* ===== CHECKLIST FINAL ===== */
+  .checklist {
+    background: var(--yaro-text);
+    color: var(--yaro-white);
+    border-radius: var(--radius);
+    padding: 48px 40px;
+    margin: 48px 0 32px;
+  }
+
+  .checklist h2 {
+    font-size: 28px;
+    margin: 0 0 24px;
+    color: var(--yaro-white);
+    letter-spacing: -0.8px;
+  }
+
+  .checklist h3 {
+    color: var(--yaro-accent);
+    margin: 28px 0 12px;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .check-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 12px;
+  }
+
+  .check-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 12px 14px;
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    line-height: 1.4;
+    border-left: 2px solid rgba(247, 253, 156, 0.4);
+  }
+
+  .check-item input { margin-top: 2px; flex-shrink: 0; cursor: pointer; }
+  .check-item label { cursor: pointer; flex: 1; }
+
+  /* ===== FOOTER ===== */
+  .footer {
+    background: var(--yaro-text);
+    color: rgba(255, 255, 255, 0.6);
+    padding: 40px 24px;
+    text-align: center;
+    border-top: 4px solid var(--yaro-accent);
+  }
+
+  .footer-container {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .footer p {
+    color: rgba(255, 255, 255, 0.7);
+    margin: 4px 0;
+    font-size: 14px;
+  }
+
+  .footer-brand {
+    color: var(--yaro-accent);
+    font-weight: 700;
+    font-size: 18px;
+    margin-bottom: 12px;
+  }
+
+  /* ===== UTILITIES ===== */
+  .alert {
+    background: rgba(247, 253, 156, 0.4);
+    border-left: 4px solid var(--yaro-accent-dk);
+    padding: 16px 20px;
+    border-radius: var(--radius-xs);
+    margin: 16px 0;
+    font-size: 14px;
+    color: var(--yaro-text);
+  }
+
+  .alert-warning {
+    background: rgba(183, 134, 11, 0.12);
+    border-left-color: var(--yaro-amber);
+  }
+
+  .alert-critical {
+    background: rgba(192, 57, 43, 0.08);
+    border-left-color: var(--yaro-red);
+  }
+
+  ul.clean {
+    padding-left: 20px;
+    margin: 12px 0 20px;
+  }
+
+  ul.clean li {
+    margin-bottom: 8px;
+    line-height: 1.6;
+  }
+
+  /* ===== PRINT ===== */
+  @media print {
+    .sidebar, .stats { display: none; }
+    .layout { grid-template-columns: 1fr; padding: 20px; }
+    .vista { page-break-inside: avoid; box-shadow: none; border: 1px solid #ddd; }
+    .hero { padding: 40px 24px; }
+    body { background: white; }
+  }
+
+  /* ===== SCROLLBAR ===== */
+  .sidebar::-webkit-scrollbar { width: 6px; }
+  .sidebar::-webkit-scrollbar-track { background: transparent; }
+  .sidebar::-webkit-scrollbar-thumb { background: var(--yaro-text-3); border-radius: 3px; }
+
+  /* ===== MERMAID OVERRIDES ===== */
+  .mermaid .nodeLabel,
+  .mermaid .edgeLabel,
+  .mermaid .actor text {
+    font-family: var(--font-sans) !important;
+    font-weight: 500 !important;
+  }
+</style>
+</head>
+
+<body>
+
+<!-- ===== HERO ===== -->
+<header class="hero">
+  <div class="hero-container">
+    <div class="brand">
+      <div class="brand-logo">Y</div>
+      <div class="brand-name">YARO</div>
+    </div>
+    <h1>Arquitectura Técnica</h1>
+    <p class="tagline">15 vistas arquitectónicas del sistema operativo de los restaurantes colombianos. Documento de validación para arquitecto técnico externo.</p>
+
+    <div class="hero-meta">
+      <div class="meta-item">
+        <div class="meta-label">Versión</div>
+        <div class="meta-value">1.0 · Mayo 2026</div>
+      </div>
+      <div class="meta-item">
+        <div class="meta-label">Audiencia</div>
+        <div class="meta-value">Arquitecto técnico · CTO</div>
+      </div>
+      <div class="meta-item">
+        <div class="meta-label">Documento fuente</div>
+        <div class="meta-value">specs/arquitectura.md (1.925 líneas)</div>
+      </div>
+      <div class="meta-item">
+        <div class="meta-label">Producto</div>
+        <div class="meta-value">YARO · SaaS B2B HORECA Colombia</div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ===== STATS ===== -->
+<div class="stats">
+  <div class="stats-container">
+    <div class="stat"><div class="stat-value">15</div><div class="stat-label">Vistas arquitectónicas</div></div>
+    <div class="stat"><div class="stat-value">10</div><div class="stat-label">ADRs formalizados</div></div>
+    <div class="stat"><div class="stat-value">47</div><div class="stat-label">Tablas Fase 1</div></div>
+    <div class="stat"><div class="stat-value">10</div><div class="stat-label">Bounded contexts (DDD)</div></div>
+    <div class="stat"><div class="stat-value">6</div><div class="stat-label">Agentes IA</div></div>
+    <div class="stat"><div class="stat-value">7</div><div class="stat-label">Capas de seguridad</div></div>
+  </div>
+</div>
+
+<!-- ===== LAYOUT ===== -->
+<div class="layout">
+
+  <!-- ===== SIDEBAR TOC ===== -->
+  <aside class="sidebar">
+    <h3>Vistas</h3>
+    <ul class="toc" id="toc">
+      <li><a href="#vista-1">1 · Contexto del sistema</a></li>
+      <li><a href="#vista-2">2 · Contenedores (C4 N2)</a></li>
+      <li><a href="#vista-3">3 · Bounded Contexts (DDD)</a></li>
+      <li><a href="#vista-4">4 · Modelo de datos (47 tablas)</a></li>
+      <li><a href="#vista-5">5 · Multi-tenancy y aislamiento</a></li>
+      <li><a href="#vista-6">6 · Pipeline DIAN fire-and-forget</a></li>
+      <li><a href="#vista-7">7 · Modo offline + sincronización</a></li>
+      <li><a href="#vista-8">8 · Plataforma de Agentes IA</a></li>
+      <li><a href="#vista-9">9 · Despliegue AWS</a></li>
+      <li><a href="#vista-10">10 · Escalamiento F1 → F4</a></li>
+      <li><a href="#vista-11">11 · Seguridad (7 capas)</a></li>
+      <li><a href="#vista-12">12 · Observabilidad y SLOs</a></li>
+      <li><a href="#vista-13">13 · CI/CD pipeline</a></li>
+      <li><a href="#vista-14">14 · Sistema Autorizaciones</a></li>
+      <li><a href="#vista-15">15 · Resumen ejecutivo</a></li>
+      <li style="margin-top: 12px;"><a href="#checklist" style="color: var(--yaro-accent-txt); font-weight: 700;">✅ Checklist validación</a></li>
+    </ul>
+  </aside>
+
+  <!-- ===== MAIN CONTENT ===== -->
+  <main class="content">
+
+    <!-- VISTA 1 -->
+    <section class="vista" id="vista-1">
+      <div class="vista-header">
+        <div class="vista-number">VISTA 1</div>
+        <div>
+          <h2 class="vista-title">Contexto del sistema</h2>
+          <p class="vista-subtitle">C4 Nivel 1 · Quiénes interactúan con YARO</p>
+        </div>
+      </div>
+
+      <div class="diagram-wrapper">
+        <div class="mermaid">
+flowchart TB
+    subgraph TENANT["👥 Usuarios del tenant"]
+        VAL["Valentina<br/>Dueña / Socia"]
+        AN["Andrés<br/>Admin de sede"]
+        CAR["Carolina<br/>Contadora externa"]
+        CJ["Cajero · Mesero<br/>Cocina · Jefe CDP"]
+    end
+
+    subgraph YARO_TEAM["🏢 Equipo YARO"]
+        PA["Platform Admin"]
+        SUP["Support Engineer"]
+    end
+
+    YARO((("🎯 YARO<br/>Sistema operativo<br/>de restaurantes")))
+
+    subgraph EXTERNAL["🌐 Sistemas externos"]
+        FAC["Facture.co<br/>operador DIAN"]
+        DIAN["DIAN MUISCA"]
+        RAD["RADIAN<br/>buzón FE"]
+        ANT["Anthropic API<br/>Claude Sonnet + Haiku"]
+        GOOG["Google OAuth"]
+        SES["AWS SES"]
+        SMS["Twilio SMS"]
+        BANK["Bancos CSV F2+"]
+        PAY["Pasarela de pago"]
+    end
+
+    VAL -.usa.-> YARO
+    AN -.usa.-> YARO
+    CAR -.usa.-> YARO
+    CJ -.usa.-> YARO
+    PA -.opera.-> YARO
+    SUP -.opera.-> YARO
+
+    YARO -->|fire-and-forget XML| FAC
+    FAC -->|firma XAdES-BES| DIAN
+    DIAN -->|CUFE + ACK| FAC
+    FAC -->|CUFE| YARO
+    YARO <-->|polling FE proveedores| RAD
+    YARO <-->|capas 1 + judge eval| ANT
+    YARO <-->|OAuth| GOOG
+    YARO -->|transactional| SES
+    YARO -->|cobranza FR-15| SMS
+    BANK -->|CSV import| YARO
+    YARO <-->|webhook| PAY
+
+    style YARO fill:#f7fd9c,color:#1a1916
+    style TENANT fill:#3d9970,color:#ffffff
+    style YARO_TEAM fill:#2471a3,color:#ffffff
+    style EXTERNAL fill:#534AB7,color:#ffffff
+        </div>
+      </div>
+
+      <h3>Decisiones tomadas</h3>
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th>Decisión</th><th>Justificación</th></tr></thead>
+          <tbody>
+            <tr><td><span class="badge badge-green">✓</span> Operador DIAN: <strong>Facture.co</strong></td><td>Habilitarse como operador propio = 3-6 meses + costos certificación. Facture.co cubre con menor TCO</td></tr>
+            <tr><td><span class="badge badge-green">✓</span> LLM: <strong>Anthropic Claude</strong></td><td>Estabilidad API + opt-in de no entrenar con nuestra data + UI clara</td></tr>
+            <tr><td><span class="badge badge-green">✓</span> Auth colaboradores: <strong>Google OAuth</strong></td><td>~80% de colombianos con email tienen Gmail. Reduce password fatigue</td></tr>
+            <tr><td><span class="badge badge-amber">⚠</span> Pasarela: <strong>TBD</strong></td><td>Wompi vs Mercado Pago — decisión postergada a inicio F1</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="questions">
+        <div class="questions-title">Preguntas para el arquitecto</div>
+        <ol>
+          <li><strong>Facture.co single point of failure:</strong> ¿qué nivel de redundancia necesitamos? ¿Plan B con Carvajal/Cadena en F2 tiene sentido?</li>
+          <li><strong>Anthropic API lock-in:</strong> ¿qué nivel de abstracción recomiendas para que el cambio a OpenAI/Gemini sea barato en F3?</li>
+          <li><strong>Google OAuth desde F1:</strong> ¿hay riesgo de que algún restaurante quiera Microsoft o Apple OAuth desde F1?</li>
+          <li><strong>México futuro:</strong> ¿debería YARO soportar PAC mexicano desde F2 si vemos demanda?</li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- VISTA 2 -->
+    <section class="vista" id="vista-2">
+      <div class="vista-header">
+        <div class="vista-number">VISTA 2</div>
+        <div>
+          <h2 class="vista-title">Contenedores</h2>
+          <p class="vista-subtitle">C4 Nivel 2 · Servicios y tecnologías</p>
+        </div>
+      </div>
+
+      <div class="diagram-wrapper">
+        <div class="mermaid">
+flowchart TB
+    subgraph EDGE["🌐 Edge"]
+        CF["CloudFront<br/>+ WAF + Shield Standard<br/>+ SSL ACM"]
+    end
+
+    subgraph CLIENT["💻 Frontend Angular 17+"]
+        APP["YARO App SPA<br/>app.yaro.app<br/>standalone components"]
+        CONS["YARO Console SPA<br/>console.yaro.app<br/>Platform Admin only"]
+        SW["Service Worker<br/>Workbox + xml-builder<br/>+ IndexedDB SyncQueue"]
+    end
+
+    subgraph BACKEND["⚙️ Backend AWS ECS Fargate"]
+        API["API Service<br/>NestJS REST + WS<br/>Tasks 2-10 On-Demand"]
+        WORKER["Worker Service<br/>NestJS + BullMQ<br/>Tasks 1-5 SPOT"]
+        CRON["Cron Service<br/>NestJS schedule<br/>1 task"]
+    end
+
+    subgraph DATA["💾 Data layer"]
+        RDS[("PostgreSQL 16<br/>RDS Multi-AZ<br/>+ Prisma ORM")]
+        VALKEY[("ElastiCache Valkey 7<br/>BullMQ + Socket.io<br/>+ JWT sessions")]
+        S3[("S3<br/>XMLs DIAN 5 años<br/>tier transition")]
+        OS[("OpenSearch F2+<br/>búsqueda histórica")]
+    end
+
+    subgraph AI["🤖 Capa Agéntica M11"]
+        ORCH["Orquestador 3 capas"]
+        EVAL["Eval pipeline<br/>Haiku judge"]
+    end
+
+    CF --> APP
+    CF --> CONS
+    APP <--> SW
+    APP -->|REST + WSS| API
+    CONS --> API
+    API <--> RDS
+    API <--> VALKEY
+    API <--> S3
+    API <--> ORCH
+    API -->|enqueue| VALKEY
+    WORKER <--> VALKEY
+    WORKER <--> RDS
+    WORKER --> EVAL
+    CRON <--> VALKEY
+    CRON <--> RDS
+    API -.->|F2+| OS
+
+    style EDGE fill:#534AB7,color:#ffffff
+    style CLIENT fill:#3d9970,color:#ffffff
+    style BACKEND fill:#2471a3,color:#ffffff
+    style DATA fill:#b7860b,color:#ffffff
+    style AI fill:#f7fd9c,color:#1a1916
+        </div>
+      </div>
+
+      <h3>Decisiones tomadas (ADR-001 a ADR-007)</h3>
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th>Decisión</th><th>Alternativa descartada</th><th>Por qué</th></tr></thead>
+          <tbody>
+            <tr><td><span class="badge badge-star">⭐</span> Monolito modular NestJS</td><td>Microservicios día 1</td><td>Equipo F1 de 5-7 no opera 10 microservicios. DDD prepara migración F3+</td></tr>
+            <tr><td><span class="badge badge-star">⭐</span> 3 servicios separados</td><td>Servicio único</td><td>Aislamiento + Fargate Spot solo Worker (-70%) + Cron único evita duplicación</td></tr>
+            <tr><td><span class="badge badge-green">✓</span> 2 SPAs separadas</td><td>SPA única</td><td>Aislamiento WAF + bundles + roles + security-in-depth</td></tr>
+            <tr><td><span class="badge badge-green">✓</span> PostgreSQL 16</td><td>DynamoDB, MongoDB</td><td>Transacciones ACID críticas para fiscal + multi-tenancy con joins complejos</td></tr>
+            <tr><td><span class="badge badge-green">✓</span> ElastiCache Valkey 7</td><td>Redis OSS</td><td>Mismo protocolo, AWS managed, Pub/Sub para Socket.io adapter</td></tr>
+            <tr><td><span class="badge badge-green">✓</span> us-east-1 F1-F3</td><td>sa-east-1</td><td>Más servicios + menor costo. Latencia 80-120ms Colombia OK con Workbox</td></tr>
+            <tr><td><span class="badge badge-amber">⚠</span> Fargate Spot Worker</td><td>On-Demand</td><td>Hasta 70% más barato. Trade-off: interrupciones (BullMQ retries lo mitigan)</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="questions">
+        <div class="questions-title">Preguntas para el arquitecto</div>
+        <ol>
+          <li><strong>Monolito modular hasta F3:</strong> ¿estás de acuerdo o crees que migrar a microservicios debería hacerse antes (F2)?</li>
+          <li><strong>Fargate Spot para Worker:</strong> ¿el ahorro vale la complejidad operacional? ¿Has visto problemas reales con interrupciones?</li>
+          <li><strong>Multi-tenancy lógico en PostgreSQL:</strong> ¿qué umbral de tenants/volumen recomiendas para considerar sharding?</li>
+          <li><strong>OpenSearch postponed a F2:</strong> ¿hay riesgo de que F1 acumule deuda en búsqueda si lo hacemos así?</li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- VISTA 3 -->
+    <section class="vista" id="vista-3">
+      <div class="vista-header">
+        <div class="vista-number">VISTA 3</div>
+        <div>
+          <h2 class="vista-title">Bounded Contexts (DDD)</h2>
+          <p class="vista-subtitle">10 bounded contexts en 3 categorías: Core · Supporting · Generic</p>
+        </div>
+      </div>
+
+      <div class="diagram-wrapper">
+        <div class="mermaid">
+flowchart TB
+    subgraph CORE["🎯 CORE DOMAIN"]
+        OPS["📍 Operations<br/>Turno · POS · KDS · Cobro<br/>Arqueo · FRAUDE temporal"]
+        FIS["📋 Fiscal Compliance<br/>Tiquete 04 · FE 01<br/>Contingencia 03 · NC 91 · Nómina"]
+        AI["🤖 AI Agents<br/>6 agentes + orquestador 3 capas<br/>Guardrails P5 + eval continua"]
+    end
+
+    subgraph SUPPORT["⚙️ SUPPORTING"]
+        INV["📦 Inventory<br/>Stock · Mermas · Lotes<br/>+ valor monetario + conteo diario"]
+        CAT["📖 Catalog<br/>Productos · Menú · Recetas F2<br/>+ flag mueve_inventario"]
+        ACC["📊 Accounting<br/>PUC · P&G · Balance<br/>Retenciones cliente + agente"]
+        PAY["👤 Payroll<br/>Marcación · Bienestar<br/>+ ventas colaboradores"]
+        REC["🏦 Bank Reconciliation<br/>F2 asistida / F3 auto A3"]
+        CRM["🎁 CRM básico<br/>Clientes FE Ley 1581 opt-in"]
+    end
+
+    subgraph GENERIC["🏛️ GENERIC"]
+        ID["🔐 Identity & Tenancy<br/>Tenants · Users · Roles<br/>Subscription FR-15"]
+        PLAT["🛠️ Platform Admin<br/>YARO Console · Cobranza<br/>Soporte · Auditoría"]
+    end
+
+    OPS -->|CobroRegistrado| FIS
+    OPS --> INV
+    OPS --> CAT
+    OPS -->|Cliente nuevo| CRM
+    FIS <--> AI
+    AI --> ACC
+    AI --> INV
+    INV --> ACC
+    OPS --> ACC
+    PAY --> ACC
+    REC --> ACC
+    OPS --> REC
+    OPS --> PAY
+    CRM --> PAY
+
+    ID -.contexto.-> OPS
+    ID -.contexto.-> FIS
+    PLAT -.observa.-> ID
+
+    style CORE fill:#c0392b,color:#ffffff
+    style SUPPORT fill:#534AB7,color:#ffffff
+    style GENERIC fill:#2471a3,color:#ffffff
+        </div>
+      </div>
+
+      <h3>Por qué esta separación importa</h3>
+      <ul class="clean">
+        <li><strong>Core</strong> (Operations + Fiscal + AI Agents): inversión técnica máxima. Tests exhaustivos. Code review por 2 ingenieros.</li>
+        <li><strong>Supporting</strong>: necesarios pero no diferenciadores. Modelos correctos, equipo medio.</li>
+        <li><strong>Generic</strong>: replicable, librerías open source cuando posible.</li>
+      </ul>
+
+      <h3>Migración futura a microservicios (F3+ si necesario)</h3>
+      <ol>
+        <li><strong>AI Service</strong> primero (más independiente)</li>
+        <li><strong>Fiscal Worker</strong> (transmisiones DIAN)</li>
+        <li><strong>Reconciliation Worker</strong> (F3)</li>
+        <li><strong>Country Services</strong> (F4 multi-país)</li>
+      </ol>
+
+      <div class="questions">
+        <div class="questions-title">Preguntas para el arquitecto</div>
+        <ol>
+          <li><strong>CRM como nuevo bounded context</strong> (adendum #3): ¿debería ser independiente o sub-contexto de Identity?</li>
+          <li><strong>Eventos cross-context:</strong> ¿usar Outbox + EventBridge desde día 1 o esperar hasta F3?</li>
+          <li><strong>Anti-corruption layers</strong> entre Fiscal ↔ Operations: ¿cómo recomiendas implementarlos (interfaces TypeScript + DTOs vs adapters formales)?</li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- VISTA 4 -->
+    <section class="vista" id="vista-4">
+      <div class="vista-header">
+        <div class="vista-number">VISTA 4</div>
+        <div>
+          <h2 class="vista-title">Modelo de datos</h2>
+          <p class="vista-subtitle">Schema Fase 1 con 47 tablas agrupadas por bounded context</p>
+        </div>
+      </div>
+
+      <div class="diagram-wrapper">
+        <div class="mermaid">
+erDiagram
+    TENANTS ||--o{ SEDES : tiene
+    TENANTS ||--o{ USERS : tiene
+    TENANTS ||--|| SUBSCRIPTIONS : tiene
+    TENANTS ||--o{ CLIENTES : tiene
+    TENANTS ||--o{ PRODUCTOS : tiene
+    TENANTS ||--o{ TAX_SNAPSHOTS : tiene
+    COUNTRY_CONFIG ||--o{ TENANTS : aplica
+
+    SEDES ||--o{ TURNOS : tiene
+    SEDES ||--o{ INVENTARIO_SEDE : tiene
+    SEDES ||--|| EFECTIVO_DISPONIBLE : tiene
+
+    TURNOS ||--|| CAJAS : tiene
+    CAJAS ||--|| ARQUEOS : tiene
+    ARQUEOS ||--o{ ARQUEO_DENOMINACIONES : detalle
+    ARQUEOS ||--o{ CONTEOS_INVENTARIO : valida
+
+    TURNOS ||--o{ ORDENES : contiene
+    ORDENES ||--o{ ITEMS_ORDEN : contiene
+    ORDENES ||--o{ ANULACIONES_ITEMS : registra
+    ORDENES ||--|| COBROS : genera
+    COBROS ||--o{ DESCUENTOS_APLICADOS : tiene
+    COBROS ||--o{ RETENCIONES_RECIBIDAS : cliente_retiene
+    COBROS ||--|| FISCAL_DOCUMENTS : produce
+    FISCAL_DOCUMENTS }o--|| TAX_SNAPSHOTS : usa
+    FISCAL_DOCUMENTS ||--o| FAILED_FISCAL_DOCUMENTS : puede_expirar
+
+    SYNC_QUEUE }o--|| COBROS : encola_offline
+    FACTURAS_PROVEEDOR ||--o{ LINEAS_FACTURA_PROVEEDOR : detalle
+    LINEAS_FACTURA_PROVEEDOR ||--o{ AGENT_INTERACTIONS : clasifica
+    AGENT_INTERACTIONS ||--o{ AGENT_EVALUATIONS : evalua
+
+    INVENTARIO_SEDE ||--o{ INVENTARIO_MOVIMIENTOS : historial
+    EFECTIVO_DISPONIBLE ||--o{ EFECTIVO_MOVIMIENTOS : historial
+    EFECTIVO_MOVIMIENTOS ||--o| CONSIGNACIONES : referencia
+
+    SUBSCRIPTIONS ||--o{ SUBSCRIPTION_EVENTS : audita
+    SOLICITUDES_AUTORIZACION ||--|| POLITICAS_AUTORIZACION : evalua
+
+    PLATFORM_USERS ||--o{ PLATFORM_ACCESS_LOG : registra
+        </div>
+      </div>
+
+      <h3>Resumen por bloque (47 tablas F1)</h3>
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th>Bloque</th><th># Tablas</th><th>Tablas clave</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Identity & Tenancy</strong></td><td>5</td><td>tenants · sedes · users · sessions · subscriptions</td></tr>
+            <tr><td><strong>Catalog</strong></td><td>2</td><td>productos · categorias_producto</td></tr>
+            <tr><td><strong>Operations</strong></td><td>7</td><td>turnos · cajas · arqueos · mesas · ordenes · items_orden · cobros</td></tr>
+            <tr><td><strong>Inventory</strong></td><td>4</td><td>inventario_sede · mermas · inventario_movimientos · conteos_inventario</td></tr>
+            <tr><td><strong>Fiscal Compliance</strong></td><td>7</td><td>fiscal_documents · tax_snapshots · failed_fiscal_documents · sync_queue · facturas_proveedor · lineas_factura_proveedor · retenciones_recibidas</td></tr>
+            <tr><td><strong>CRM</strong></td><td>1</td><td>clientes (extendida con +10 campos)</td></tr>
+            <tr><td><strong>AI Agents</strong></td><td>3</td><td>agent_interactions · agent_evaluations · tenant_rules</td></tr>
+            <tr><td><strong>Payroll</strong></td><td>2</td><td>attendance_records · ventas_colaboradores</td></tr>
+            <tr><td><strong>Audit & Platform</strong></td><td>4</td><td>audit_events · platform_users · platform_access_log · empleado_metricas_diarias</td></tr>
+            <tr><td><strong>Country & Config</strong></td><td>3</td><td>country_config · denominaciones_efectivo · tipos_gasto</td></tr>
+            <tr><td><strong>Cash management</strong></td><td>4</td><td>efectivo_disponible · efectivo_movimientos · consignaciones · arqueo_denominaciones</td></tr>
+            <tr><td><strong>Descuentos</strong></td><td>2</td><td>descuentos_aplicados · motivos_descuento</td></tr>
+            <tr><td><strong>Anti-fraude</strong></td><td>1</td><td>anulaciones_items</td></tr>
+            <tr><td><strong>Autorizaciones</strong></td><td>2</td><td>politicas_autorizacion · solicitudes_autorizacion</td></tr>
+            <tr><td><strong>Transición</strong></td><td>1</td><td>comparacion_externa (Toteat)</td></tr>
+            <tr style="background: var(--yaro-accent);"><td><strong>Total F1</strong></td><td><strong>47</strong></td><td></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="alert">
+        <strong>Tablas críticas con triggers append-only (P1):</strong> <code>fiscal_documents</code> · <code>audit_events</code> · <code>agent_interactions</code> · <code>subscription_events</code> · <code>platform_access_log</code> · <code>efectivo_movimientos</code> · <code>inventario_movimientos</code>
+      </div>
+
+      <div class="questions">
+        <div class="questions-title">Preguntas para el arquitecto</div>
+        <ol>
+          <li><strong>47 tablas F1 es mucho para 5 ingenieros:</strong> ¿recomiendas consolidación de algunas o está bien la granularidad?</li>
+          <li><strong>Particionado mensual</strong> en audit_events + agent_interactions + platform_access_log: ¿<code>pg_partman</code> o estrategia custom?</li>
+          <li><strong>JSONB extensivo</strong> (metodos_pago, modulos_activos, match_pattern): ¿hay riesgo de degradación de queries vs normalización?</li>
+          <li><strong>IDs UUID v4:</strong> ¿impacto en índices BTREE? ¿Recomendarías UUID v7 (sortable) en F2+?</li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- VISTA 5 -->
+    <section class="vista" id="vista-5">
+      <div class="vista-header">
+        <div class="vista-number">VISTA 5</div>
+        <div>
+          <h2 class="vista-title">Multi-tenancy y aislamiento (P3)</h2>
+          <p class="vista-subtitle">4 capas de defensa independientes</p>
+        </div>
+      </div>
+
+      <div class="diagram-wrapper">
+        <div class="mermaid">
+flowchart TB
+    REQ["🌐 Request HTTP + JWT"] --> L1
+    L1["Capa 1 · JWT<br/>tenant_id firmado RS512<br/>kid rotation 90d"] --> L2
+    L2["Capa 2 · NestJS Guards<br/>AuthGuard + TenantGuard<br/>+ PlatformAdminGuard"] --> L3
+    L3["Capa 3 · CLS Context<br/>AsyncLocalStorage propaga<br/>tenantId via nestjs-cls"] --> L4
+    L4["Capa 4 · Prisma Middleware ⭐<br/>tenant_id INYECTADO en WHERE<br/>+ data forzado INSERT/UPDATE"] --> L5
+    L5["Capa 5 · PostgreSQL RLS<br/>opcional F2+<br/>segunda red de seguridad"] --> DB[(PostgreSQL DB)]
+
+    L1 -.fail.-> R1["401 Unauthorized"]
+    L2 -.fail.-> R2["403 Forbidden"]
+    L3 -.fail.-> R3["500 + log crítico"]
+    L4 -.fail.-> R4["Exception + log crítico"]
+
+    style L4 fill:#b7860b,color:#ffffff
+    style L5 fill:#c0392b,color:#ffffff
+    style R4 fill:#c0392b,color:#ffffff
+        </div>
+      </div>
+
+      <h3>Bypass auditado para queries de plataforma (CA3)</h3>
+      <p>Patrón para queries cross-tenant del equipo YARO — siempre con razón documentada y log automático en <code>platform_access_log</code>.</p>
+
+      <h3>Gate CI obligatorio</h3>
+      <div class="alert alert-critical">
+        Suite de <strong>15+ tests de aislamiento multi-tenant</strong> debe pasar al 100% para que un PR pueda mergear. Falla → bloqueo automático.
+      </div>
+
+      <h3>Decisiones tomadas</h3>
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th>Decisión</th><th>Por qué</th></tr></thead>
+          <tbody>
+            <tr><td><span class="badge badge-star">⭐</span> Shared DB + Shared Schema + tenant_id</td><td>Viable hasta 500-1.000 tenants. Migración a DB dedicada por cliente Enterprise es factible cuando aplique</td></tr>
+            <tr><td><span class="badge badge-green">✓</span> 4 capas independientes</td><td>Defense in depth — para fallo total las 4 deben caer</td></tr>
+            <tr><td><span class="badge badge-green">✓</span> CLS sobre AsyncLocalStorage</td><td>Propagación automática vs pasar tenantId en cada función (error-prone)</td></tr>
+            <tr><td><span class="badge badge-green">✓</span> Prisma middleware como Single Point of Truth</td><td>Una sola línea enforce P3. Tests CI obligatorios</td></tr>
+            <tr><td><span class="badge badge-amber">⚠</span> RLS PostgreSQL solo F2+</td><td>Complejidad operativa adicional. En F1 middleware Prisma basta + tests CI</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="questions">
+        <div class="questions-title">Preguntas para el arquitecto</div>
+        <ol>
+          <li><strong>RLS PostgreSQL desde F1:</strong> ¿recomendarías activarlo desde día 1 como segunda red, aunque añada complejidad?</li>
+          <li><strong>CLS performance:</strong> ¿has visto impacto medible en alta carga?</li>
+          <li><strong><code>__platformQuery</code> flag en CLS:</strong> ¿es suficientemente seguro o recomiendas mecanismo más estricto (JWT separado para platform admin con scope)?</li>
+          <li><strong>15+ casos de test aislamiento:</strong> ¿qué otros escenarios adversariales recomiendas agregar?</li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- VISTA 6 -->
+    <section class="vista" id="vista-6">
+      <div class="vista-header">
+        <div class="vista-number">VISTA 6</div>
+        <div>
+          <h2 class="vista-title">Pipeline DIAN fire-and-forget</h2>
+          <p class="vista-subtitle">Flujo end-to-end de cobro hasta CUFE + state machine</p>
+        </div>
+      </div>
+
+      <h3>Flujo end-to-end de un cobro hasta CUFE</h3>
+      <div class="diagram-wrapper">
+        <div class="mermaid">
+sequenceDiagram
+    autonumber
+    actor C as Cajero
+    participant UI as POS UI
+    participant API as API Service
+    participant PG as PostgreSQL
+    participant BMQ as BullMQ Valkey
+    participant W as Worker
+    participant FAC as Facture
+    participant DIAN as DIAN MUISCA
+
+    C->>UI: Confirma cobro mesa 7
+    UI->>API: POST cobros
+    activate API
+
+    API->>PG: BEGIN transaction
+    API->>PG: SELECT tax_snapshot active
+    API->>PG: INSERT cobros con tax_snapshot_id
+    API->>PG: INSERT fiscal_documents status DRAFT
+    API->>PG: COMMIT a los 30ms
+
+    API->>BMQ: enqueue dian-transmit a los 50ms
+
+    API-->>UI: Respuesta cobroId status ok a los 80ms
+    deactivate API
+
+    UI-->>C: Confirmacion inmediata - Estado Transmitiendo
+
+    Note over BMQ,DIAN: ASYNC - fire and forget
+
+    BMQ->>W: dequeue mas lock pesimista
+    activate W
+    W->>PG: UPDATE status TRANSMITTING
+    W->>W: Genera XML UBL 2.1 con tax_snapshot
+    W->>W: Valida pre-transmision NIT CIIU totales
+    W->>FAC: POST firmar y transmitir
+
+    FAC->>FAC: Firma XAdES-BES
+    FAC->>DIAN: Transmite XML firmado
+    DIAN-->>FAC: ACK mas CUFE
+    FAC-->>W: Respuesta cufe status ACCEPTED
+
+    W->>PG: UPDATE status ACCEPTED mas cufe
+    W->>BMQ: publish DocumentoFiscalACCEPTED
+    deactivate W
+
+    BMQ-->>UI: WebSocket event cobroId cufe status
+    UI-->>C: Cambia a DIAN OK - tipico 5 a 30s p95
+        </div>
+      </div>
+
+      <h3>State machine de <code>fiscal_documents</code></h3>
+      <div class="diagram-wrapper">
+        <div class="mermaid">
+stateDiagram-v2
+    [*] --> DRAFT: cobro registrado
+    DRAFT --> QUEUED: encolado BullMQ
+    QUEUED --> TRANSMITTING: worker toma job
+    TRANSMITTING --> ACCEPTED: CUFE recibido
+    TRANSMITTING --> REJECTED: error 4xx Facture
+    TRANSMITTING --> QUEUED: timeout o 5xx backoff
+    QUEUED --> EXPIRED: mas de 48h sin transmitir
+    EXPIRED --> [*]: a failed_fiscal_documents
+    ACCEPTED --> [*]: P1 terminal trigger SQL bloquea
+
+    note right of ACCEPTED
+        Trigger SQL append-only.
+        UPDATE rechazado por DB.
+        Para anular emitir NC Tipo 91.
+    end note
+
+    note right of QUEUED
+        Backoff exponencial:
+        2s, 4s, 8s, 16s, 32s.
+        Max 5 reintentos.
+    end note
+        </div>
+      </div>
+
+      <h3>Decisiones tomadas (ADR-003 + ADR-010)</h3>
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th>Decisión</th><th>Justificación</th></tr></thead>
+          <tbody>
+            <tr><td><span class="badge badge-star">⭐</span> Fire-and-forget con BullMQ</td><td>P2 cajero nunca espera &lt; 100ms. Llamada síncrona a Facture mata UX en hora pico (R1)</td></tr>
+            <tr><td><span class="badge badge-star">⭐</span> Append-only fiscal con trigger SQL</td><td>P1 inviolable. Para anular: nota crédito Tipo 91. Garantizado a nivel DB, no app</td></tr>
+            <tr><td><span class="badge badge-green">✓</span> tax_snapshot referenciado por cobro (CA7)</td><td>Cambios fiscales no afectan retroactivamente. Cobros offline guardan snapshot del momento</td></tr>
+            <tr><td><span class="badge badge-green">✓</span> 5 reintentos con backoff exponencial</td><td>Cubre 99% errores transientes. Más reintentos = burning compute</td></tr>
+            <tr><td><span class="badge badge-green">✓</span> Cron reconciliación 15 min</td><td>Detecta huérfanos (DRAFT/QUEUED &gt; 10 min) + EXPIRED → failed_fiscal_documents</td></tr>
+            <tr><td><span class="badge badge-green">✓</span> failed_fiscal_documents separado (CA6)</td><td>Tiquetes expirados sin transmitir → alerta legal a Carolina + Valentina. NUNCA purgar</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>SLAs internos (CA1)</h3>
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th>Tiempo desde cobro</th><th>Estado esperado</th><th>Acción si falla</th></tr></thead>
+          <tbody>
+            <tr><td>&lt; 100ms</td><td>API responde al cajero</td><td>Bug crítico R1</td></tr>
+            <tr><td>&lt; 5s p50</td><td>DIAN ACCEPTED</td><td>Investigar BullMQ</td></tr>
+            <tr><td>&lt; 30s p95</td><td>DIAN ACCEPTED</td><td>Alerta Facture lento</td></tr>
+            <tr><td>&lt; 5 min todos</td><td>DIAN ACCEPTED</td><td>Alerta crítica</td></tr>
+            <tr><td>&lt; 48h</td><td>Transmitido obligatorio</td><td>Sino: EXPIRED + alerta legal</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="questions">
+        <div class="questions-title">Preguntas para el arquitecto</div>
+        <ol>
+          <li><strong>BullMQ vs SQS:</strong> ¿confirmas que BullMQ es mejor opción? (SQS sería más caro y latencia mayor)</li>
+          <li><strong>Lock pesimista en Worker:</strong> ¿hay alternativas más performantes (optimistic locking con version field)?</li>
+          <li><strong>Anexo técnico DIAN cambia 2-3 veces/año:</strong> ¿cómo recomiendas blindar XML builder ante esos cambios?</li>
+          <li><strong>Facture.co como single dependency:</strong> ¿plan B con operador alternativo es realista en F3?</li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- VISTA 7 -->
+    <section class="vista" id="vista-7">
+      <div class="vista-header">
+        <div class="vista-number">VISTA 7</div>
+        <div>
+          <h2 class="vista-title">Modo offline + sincronización</h2>
+          <p class="vista-subtitle">Workbox + IndexedDB + @yaro/xml-builder compartido</p>
+        </div>
+      </div>
+
+      <div class="diagram-wrapper">
+        <div class="mermaid">
+flowchart TB
+    subgraph BROWSER["🌐 Navegador / PWA"]
+        UI["Angular App<br/>signals + RxJS"]
+
+        subgraph SW["⚙️ Service Worker"]
+            WB["Workbox<br/>estrategias caché"]
+            XML["@yaro/xml-builder<br/>librería compartida<br/>frontend + backend"]
+            BG["Background Sync API<br/>+ fallback manual Safari"]
+        end
+
+        subgraph STORAGE["💾 Storage local"]
+            IDB[("IndexedDB<br/>via idb library<br/>SyncQueue + caché")]
+            CACHE[("Cache Storage<br/>Workbox managed")]
+        end
+    end
+
+    subgraph SERVER["☁️ Backend"]
+        API["API NestJS<br/>endpoint /sync/tiquetes"]
+        WS["WebSocket Server<br/>Socket.io + Valkey"]
+    end
+
+    UI <-->|fetch intercept| WB
+    UI -->|escribe cobros offline| IDB
+    UI -->|lee menú cacheado| CACHE
+    WB <-->|cache strategies| CACHE
+    WB -->|intercepta /cobros si offline| IDB
+    XML -->|genera XML contingencia Tipo 03| IDB
+    BG -->|trigger al reconectar| SW
+    SW -->|POST sync tiquetes batch 50| API
+    UI <-.->|WebSocket online| WS
+    API -.->|si online normal| SW
+
+    style SW fill:#3d9970,color:#ffffff
+    style STORAGE fill:#b7860b,color:#ffffff
+    style SERVER fill:#2471a3,color:#ffffff
+        </div>
+      </div>
+
+      <h3>Estrategias Workbox por tipo de recurso</h3>
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th>Recurso</th><th>Estrategia</th><th>TTL</th><th>Por qué</th></tr></thead>
+          <tbody>
+            <tr><td>Menú / productos</td><td>CacheFirst</td><td>24h</td><td>Cambia poco, cajero necesita offline</td></tr>
+            <tr><td>Configuración tenant + tax snapshot</td><td>CacheFirst</td><td>7 días</td><td>Cambia raramente, crítico offline</td></tr>
+            <tr><td>Plano mesas / turno activo</td><td>NetworkFirst (3s timeout)</td><td>1h</td><td>Cambia constantemente</td></tr>
+            <tr><td>Assets (logos, iconos)</td><td>StaleWhileRevalidate</td><td>—</td><td>Sirve rápido + actualiza background</td></tr>
+            <tr><td>/cobros POST</td><td>NetworkOnly + fallback</td><td>—</td><td>NUNCA cachear response</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Decisiones tomadas (ADR-004)</h3>
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th>Decisión</th><th>Por qué</th></tr></thead>
+          <tbody>
+            <tr><td><span class="badge badge-star">⭐</span> Workbox sobre SW nativo Angular</td><td>Estrategias por ruta listas, plugins expiración, Background Sync built-in</td></tr>
+            <tr><td><span class="badge badge-star">⭐</span> @yaro/xml-builder compartido FE/BE</td><td>Sin esto, contingencia offline no funciona (critica.md §5)</td></tr>
+            <tr><td><span class="badge badge-star">⭐</span> Numeración asignada por backend al sync</td><td>Evita duplicados con múltiples dispositivos offline</td></tr>
+            <tr><td><span class="badge badge-green">✓</span> 3 capas detección conectividad</td><td><code>navigator.onLine</code> no es confiable</td></tr>
+            <tr><td><span class="badge badge-green">✓</span> Background Sync + fallback manual</td><td>iOS Safari no tiene Background Sync — fallback obligatorio</td></tr>
+            <tr><td><span class="badge badge-green">✓</span> Batch sync max 50 tiquetes/request</td><td>Limita tamaño payload + progreso incremental</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="questions">
+        <div class="questions-title">Preguntas para el arquitecto</div>
+        <ol>
+          <li><strong>iOS Safari Background Sync no soportado:</strong> ¿recomendarías forzar tablets Android para food trucks o el fallback manual es suficiente?</li>
+          <li><strong>XSD validation en Service Worker (libxml2-wasm):</strong> ¿hay riesgos performance/cuota que veas?</li>
+          <li><strong>IndexedDB en Safari:</strong> ¿hay limitaciones conocidas que afecten US-OFF-009 (cobros 8h offline)?</li>
+          <li><strong>@yaro/xml-builder como librería compartida:</strong> ¿cómo recomiendas el packaging (monorepo workspaces vs NPM privada)?</li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- VISTA 8 -->
+    <section class="vista" id="vista-8">
+      <div class="vista-header">
+        <div class="vista-number">VISTA 8</div>
+        <div>
+          <h2 class="vista-title">Plataforma de Agentes IA</h2>
+          <p class="vista-subtitle">6 agentes + orquestador 3 capas + guardrails P5</p>
+        </div>
+      </div>
+
+      <div class="diagram-wrapper">
+        <div class="mermaid">
+flowchart TB
+    subgraph CONSUMERS["📱 Consumidores"]
+        BUZ["Buzón DIAN UI"]
+        DASH["Dashboard Valentina"]
+        CONC["Conciliación UI"]
+        INVT["Inventario UI"]
+        ARQ["Arqueo UI"]
+    end
+
+    subgraph PLATFORM["🤖 Plataforma M11"]
+        ORCH["Orquestador<br/>síncrono en API"]
+        REG["Registry A1..A6"]
+        PROMPT["Prompt Manager<br/>versionado + canary 5%"]
+        GUARD["Guardrails P5<br/>pre/post procesamiento"]
+        CACHE[("Cache L1<br/>30 min<br/>respuestas idénticas")]
+    end
+
+    subgraph CAPAS["3 Capas fallback"]
+        C1["Capa 1<br/>Claude Sonnet<br/>F2+ activo"]
+        C2["Capa 2<br/>Motor de reglas<br/>determinístico"]
+        C3["Capa 3<br/>Default + escalamiento"]
+    end
+
+    subgraph OBSV["📊 Observabilidad + Eval"]
+        LOG[("agent_interactions<br/>P10 obligatorio")]
+        EVAL["Pipeline eval<br/>Worker async<br/>Claude Haiku judge"]
+        METRIC["Métricas tiempo real:<br/>F2 alucinación · S1 prescriptiva"]
+    end
+
+    BUZ --> ORCH
+    DASH --> ORCH
+    CONC --> ORCH
+    INVT --> ORCH
+    ARQ --> ORCH
+
+    ORCH --> CACHE
+    ORCH --> REG
+    REG --> PROMPT
+    REG --> GUARD
+    ORCH --> C1
+    C1 -.timeout/low conf.-> C2
+    C2 -.no match.-> C3
+
+    ORCH --> LOG
+    LOG --> EVAL
+    EVAL --> METRIC
+
+    style PLATFORM fill:#f7fd9c,color:#1a1916
+    style CAPAS fill:#2471a3,color:#ffffff
+    style OBSV fill:#3d9970,color:#ffffff
+        </div>
+      </div>
+
+      <h3>Los 6 agentes y sus fases</h3>
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th>#</th><th>Agente</th><th>Capa 1 (IA)</th><th>Capa 2 (Reglas)</th><th>Capa 3 (Default)</th><th>Fase</th></tr></thead>
+          <tbody>
+            <tr><td><strong>A1</strong></td><td>Buzón DIAN Clasificador</td><td>Claude Sonnet</td><td>Motor reglas + base</td><td>Default + Manual</td><td>F1→F2</td></tr>
+            <tr><td><strong>A2</strong></td><td>Food Cost & Márgenes</td><td>Claude Sonnet</td><td>Cálculo determinístico</td><td>Dashboard estático</td><td>F2</td></tr>
+            <tr><td><strong>A3</strong></td><td>Conciliación Bancaria</td><td>Claude Sonnet matching</td><td>Match exacto</td><td>Excepción manual</td><td>F3</td></tr>
+            <tr><td><strong>A4</strong></td><td>Copiloto del Dueño</td><td>Claude Sonnet</td><td>Dashboards preconstruidos</td><td>No tengo dato</td><td>F2→F3</td></tr>
+            <tr><td><strong>A5</strong></td><td>Predicción de Stock</td><td>Claude Sonnet</td><td>Promedio móvil ponderado</td><td>Alertas estáticas</td><td>F3</td></tr>
+            <tr><td><strong>A6</strong></td><td><strong>Arqueo Inteligente 🆕</strong></td><td>Claude Sonnet patrones</td><td>Reglas tenant</td><td>Reporte estático</td><td>F2-F3</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Optimización de costos — 6 palancas</h3>
+      <div class="diagram-wrapper">
+        <div class="mermaid">
+flowchart TB
+    HIGH["~$710 USD/mes inicial"] --> L1["P1: Cache eval (-25%)"]
+    L1 --> L2["P2: Muestreo estratificado (-40%)"]
+    L2 --> L3["P3: LLM-judge Haiku (-60%)"]
+    L3 --> L4["P4: Eval async batch (-10%)"]
+    L4 --> L5["P5: Auto-pasar happy paths (-30%)"]
+    L5 --> FINAL["~$120 USD/mes optimizado"]
+
+    style HIGH fill:#c0392b,color:#ffffff
+    style FINAL fill:#3d9970,color:#ffffff
+        </div>
+      </div>
+
+      <div class="questions">
+        <div class="questions-title">Preguntas para el arquitecto</div>
+        <ol>
+          <li><strong>6 agentes con plataforma única:</strong> ¿estás de acuerdo o crees que A4 Copiloto debería ser servicio separado por riesgo P5?</li>
+          <li><strong>Logueo 100% de interacciones:</strong> ¿qué impacto en storage S3 y costo? (proyectamos ~50 GB en F3)</li>
+          <li><strong>A4 Copiloto puede dar consejos prescriptivos:</strong> ¿qué otros guardrails sugieres más allá del regex post-procesamiento?</li>
+          <li><strong>Anthropic Batch API:</strong> ¿has visto problemas con SLA o limitaciones?</li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- VISTA 9 -->
+    <section class="vista" id="vista-9">
+      <div class="vista-header">
+        <div class="vista-number">VISTA 9</div>
+        <div>
+          <h2 class="vista-title">Despliegue AWS</h2>
+          <p class="vista-subtitle">Topología de red en us-east-1 con Multi-AZ</p>
+        </div>
+      </div>
+
+      <div class="diagram-wrapper">
+        <div class="mermaid">
+flowchart TB
+    INET((🌍 Internet))
+
+    subgraph AWS["☁️ AWS us-east-1"]
+        subgraph PUB["🟢 Public subnets"]
+            CF["CloudFront<br/>+ WAF + Shield Std<br/>+ SSL ACM"]
+            ALB["Application<br/>Load Balancer"]
+        end
+
+        subgraph PRIV1["🔒 Private subnet AZ-1a"]
+            API1["API Task 1<br/>1vCPU/2GB"]
+            WORK1["Worker Task 1<br/>SPOT"]
+            CRON1["Cron Task<br/>0.5vCPU/1GB"]
+        end
+
+        subgraph PRIV2["🔒 Private subnet AZ-1b"]
+            API2["API Task 2"]
+            WORK2["Worker Task 2<br/>SPOT"]
+        end
+
+        subgraph DATA["🔐 Data subnets"]
+            RDS_P[("RDS Primary AZ-1a<br/>db.t4g.medium")]
+            RDS_S[("RDS Standby AZ-1b<br/>failover &lt; 60s")]
+            VKEY_P[("Valkey AZ-1a")]
+            VKEY_S[("Valkey AZ-1b")]
+        end
+
+        S3B[("S3 buckets<br/>XMLs 5 años<br/>encrypted KMS")]
+        SEC[("Secrets Manager<br/>+ rotación")]
+        SES_S["AWS SES"]
+        XRAY["X-Ray tracing"]
+        CW["CloudWatch"]
+    end
+
+    EXT_FAC["🌐 Facture.co"]
+    EXT_ANT["🌐 Anthropic"]
+    EXT_RAD["🌐 RADIAN"]
+    EXT_TWI["🌐 Twilio"]
+    EXT_GOO["🌐 Google OAuth"]
+
+    INET --> CF
+    CF --> ALB
+    ALB --> API1
+    ALB --> API2
+    API1 <--> RDS_P
+    API2 <--> RDS_P
+    RDS_P <-.replica.-> RDS_S
+    API1 <--> VKEY_P
+    API2 <--> VKEY_P
+    VKEY_P <-.replica.-> VKEY_S
+    WORK1 <--> VKEY_P
+    WORK2 <--> VKEY_P
+    CRON1 <--> RDS_P
+    CRON1 <--> VKEY_P
+    API1 --> S3B
+    API1 --> SEC
+    API1 --> SES_S
+    WORK1 --> EXT_FAC
+    WORK1 --> EXT_ANT
+    WORK1 --> EXT_RAD
+    API1 --> EXT_TWI
+    API1 --> EXT_GOO
+
+    style PUB fill:#3d9970,color:#ffffff
+    style PRIV1 fill:#2471a3,color:#ffffff
+    style PRIV2 fill:#2471a3,color:#ffffff
+    style DATA fill:#c0392b,color:#ffffff
+        </div>
+      </div>
+
+      <h3>Costos estimados F1 (~$480/mes AWS)</h3>
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th>Recurso</th><th>Configuración F1</th><th>Costo/mes</th></tr></thead>
+          <tbody>
+            <tr><td><strong>API Service</strong></td><td>2-10 Fargate On-Demand</td><td>~$80</td></tr>
+            <tr><td><strong>Worker Service</strong></td><td>1-5 Fargate <strong>SPOT</strong> (70% más barato)</td><td>~$25</td></tr>
+            <tr><td><strong>Cron Service</strong></td><td>1 Fargate</td><td>~$15</td></tr>
+            <tr><td><strong>RDS PostgreSQL</strong></td><td>db.t4g.medium Multi-AZ + backups</td><td>~$200</td></tr>
+            <tr><td><strong>ElastiCache Valkey</strong></td><td>cache.t4g.small × 2</td><td>~$50</td></tr>
+            <tr><td><strong>CloudFront + WAF + Shield Std</strong></td><td>—</td><td>~$30</td></tr>
+            <tr><td><strong>S3 + EBS + transit</strong></td><td>tier transition activo</td><td>~$25</td></tr>
+            <tr><td><strong>CloudWatch + X-Ray</strong></td><td>observabilidad básica</td><td>~$55</td></tr>
+            <tr style="background: var(--yaro-accent);"><td colspan="2"><strong>Total F1 AWS</strong></td><td><strong>~$480/mes</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="questions">
+        <div class="questions-title">Preguntas para el arquitecto</div>
+        <ol>
+          <li><strong>us-east-1 vs sa-east-1:</strong> ¿realmente la latencia ~80-120ms se compensa con Workbox o considerar São Paulo desde F1?</li>
+          <li><strong>NAT Gateway costoso (~$45/mes/AZ):</strong> ¿VPC Endpoints para ECR/S3/SES reduciría costo significativamente?</li>
+          <li><strong>db.t4g.medium Multi-AZ ~$200/mes:</strong> ¿es suficiente para F1 con 5 tenants? ¿Cuándo upgrade?</li>
+          <li><strong>Shield Advanced ($3K/mes):</strong> ¿cuándo se justifica?</li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- VISTA 10 -->
+    <section class="vista" id="vista-10">
+      <div class="vista-header">
+        <div class="vista-number">VISTA 10</div>
+        <div>
+          <h2 class="vista-title">Escalamiento F1 → F4</h2>
+          <p class="vista-subtitle">Evolución de la arquitectura por fase</p>
+        </div>
+      </div>
+
+      <div class="diagram-wrapper">
+        <div class="mermaid">
+flowchart LR
+    F1["📐 Fase 1<br/>mes 1-8<br/>5 tenants<br/>$1.4M MRR"] --> F2["📐 Fase 2<br/>mes 9-18<br/>20 tenants<br/>$7.2M MRR"]
+    F2 --> F3["📐 Fase 3<br/>mes 19-30<br/>50 tenants<br/>$18M MRR"]
+    F3 --> F4["📐 Fase 4+<br/>año 3+<br/>500+ tenants<br/>multi-país"]
+
+    style F1 fill:#3d9970,color:#ffffff
+    style F2 fill:#b7860b,color:#ffffff
+    style F3 fill:#534AB7,color:#ffffff
+    style F4 fill:#1a1916,color:#ffffff
+        </div>
+      </div>
+
+      <h3>Costo por tenant a escala (debe BAJAR con crecimiento)</h3>
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th>Fase</th><th>Infra/tenant/mes</th><th>IA/tenant/mes</th><th>Total/tenant/mes</th></tr></thead>
+          <tbody>
+            <tr><td>F1 (5 tenants)</td><td>$96</td><td>$0</td><td><strong>$96</strong></td></tr>
+            <tr><td>F2 (20 tenants)</td><td>$75</td><td>$50</td><td><strong>$125</strong></td></tr>
+            <tr><td>F3 (50 tenants)</td><td>$80</td><td>$25</td><td><strong>$105</strong></td></tr>
+            <tr><td>F4 (500 tenants)</td><td>$60</td><td>$15</td><td><strong>$75</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="alert">
+        <strong>Aclaración crítica sobre "sharding":</strong> Cliente típico ICP-A (911 Hot Burger) con <strong>$200M COP/mes/sede</strong> = ~1.5 cobros/min hora pico = ~6.700 transacciones/mes. Esto es <strong>20.000× menos</strong> que el umbral de saturación de RDS. <strong>No requiere sharding ni DB dedicada.</strong>
+      </div>
+
+      <h3>Migración a microservicios (F3+ si necesario)</h3>
+      <div class="diagram-wrapper">
+        <div class="mermaid">
+flowchart TB
+    M["🏛️ Monolito modular<br/>F1-F3 hasta ~50 tenants"]
+    M --> S1["1. AI Service<br/>(separar primero — más aislado)"]
+    M --> S2["2. Fiscal Worker<br/>(transmisiones DIAN dedicadas)"]
+    M --> S3["3. Reconciliation Worker<br/>(F3 si batch CSV impacta)"]
+    S1 --> M2["Monolito reducido"]
+    S2 --> M2
+    S3 --> M2
+    M2 --> S4["4. Country Services<br/>(F4+ multi-país real)"]
+
+    style M fill:#3d9970,color:#ffffff
+    style M2 fill:#b7860b,color:#ffffff
+    style S4 fill:#534AB7,color:#ffffff
+        </div>
+      </div>
+
+      <div class="questions">
+        <div class="questions-title">Preguntas para el arquitecto</div>
+        <ol>
+          <li><strong>Microservicios en F3 mes 24:</strong> ¿es momento correcto o muy tarde/temprano?</li>
+          <li><strong>DB dedicada para cliente &gt; 100K transacciones/día:</strong> ¿esto es realista para Enterprise futuro?</li>
+          <li><strong>Multi-país en F3:</strong> ¿Perú (SUNAT) → Ecuador (SRI) → México (SAT) es orden correcto?</li>
+          <li><strong>OpenSearch ROI:</strong> ¿en qué fase realmente se justifica el costo y complejidad?</li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- VISTA 11 -->
+    <section class="vista" id="vista-11">
+      <div class="vista-header">
+        <div class="vista-number">VISTA 11</div>
+        <div>
+          <h2 class="vista-title">Seguridad y Hardening</h2>
+          <p class="vista-subtitle">Defense in depth en 7 capas + Google OAuth</p>
+        </div>
+      </div>
+
+      <div class="diagram-wrapper">
+        <div class="mermaid">
+flowchart TB
+    L1["Capa 1 · Network<br/>WAF + Shield + Rate limiting"]
+    L2["Capa 2 · App<br/>Helmet + CSP + Input validation"]
+    L3["Capa 3 · Auth<br/>MFA TOTP + JWT RS512 + Google OAuth"]
+    L4["Capa 4 · Data<br/>Encryption KMS + Secrets rotation"]
+    L5["Capa 5 · IA<br/>Guardrails P5"]
+    L6["Capa 6 · Operations<br/>Monitoring + Anomaly + Pen-test"]
+    L7["Capa 7 · Legal<br/>Registro SIC + ARCO + Runbook 72h"]
+
+    L1 --> L2 --> L3 --> L4 --> L5 --> L6 --> L7
+
+    style L3 fill:#c0392b,color:#ffffff
+    style L4 fill:#b7860b,color:#ffffff
+    style L7 fill:#534AB7,color:#ffffff
+        </div>
+      </div>
+
+      <h3>Modelo de autenticación híbrido</h3>
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th>Tipo de usuario</th><th>Login</th><th>MFA</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Platform Admin (equipo YARO)</strong></td><td>Email + password + MFA TOTP</td><td><span class="badge badge-red">Obligatorio ⭐</span></td></tr>
+            <tr><td>Support Engineer</td><td>Email + password + MFA TOTP</td><td><span class="badge badge-red">Obligatorio</span></td></tr>
+            <tr><td>Superadmin del tenant (Valentina)</td><td>Email + password ó Google</td><td><span class="badge badge-amber">Opcional F1 → obligatorio F2</span></td></tr>
+            <tr><td>Admin de sede (Andrés)</td><td>Email + password ó Google</td><td><span class="badge badge-green">Opcional</span></td></tr>
+            <tr><td>Cajero / Mesero / Cocina / CDP</td><td><strong>Google OAuth recomendado</strong> o PIN local</td><td><span class="badge badge-green">No requerido</span></td></tr>
+            <tr><td>Contador externo (Carolina)</td><td>Email + password ó Google</td><td><span class="badge badge-blue">Recomendado</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Flujo Google OAuth (colaboradores)</h3>
+      <div class="diagram-wrapper">
+        <div class="mermaid">
+sequenceDiagram
+    actor U as Cajero
+    participant FE as YARO App
+    participant API as Auth API
+    participant GOOG as Google OAuth
+
+    U->>FE: Click Iniciar sesion con Google
+    FE->>GOOG: Redirect oauth2 auth
+    U->>GOOG: Autoriza
+    GOOG-->>FE: code
+    FE->>API: POST auth google callback con code y invitation_token
+    API->>GOOG: Exchange code por id_token
+    GOOG-->>API: id_token mas email_verified
+
+    API->>API: Validar firma y audience
+    alt email_verified false
+        API-->>FE: 403 rechazo
+    end
+
+    API->>API: Match user google_sub OR email
+    alt Usuario existe
+        API->>API: Link google_sub si no estaba
+        API-->>FE: accessToken mas refreshToken
+    else NO existe sin invitacion
+        API-->>FE: 403 Pide a tu admin que te invite
+    else NO existe con invitacion valida
+        API->>API: Activa usuario via invitacion
+        API-->>FE: accessToken mas refreshToken
+    end
+        </div>
+      </div>
+
+      <h3>7 Quick Wins de Hardening F1</h3>
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th>#</th><th>Acción</th><th>Esfuerzo</th><th>Riesgo mitigado</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td>MFA obligatorio Platform Admin</td><td>1 sem</td><td>R2 (catastrófico)</td></tr>
+            <tr><td>2</td><td>AWS WAF + OWASP Top 10 + rate limiting</td><td>1 sem</td><td>R8</td></tr>
+            <tr><td>3</td><td>Dependabot + Snyk + npm audit como gate CI</td><td>3 días</td><td>R8 supply chain</td></tr>
+            <tr><td>4</td><td>Registro ante SIC + política privacidad</td><td>2 sem</td><td>Ley 1581</td></tr>
+            <tr><td>5</td><td>Runbook seguridad + simulacro Q1</td><td>1 sem</td><td>R2, R8</td></tr>
+            <tr><td>6</td><td>Lockout 5 intentos fallidos</td><td>2 días</td><td>R8 credential stuffing</td></tr>
+            <tr><td>7</td><td>Backups encriptados + restore-test mensual</td><td>1 sem</td><td>R1</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="questions">
+        <div class="questions-title">Preguntas para el arquitecto</div>
+        <ol>
+          <li><strong>MFA obligatorio Platform Admin:</strong> ¿TOTP es suficiente o necesitamos WebAuthn/passkeys desde F1?</li>
+          <li><strong>Google OAuth para colaboradores:</strong> ¿riesgos que veas que no estoy considerando?</li>
+          <li><strong>CSP sin <code>unsafe-inline</code> en Angular F2:</strong> ¿estrategia recomendada (nonces vs hashes)?</li>
+          <li><strong>Pen-testing externo anual ($5-8K USD):</strong> ¿hay firmas LATAM que recomiendes?</li>
+          <li><strong>Runbook &lt; 72h SIC:</strong> ¿qué simulacros realistas sugieres?</li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- VISTA 12 -->
+    <section class="vista" id="vista-12">
+      <div class="vista-header">
+        <div class="vista-number">VISTA 12</div>
+        <div>
+          <h2 class="vista-title">Observabilidad y SLOs</h2>
+          <p class="vista-subtitle">4 pilares: métricas + logs + traces + eventos</p>
+        </div>
+      </div>
+
+      <div class="diagram-wrapper">
+        <div class="mermaid">
+flowchart TB
+    APP["🌐 Producción YARO"]
+
+    APP --> M["📈 Métricas<br/>CloudWatch + custom"]
+    APP --> L["📝 Logs<br/>estructurados JSON<br/>sanitizer anti-PII"]
+    APP --> T["🔗 Traces<br/>AWS X-Ray<br/>distributed"]
+    APP --> E["⚡ Eventos<br/>Outbox pattern"]
+
+    M --> ALERT["CloudWatch Alarms<br/>3 niveles severidad"]
+    L --> SIEM["CW Logs Insights<br/>SIEM lite F2"]
+    T --> XR["X-Ray Service Map"]
+    E --> AUDIT["Audit + EventBridge F3"]
+
+    style M fill:#3d9970,color:#ffffff
+    style L fill:#3d9970,color:#ffffff
+    style T fill:#3d9970,color:#ffffff
+    style E fill:#3d9970,color:#ffffff
+        </div>
+      </div>
+
+      <h3>SLOs principales</h3>
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th>SLI</th><th>SLO</th><th>Error budget mensual</th></tr></thead>
+          <tbody>
+            <tr><td><code>/cobros</code> latencia p95</td><td>&lt; 100 ms</td><td>5% del tiempo</td></tr>
+            <tr><td><code>/cobros</code> availability</td><td>99.5%</td><td>3.6 horas/mes</td></tr>
+            <tr><td>DIAN transmisión exitosa</td><td>≥ 99%</td><td>1% en 30d</td></tr>
+            <tr><td>Sync offline → DIAN</td><td>≥ 98%</td><td>2% en 30d</td></tr>
+            <tr><td>KDS WebSocket p95</td><td>&lt; 200 ms</td><td>5%</td></tr>
+            <tr style="background: var(--yaro-red); color: white;"><td><strong>Tenant isolation incidents</strong></td><td><strong>0</strong></td><td><strong>No tolerancia</strong></td></tr>
+            <tr><td>F2 alucinación A4</td><td>&lt; 2%</td><td>Eval continua</td></tr>
+            <tr style="background: var(--yaro-red); color: white;"><td><strong>S1 prescriptivas A4</strong></td><td><strong>&lt; 0.5%</strong></td><td>Eval continua estricta</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Costos observabilidad</h3>
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th>Fase</th><th>CloudWatch</th><th>X-Ray</th><th>Total</th></tr></thead>
+          <tbody>
+            <tr><td>F1</td><td>~$55/mes</td><td>$0 (free tier)</td><td>~$55/mes</td></tr>
+            <tr><td>F2</td><td>~$120/mes</td><td>~$30/mes</td><td>~$225/mes</td></tr>
+            <tr><td>F3</td><td>~$300/mes</td><td>~$100/mes</td><td>~$580/mes</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="questions">
+        <div class="questions-title">Preguntas para el arquitecto</div>
+        <ol>
+          <li><strong>CloudWatch nativo hasta F3:</strong> ¿es realista o recomendarías Datadog desde F2 por mejor UX?</li>
+          <li><strong>OpenTelemetry desde F1:</strong> ¿vale la inversión o esperar a F2/F3?</li>
+          <li><strong>Sanitizer anti-PII en logs:</strong> ¿qué librería recomiendas? (estoy considerando regex custom)</li>
+          <li><strong>Outbox pattern para eventos:</strong> ¿hay implementación NestJS que recomiendes?</li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- VISTA 13 -->
+    <section class="vista" id="vista-13">
+      <div class="vista-header">
+        <div class="vista-number">VISTA 13</div>
+        <div>
+          <h2 class="vista-title">CI/CD pipeline</h2>
+          <p class="vista-subtitle">Terraform + GitHub Actions + rollback &lt; 5 min</p>
+        </div>
+      </div>
+
+      <div class="diagram-wrapper">
+        <div class="mermaid">
+flowchart LR
+    DEV["💻 Dev local<br/>Docker Compose"]
+    PR["🌿 Pull Request"]
+    CI["⚙️ CI Pipeline<br/>todos los gates"]
+    MERGE["✅ Merge to main"]
+    STG["🟡 Staging<br/>auto-deploy"]
+    PROMO["Promote production<br/>manual + MFA"]
+    PROD["🟢 Production"]
+    ROLL["⏪ Rollback &lt; 5min"]
+
+    DEV --> PR
+    PR -->|PR open| CI
+    CI -->|all checks ✅| MERGE
+    MERGE -->|auto| STG
+    STG -->|validación + smoke| PROMO
+    PROMO -->|rolling deploy| PROD
+    PROD -.failure.-> ROLL
+    ROLL --> PROD
+
+    style CI fill:#3d9970,color:#ffffff
+    style PROD fill:#c0392b,color:#ffffff
+    style ROLL fill:#1a1916,color:#ffffff
+        </div>
+      </div>
+
+      <h3>Gates obligatorios CI (15-20 min total)</h3>
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th>Gate</th><th>Qué valida</th><th>Tiempo</th></tr></thead>
+          <tbody>
+            <tr><td>Lint + Format</td><td>ESLint + Prettier</td><td>&lt; 1 min</td></tr>
+            <tr><td>Custom ESLint YARO</td><td>no-raw-query-tenant-id · no-direct-prisma</td><td>&lt; 1 min</td></tr>
+            <tr><td>Unit tests + coverage</td><td>≥ 70% F1 / ≥ 80% F2</td><td>3-5 min</td></tr>
+            <tr style="background: var(--yaro-accent);"><td><strong>Integration tests multi-tenant ⭐</strong></td><td>15+ casos P3 aislamiento</td><td>5 min</td></tr>
+            <tr><td>Security audit</td><td>Snyk + npm audit</td><td>2 min</td></tr>
+            <tr style="background: var(--yaro-accent);"><td><strong>xml-builder version check ⭐</strong></td><td>CA2 — fe/be/sw consistentes</td><td>&lt; 1 min</td></tr>
+            <tr><td>Schema migration safety</td><td>expand-contract enforced</td><td>&lt; 1 min</td></tr>
+            <tr><td>E2E smoke tests</td><td>Playwright crítico</td><td>5 min</td></tr>
+            <tr><td>Build</td><td>Docker multi-stage</td><td>3 min</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Disaster Recovery</h3>
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th>Métrica</th><th>Target</th></tr></thead>
+          <tbody>
+            <tr><td><strong>RPO</strong> (pérdida máxima)</td><td>&lt; 5 minutos</td></tr>
+            <tr><td><strong>RTO</strong> (tiempo a restaurar)</td><td>&lt; 1 hora</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="questions">
+        <div class="questions-title">Preguntas para el arquitecto</div>
+        <ol>
+          <li><strong>15-20 min CI por PR:</strong> ¿es aceptable o recomiendas paralelización agresiva?</li>
+          <li><strong>Tests aislamiento con BD real (testcontainers):</strong> ¿hay alternativas más rápidas (mocks)?</li>
+          <li><strong>Rollback &lt; 5 min:</strong> ¿es realista con ECS rolling deployment o necesitamos blue-green real?</li>
+          <li><strong>Sync prod → staging anonimizado semanal:</strong> ¿algún riesgo legal Habeas Data que veas?</li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- VISTA 14 -->
+    <section class="vista" id="vista-14">
+      <div class="vista-header">
+        <div class="vista-number">VISTA 14</div>
+        <div>
+          <h2 class="vista-title">Sistema de Autorizaciones configurable</h2>
+          <p class="vista-subtitle">Flujo real-time WebSocket + 4 presets por tenant</p>
+        </div>
+      </div>
+
+      <div class="diagram-wrapper">
+        <div class="mermaid">
+sequenceDiagram
+    autonumber
+    actor M as Mesera Juliana
+    actor A as Admin Andres
+    participant POS as POS app
+    participant API as API
+    participant DB as PostgreSQL
+    participant WS as WebSocket
+    participant ADMIN as App Admin
+    participant PUSH as Push PWA
+
+    M->>POS: Solicita eliminar item producto hace 23 min
+    POS->>API: POST ordenes items eliminar
+    API->>DB: Lee politicas_autorizacion del tenant
+    API->>API: Valida ventana 5min a 1h - politica requiere auth
+    API->>DB: INSERT solicitudes_autorizacion estado PENDIENTE
+    API->>WS: Publica autorizacion_solicitada canal sede admins
+    API->>PUSH: Send web push a admins activos
+    API-->>POS: Respuesta solicitudId estado PENDIENTE expiraEn
+    POS-->>M: Esperando autorizacion del admin
+
+    par Notificaciones paralelas
+        WS-->>ADMIN: Real-time event y modal popup
+        PUSH-->>ADMIN: Notification push
+    end
+
+    ADMIN-->>A: Modal con detalles - Juliana quiere eliminar hamburguesa
+    A-->>ADMIN: Revisa la solicitud
+
+    alt Andres aprueba en 30s
+        A->>ADMIN: Tap Aprobar
+        ADMIN->>API: POST autorizaciones decidir
+        API->>DB: UPDATE estado AUTORIZADA y ejecuta eliminacion
+        API->>WS: Publica autorizacion_decidida
+        WS-->>POS: Notificacion real-time
+        POS-->>M: Aprobado por Andres
+    else Andres rechaza
+        A->>ADMIN: Tap Rechazar mas motivo
+        ADMIN->>API: POST autorizaciones decidir
+        API->>WS: Publica autorizacion_decidida
+        WS-->>POS: Notificacion
+        POS-->>M: Rechazado con motivo
+    else Timeout 90s
+        API->>API: Cron detecta timeout
+        API->>WS: Escala a Valentina segundo nivel
+        Note over API: Si Valentina tampoco responde 60s aplica politica tenant BLOQUEAR FLAG_ROJO o AUTO
+    end
+
+    Note over DB: Audit completo en audit_events y solicitudes_autorizacion
+        </div>
+      </div>
+
+      <h3>Presets configurables por tenant</h3>
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th>Preset</th><th>Cuándo usarlo</th><th>Comportamiento</th></tr></thead>
+          <tbody>
+            <tr><td>🟢 <strong>Confiable</strong></td><td>Equipo alta confianza, dueño siempre presente</td><td>Anulaciones &lt; $30K auto · Solo bloquea &gt; 1h</td></tr>
+            <tr><td>🟡 <strong>Estándar (default)</strong></td><td>Mayoría — balance control/operación</td><td>0-5 min libre · 5min-1h admin · &gt;1h bloqueado</td></tr>
+            <tr><td>🟠 <strong>Estricto</strong></td><td>Equipo turnover alto, dueño no presente</td><td>Toda anulación &gt; 5 min admin · Todo descuento admin</td></tr>
+            <tr><td>🔴 <strong>Máximo Control</strong></td><td>Post-incidente fraude o equipo nuevo</td><td>Toda modificación + comentario · Valentina aprueba &gt; $100K</td></tr>
+            <tr><td>⚙️ <strong>Personalizado</strong></td><td>Configuración granular</td><td>Por cada uno de los 10 tipos de operación</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Costo técnico: cero adicional</h3>
+      <div class="alert">
+        Reutiliza infraestructura ya en F1: Socket.io WebSocket (KDS) + ElastiCache Valkey Pub/Sub + Push PWA. Solo agrega 2 tablas + 3 endpoints REST + 2 eventos WebSocket + modal UI.
+      </div>
+
+      <div class="questions">
+        <div class="questions-title">Preguntas para el arquitecto</div>
+        <ol>
+          <li><strong>Push PWA + WebSocket modal simultáneo:</strong> ¿overhead aceptable o redundante?</li>
+          <li><strong>Timeout 90s + escalamiento:</strong> ¿estos plazos son realistas? ¿Más cortos serían mejor?</li>
+          <li><strong><code>accion_post_timeout</code> configurable:</strong> ¿cómo evitar que un tenant elija "PERMITIR_AUTO" y exponga fraude?</li>
+          <li><strong>WebSocket reconnection:</strong> ¿estrategia para que cajera no pierda notificación si pierde conexión?</li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- VISTA 15 -->
+    <section class="vista" id="vista-15">
+      <div class="vista-header">
+        <div class="vista-number">VISTA 15</div>
+        <div>
+          <h2 class="vista-title">Resumen ejecutivo</h2>
+          <p class="vista-subtitle">YARO completo en una imagen para imprimir</p>
+        </div>
+      </div>
+
+      <div class="diagram-wrapper">
+        <div class="mermaid">
+flowchart TB
+    subgraph USERS["👥 Usuarios"]
+        VAL["Valentina<br/>Dueña"]
+        AN["Andrés<br/>Admin"]
+        CAR["Carolina<br/>Contadora"]
+        CJ["Cajero/Mesera/<br/>Cocina"]
+    end
+
+    subgraph CLIENT["💻 Frontend"]
+        APP["YARO App<br/>Angular 17 + Workbox"]
+        SW["Service Worker<br/>+ xml-builder<br/>+ IndexedDB"]
+    end
+
+    subgraph EDGE["🌐 Edge"]
+        CF["CloudFront + WAF<br/>+ Shield"]
+    end
+
+    subgraph BACKEND["⚙️ Backend AWS Fargate"]
+        API["API NestJS<br/>2-10 tasks"]
+        WORKER["Worker BullMQ<br/>SPOT 1-5 tasks"]
+        CRON["Cron Service<br/>1 task"]
+    end
+
+    subgraph DATA["💾 Datos"]
+        RDS[("PostgreSQL<br/>47 tablas F1<br/>Multi-AZ")]
+        VKEY[("Valkey<br/>BullMQ + WS")]
+        S3[("S3 XMLs DIAN<br/>5 años")]
+    end
+
+    subgraph AI["🤖 6 Agentes IA"]
+        A1["A1 Buzón DIAN"]
+        A2["A2 Food Cost"]
+        A3["A3 Conciliación"]
+        A4["A4 Copiloto"]
+        A5["A5 Stock"]
+        A6["A6 Arqueo 🆕"]
+    end
+
+    subgraph EXT["🌍 Externos"]
+        FAC["Facture.co<br/>DIAN"]
+        ANT["Anthropic<br/>Sonnet + Haiku"]
+        GOOG["Google<br/>OAuth"]
+        SMS["Twilio<br/>SMS"]
+        BANK["Bancos<br/>CSV F2+"]
+    end
+
+    USERS --> CF
+    CF --> APP
+    APP <--> SW
+    APP --> API
+    API <--> RDS
+    API <--> VKEY
+    API <--> S3
+    API <--> AI
+    API --> WORKER
+    WORKER --> FAC
+    WORKER --> ANT
+    CRON --> RDS
+    API --> GOOG
+    API --> SMS
+    WORKER --> BANK
+
+    style USERS fill:#3d9970,color:#ffffff
+    style CLIENT fill:#f7fd9c,color:#1a1916
+    style EDGE fill:#534AB7,color:#ffffff
+    style BACKEND fill:#2471a3,color:#ffffff
+    style DATA fill:#b7860b,color:#ffffff
+    style AI fill:#c0392b,color:#ffffff
+    style EXT fill:#1a1916,color:#ffffff
+        </div>
+      </div>
+
+      <h3>Métricas clave para el arquitecto</h3>
+      <div class="table-wrapper">
+        <table>
+          <thead><tr><th>Aspecto</th><th>F1 (mes 8)</th><th>F3 (mes 30)</th></tr></thead>
+          <tbody>
+            <tr><td>Tenants activos</td><td>5</td><td>50</td></tr>
+            <tr><td>MRR</td><td>$1.4M COP</td><td>$18M COP</td></tr>
+            <tr><td>Costo infra/tenant/mes</td><td>$96</td><td>$80</td></tr>
+            <tr><td>Costo IA/tenant/mes</td><td>$0 (sin Claude)</td><td>$25</td></tr>
+            <tr><td>Latencia p95 /cobros</td><td>&lt; 100 ms</td><td>&lt; 100 ms</td></tr>
+            <tr><td>Disponibilidad fiscal</td><td>≥ 99.5%</td><td>≥ 99.5%</td></tr>
+            <tr><td>Tasa DIAN exitosa</td><td>≥ 99%</td><td>≥ 99%</td></tr>
+            <tr><td>Equipo técnico</td><td>5-7</td><td>20-30</td></tr>
+            <tr><td>Stories totales F1</td><td>~360 (~1.440 SP)</td><td>—</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ===== CHECKLIST ===== -->
+    <section class="checklist" id="checklist">
+      <h2>✅ Checklist de validación con el arquitecto</h2>
+
+      <h3>Decisiones críticas a validar (10 ADRs)</h3>
+      <div class="check-grid">
+        <div class="check-item"><input type="checkbox" id="adr1"><label for="adr1">ADR-001: Monolito modular vs microservicios (Vista 2)</label></div>
+        <div class="check-item"><input type="checkbox" id="adr2"><label for="adr2">ADR-002: Shared DB multi-tenancy con 4 capas (Vista 5)</label></div>
+        <div class="check-item"><input type="checkbox" id="adr3"><label for="adr3">ADR-003: Fire-and-forget DIAN con BullMQ (Vista 6)</label></div>
+        <div class="check-item"><input type="checkbox" id="adr4"><label for="adr4">ADR-004: Workbox + IndexedDB + xml-builder (Vista 7)</label></div>
+        <div class="check-item"><input type="checkbox" id="adr5"><label for="adr5">ADR-005: Plataforma agentes IA 3 capas (Vista 8)</label></div>
+        <div class="check-item"><input type="checkbox" id="adr6"><label for="adr6">ADR-006: MFA + Google OAuth colaboradores (Vista 11)</label></div>
+        <div class="check-item"><input type="checkbox" id="adr7"><label for="adr7">ADR-007: CloudWatch nativo hasta F3 (Vista 12)</label></div>
+        <div class="check-item"><input type="checkbox" id="adr8"><label for="adr8">ADR-008: Terraform + GitHub Actions (Vista 13)</label></div>
+        <div class="check-item"><input type="checkbox" id="adr9"><label for="adr9">ADR-009: Schema único + endpoints (Vista 3)</label></div>
+        <div class="check-item"><input type="checkbox" id="adr10"><label for="adr10">ADR-010: Append-only fiscal trigger SQL (Vista 6)</label></div>
+      </div>
+
+      <h3>Áreas que el arquitecto debe profundizar</h3>
+      <div class="check-grid">
+        <div class="check-item"><input type="checkbox" id="prof1"><label for="prof1">Plan de migración a microservicios (cuándo y cómo)</label></div>
+        <div class="check-item"><input type="checkbox" id="prof2"><label for="prof2">Estrategia multi-país concreta (CO → PE → EC → MX)</label></div>
+        <div class="check-item"><input type="checkbox" id="prof3"><label for="prof3">DR + cross-region replica (cuándo se justifica)</label></div>
+        <div class="check-item"><input type="checkbox" id="prof4"><label for="prof4">SOC2 / ISO 27001 (cuándo iniciar)</label></div>
+        <div class="check-item"><input type="checkbox" id="prof5"><label for="prof5">Pen-testing externo (recomendaciones de firmas)</label></div>
+        <div class="check-item"><input type="checkbox" id="prof6"><label for="prof6">Hardware mínimo soportado (tablets, impresoras)</label></div>
+      </div>
+
+      <h3>Decisiones técnicas pendientes (input requerido)</h3>
+      <div class="check-grid">
+        <div class="check-item"><input type="checkbox" id="pen1"><label for="pen1">Pasarela de pago (Wompi vs Mercado Pago)</label></div>
+        <div class="check-item"><input type="checkbox" id="pen2"><label for="pen2">RLS PostgreSQL desde F1 o F2+</label></div>
+        <div class="check-item"><input type="checkbox" id="pen3"><label for="pen3">Plan B operador FE alternativo a Facture</label></div>
+        <div class="check-item"><input type="checkbox" id="pen4"><label for="pen4">Migración a Datadog desde F2 o F3+</label></div>
+        <div class="check-item"><input type="checkbox" id="pen5"><label for="pen5">OpenTelemetry desde día 1 vs después</label></div>
+        <div class="check-item"><input type="checkbox" id="pen6"><label for="pen6">sa-east-1 vs us-east-1 para latencia CO</label></div>
+        <div class="check-item"><input type="checkbox" id="pen7"><label for="pen7">Estrategia anti prompt-injection avanzada</label></div>
+        <div class="check-item"><input type="checkbox" id="pen8"><label for="pen8">UUID v7 (sortable) en F2+</label></div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- ===== FOOTER ===== -->
+<footer class="footer">
+  <div class="footer-container">
+    <div class="footer-brand">YARO</div>
+    <p>Documento de Arquitectura Técnica · Versión 1.0 · Mayo 2026</p>
+    <p>Co-creado con AI · Documento fuente: <code>specs/arquitectura.md</code> (1.925 líneas)</p>
+    <p style="margin-top: 16px; opacity: 0.5;">Documentos complementarios: <code>specs/prd.md</code> · <code>specs/backlog.md</code></p>
+  </div>
+</footer>
+
+<!-- ===== MERMAID ===== -->
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.esm.min.mjs';
+
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: 'base',
+    themeVariables: {
+      fontFamily: '"Outfit", system-ui, sans-serif',
+      fontSize: '14px',
+      primaryColor: '#f7fd9c',
+      primaryTextColor: '#1a1916',
+      primaryBorderColor: '#d4e200',
+      lineColor: '#6b6760',
+      secondaryColor: '#534AB7',
+      tertiaryColor: '#3d9970',
+      background: '#ffffff',
+      mainBkg: '#faf9f7',
+      secondBkg: '#ece9e3',
+      tertiaryBkg: '#f0ede8',
+      nodeBorder: '#1a1916',
+      clusterBkg: '#faf9f7',
+      clusterBorder: '#6b6760',
+      labelTextColor: '#1a1916',
+      textColor: '#1a1916',
+      actorBkg: '#f7fd9c',
+      actorTextColor: '#1a1916',
+      actorLineColor: '#1a1916',
+      signalColor: '#1a1916',
+      signalTextColor: '#1a1916',
+      noteBkgColor: '#fdf894',
+      noteTextColor: '#6b7200',
+      noteBorderColor: '#d4e200'
+    },
+    securityLevel: 'loose',
+    flowchart: {
+      htmlLabels: true,
+      curve: 'basis',
+      padding: 16
+    },
+    sequence: {
+      diagramMarginX: 50,
+      diagramMarginY: 20,
+      actorMargin: 80,
+      width: 150,
+      height: 65,
+      boxMargin: 10,
+      mirrorActors: false
+    }
+  });
+</script>
+
+<!-- ===== TOC SCROLL SPY ===== -->
+<script>
+(function() {
+  const tocLinks = document.querySelectorAll('.toc a');
+  const sections = Array.from(tocLinks)
+    .map(link => document.querySelector(link.getAttribute('href')))
+    .filter(Boolean);
+
+  function setActive() {
+    let active = sections[0];
+    const offset = 200;
+    for (const sec of sections) {
+      if (sec.getBoundingClientRect().top < offset) active = sec;
+    }
+    tocLinks.forEach(link => link.classList.remove('active'));
+    const activeLink = document.querySelector('.toc a[href="#' + active.id + '"]');
+    if (activeLink) activeLink.classList.add('active');
+  }
+
+  window.addEventListener('scroll', setActive, { passive: true });
+  setActive();
+})();
+</script>
+
+</body>
+</html>

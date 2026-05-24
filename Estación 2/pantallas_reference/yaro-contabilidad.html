@@ -1,0 +1,1027 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>YARO — Contabilidad</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#f0ede8; --bg2:#ece9e3; --surface:#faf9f7; --white:#ffffff;
+  --border:rgba(0,0,0,0.07); --border2:rgba(0,0,0,0.11);
+  --text:#1a1916; --text2:#6b6760; --text3:#a8a49e;
+  --accent:#f7fd9c; --accent-dk:#d4e200; --accent-txt:#6b7200;
+  --green:#3d9970; --green-bg:rgba(61,153,112,0.09);
+  --red:#c0392b; --red-bg:rgba(192,57,43,0.07);
+  --amber:#b7860b; --amber-bg:rgba(183,134,11,0.09);
+  --blue:#2471a3; --blue-bg:rgba(36,113,163,0.07);
+  --purple:#534AB7; --purple-bg:rgba(83,74,183,0.09);
+  --shadow-sm:0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
+  --shadow-md:0 4px 16px rgba(0,0,0,.08),0 1px 4px rgba(0,0,0,.04);
+  --shadow-lg:0 8px 32px rgba(0,0,0,.10),0 2px 8px rgba(0,0,0,.05);
+  --radius:14px; --radius-sm:9px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");}
+
+/* TOPBAR */
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 32px;height:64px;
+  background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:200;box-shadow:var(--shadow-sm);}
+.tl{display:flex;align-items:center;gap:16px;}
+.logo-pill{background:var(--text);border-radius:11px;padding:6px 14px;font-size:18px;font-weight:300;color:var(--white);letter-spacing:.4px;}
+.tdiv{width:1px;height:20px;background:var(--border2);}
+.ttitle{font-size:17px;font-weight:600;letter-spacing:-.2px;}
+.tsub{font-size:12px;font-weight:300;color:var(--text3);margin-top:1px;}
+.tr{display:flex;align-items:center;gap:10px;}
+.pill{padding:6px 13px;border-radius:20px;font-size:11px;font-weight:500;box-shadow:var(--shadow-sm);}
+.pill-time{background:var(--white);border:1px solid var(--border2);color:var(--text2);font-size:12px;font-variant-numeric:tabular-nums;}
+.pill-live{background:var(--green-bg);border:1px solid rgba(61,153,112,0.2);color:var(--green);display:flex;align-items:center;gap:6px;}
+.pill-dian{background:var(--red-bg);border:1px solid rgba(192,57,43,0.2);color:var(--red);}
+.pdot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2.2s ease-in-out infinite;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.35;transform:scale(.75)}}
+
+.shell{display:flex;height:calc(100vh - 64px);overflow:hidden;}
+
+/* SIDENAV */
+.sidenav{width:220px;flex-shrink:0;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow-y:auto;}
+.snhead{padding:18px 16px;border-bottom:1px solid var(--border);}
+.nit-box{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 12px;margin-bottom:10px;}
+.nit-lbl{font-size:9px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;margin-bottom:2px;}
+.nit-val{font-size:13px;font-weight:600;font-variant-numeric:tabular-nums;}
+.nit-name{font-size:11px;font-weight:300;color:var(--text3);}
+.op-box{display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--green-bg);border:1px solid rgba(61,153,112,0.18);border-radius:var(--radius-sm);}
+.op-dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2s ease-in-out infinite;}
+.op-info p:first-child{font-size:11px;font-weight:500;color:var(--green);}
+.op-info p:last-child{font-size:10px;font-weight:300;color:var(--green);opacity:.75;}
+.nsec{padding:14px 12px 4px;}
+.nlbl{font-size:9px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.12em;padding:0 10px;margin-bottom:5px;}
+.ni{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:var(--radius-sm);font-size:13px;font-weight:400;color:var(--text2);cursor:pointer;transition:all .15s;margin-bottom:1px;}
+.ni:hover{background:var(--bg2);color:var(--text);}
+.ni.active{background:var(--accent);color:var(--accent-txt);font-weight:600;box-shadow:var(--shadow-sm);}
+.ni svg{width:16px;height:16px;flex-shrink:0;opacity:.65;}
+.ni.active svg{opacity:1;}
+.nbadge{margin-left:auto;color:#fff;font-size:10px;font-weight:600;border-radius:10px;padding:1px 6px;}
+
+/* MAIN */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+.subtabs{display:flex;align-items:center;background:var(--white);border-bottom:1px solid var(--border);padding:0 28px;height:48px;flex-shrink:0;box-shadow:var(--shadow-sm);overflow-x:auto;}
+.st{padding:0 16px;height:100%;display:flex;align-items:center;font-size:13px;font-weight:500;color:var(--text3);cursor:pointer;border-bottom:2px solid transparent;transition:all .15s;white-space:nowrap;gap:6px;}
+.st:hover{color:var(--text2);}
+.st.active{color:var(--text);border-bottom-color:var(--accent-dk);font-weight:600;}
+.toolbar{display:flex;align-items:center;gap:10px;padding:13px 28px;background:var(--surface);border-bottom:1px solid var(--border);flex-shrink:0;flex-wrap:wrap;}
+.sbox{display:flex;align-items:center;gap:8px;background:var(--white);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:0 12px;height:36px;flex:1;max-width:280px;box-shadow:var(--shadow-sm);}
+.sbox input{border:none;outline:none;background:transparent;font-family:'Outfit',sans-serif;font-size:13px;color:var(--text);width:100%;}
+.sbox input::placeholder{color:var(--text3);}
+.fsel{height:36px;padding:0 10px;border:1px solid var(--border2);border-radius:var(--radius-sm);background:var(--white);font-family:'Outfit',sans-serif;font-size:12px;color:var(--text2);outline:none;cursor:pointer;box-shadow:var(--shadow-sm);}
+.btn{height:36px;padding:0 16px;border-radius:var(--radius-sm);font-size:13px;font-weight:600;cursor:pointer;border:none;font-family:'Outfit',sans-serif;transition:all .15s;white-space:nowrap;}
+.b-primary{background:var(--text);color:var(--white);}
+.b-primary:hover{background:#2d2c28;box-shadow:var(--shadow-md);}
+.b-outline{background:var(--white);color:var(--text2);border:1px solid var(--border2);font-weight:400;}
+.b-outline:hover{background:var(--bg2);}
+.b-accent{background:rgba(212,226,0,0.12);color:var(--accent-txt);border:1px solid rgba(212,226,0,0.28);}
+.b-accent:hover{background:rgba(212,226,0,0.2);}
+.b-red{background:var(--red-bg);color:var(--red);border:1px solid rgba(192,57,43,0.2);}
+.b-red:hover{background:rgba(192,57,43,0.12);}
+.b-green{background:var(--green-bg);color:var(--green);border:1px solid rgba(61,153,112,0.2);}
+.b-green:hover{background:rgba(61,153,112,0.14);}
+.b-sm{height:28px;padding:0 10px;font-size:11px;}
+
+.content{flex:1;overflow-y:auto;padding:22px 28px;}
+
+/* CARDS */
+.card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-md);padding:20px 22px;animation:fu .4s cubic-bezier(.22,1,.36,1) both;transition:box-shadow .2s,transform .2s;}
+.card:hover{box-shadow:var(--shadow-lg);transform:translateY(-1px);}
+@keyframes fu{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.clbl{font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.09em;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;}
+.ctag{font-size:10px;font-weight:400;padding:2px 8px;border-radius:6px;background:var(--bg2);color:var(--text3);border:1px solid var(--border);text-transform:none;letter-spacing:0;}
+
+/* KPI */
+.krow{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px;}
+.kpi{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-md);padding:16px 18px 14px;position:relative;overflow:hidden;animation:fu .4s cubic-bezier(.22,1,.36,1) both;transition:box-shadow .2s,transform .2s;}
+.kpi:hover{box-shadow:var(--shadow-lg);transform:translateY(-1px);}
+.kpi::after{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--kb,var(--border2));border-radius:var(--radius) var(--radius) 0 0;}
+.klbl{font-size:10px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;}
+.kval{font-size:20px;font-weight:700;letter-spacing:-.5px;margin-bottom:6px;}
+.kfoot{font-size:11px;font-weight:300;color:var(--text3);display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+.d{font-size:10px;font-weight:600;padding:2px 6px;border-radius:5px;}
+.dup{background:var(--green-bg);color:var(--green);}
+.ddn{background:var(--red-bg);color:var(--red);}
+.dwn{background:var(--amber-bg);color:var(--amber);}
+
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px;}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:18px;}
+
+/* TABLE */
+.twrap{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-md);overflow:hidden;margin-bottom:18px;animation:fu .4s cubic-bezier(.22,1,.36,1) both;}
+.dt{width:100%;border-collapse:collapse;}
+.dt thead th{text-align:left;padding:11px 14px;font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;border-bottom:1px solid var(--border);background:var(--surface);white-space:nowrap;}
+.dt tbody tr{border-bottom:1px solid var(--border);transition:background .12s;cursor:pointer;}
+.dt tbody tr:last-child{border-bottom:none;}
+.dt tbody tr:hover{background:rgba(0,0,0,.018);}
+.dt tbody td{padding:12px 14px;font-size:13px;vertical-align:middle;}
+
+/* STATUS PILLS */
+.sp{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:6px;font-size:10px;font-weight:600;}
+.sp-ok{background:var(--green-bg);color:var(--green);}
+.sp-pend{background:var(--amber-bg);color:var(--amber);}
+.sp-err{background:var(--red-bg);color:var(--red);}
+.sp-fe{background:var(--green-bg);color:var(--green);}
+.sp-nc{background:var(--blue-bg);color:var(--blue);}
+.sp-pos{background:rgba(212,226,0,0.15);color:var(--accent-txt);}
+.sp-dian{background:var(--red-bg);color:var(--red);}
+
+/* ROW ACTS */
+.ra-wrap{display:flex;gap:5px;align-items:center;}
+.ra{width:26px;height:26px;border-radius:6px;background:var(--bg2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:12px;cursor:pointer;transition:all .15s;color:var(--text2);}
+.ra:hover{background:var(--border2);color:var(--text);}
+
+/* GASTO */
+.gasto-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px;margin-bottom:18px;}
+.gc{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-md);padding:16px 18px;position:relative;overflow:hidden;transition:box-shadow .2s,transform .2s;}
+.gc:hover{box-shadow:var(--shadow-lg);transform:translateY(-1px);}
+.gc::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--gcol,var(--border2));}
+.gc-title{font-size:13px;font-weight:600;margin-bottom:2px;}
+.gc-meta{font-size:11px;font-weight:300;color:var(--text3);margin-bottom:8px;}
+.gc-amount{font-size:17px;font-weight:700;font-variant-numeric:tabular-nums;margin-bottom:8px;}
+.gc-track{height:5px;background:var(--bg2);border-radius:3px;overflow:hidden;margin-bottom:6px;}
+.gc-fill{height:100%;border-radius:3px;}
+.gc-foot{display:flex;align-items:center;justify-content:space-between;font-size:11px;color:var(--text3);}
+
+/* NOMINA */
+.emp-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-md);overflow:hidden;margin-bottom:10px;animation:fu .4s cubic-bezier(.22,1,.36,1) both;}
+.emp-head{display:flex;align-items:center;gap:14px;padding:14px 20px;cursor:pointer;transition:background .15s;}
+.emp-head:hover{background:rgba(0,0,0,.015);}
+.emp-av{width:36px;height:36px;border-radius:50%;background:var(--bg2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:var(--text2);flex-shrink:0;}
+.emp-info{flex:1;}
+.emp-name{font-size:14px;font-weight:600;}
+.emp-role{font-size:11px;font-weight:300;color:var(--text3);}
+.emp-right{text-align:right;}
+.emp-neto{font-size:15px;font-weight:700;font-variant-numeric:tabular-nums;}
+.emp-tag{font-size:10px;font-weight:300;color:var(--text3);font-variant-numeric:tabular-nums;}
+.emp-chev{font-size:16px;color:var(--text3);transition:transform .2s;flex-shrink:0;}
+.emp-chev.open{transform:rotate(180deg);}
+.emp-body{max-height:0;overflow:hidden;transition:max-height .3s ease;}
+.emp-body.open{max-height:600px;}
+.emp-inner{padding:0 20px 16px;border-top:1px solid var(--border);}
+.dr{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);font-size:12px;}
+.dr:last-child{border-bottom:none;}
+.dr-lbl{color:var(--text2);}
+.dr-lbl.ind{padding-left:16px;color:var(--text3);font-size:11px;}
+.dr-lbl.sec{color:var(--text3);font-size:11px;}
+.dr-val{font-weight:600;font-variant-numeric:tabular-nums;}
+.dr-val.neg{color:var(--red);}
+.dr-val.pos{color:var(--green);}
+.dr-val.big{font-size:15px;}
+.dr-sep{border:none;border-top:1px solid var(--border2);margin:6px 0;}
+.emp-acts{display:flex;gap:8px;margin-top:12px;padding-top:12px;border-top:1px solid var(--border);}
+
+/* PUC */
+.puc-group{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--bg2);border-bottom:1px solid var(--border);cursor:pointer;user-select:none;}
+.puc-group:hover{background:var(--border);}
+.puc-gcode{font-size:13px;font-weight:700;color:var(--text);min-width:36px;}
+.puc-gname{font-size:12px;font-weight:600;color:var(--text2);flex:1;}
+.puc-gsaldo{font-size:12px;font-weight:700;font-variant-numeric:tabular-nums;text-align:right;}
+.puc-row{display:flex;align-items:center;gap:10px;padding:9px 14px 9px 30px;border-bottom:1px solid var(--border);font-size:12px;transition:background .12s;cursor:pointer;}
+.puc-row:hover{background:rgba(0,0,0,.015);}
+.puc-code{font-weight:600;color:var(--text2);min-width:44px;font-variant-numeric:tabular-nums;}
+.puc-name{flex:1;color:var(--text);}
+.puc-nat{font-size:9px;font-weight:600;padding:2px 6px;border-radius:4px;}
+.nat-d{background:var(--blue-bg);color:var(--blue);}
+.nat-c{background:var(--red-bg);color:var(--red);}
+.puc-sal{font-weight:600;font-variant-numeric:tabular-nums;text-align:right;min-width:90px;}
+
+/* PYG */
+.pyg-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);font-size:13px;}
+.pyg-row:last-child{border-bottom:none;}
+.pyg-row.main{padding-top:16px;}
+.pyg-row.total{padding-top:14px;margin-top:8px;border-top:2px solid var(--border2);border-bottom:none;}
+.pl{color:var(--text2);}
+.pl.h{font-weight:600;color:var(--text);font-size:14px;}
+.pl.ind{padding-left:20px;color:var(--text3);font-size:12px;}
+.pv{font-weight:600;font-variant-numeric:tabular-nums;}
+.pv.g{color:var(--green);}
+.pv.r{color:var(--red);}
+.pv.big{font-size:16px;font-weight:700;}
+
+/* INFO BOXES */
+.ibox{background:var(--blue-bg);border:1px solid rgba(36,113,163,0.15);border-radius:var(--radius-sm);padding:10px 14px;font-size:12px;color:var(--blue);line-height:1.5;margin-bottom:14px;}
+.wbox{background:var(--amber-bg);border:1px solid rgba(183,134,11,0.18);border-radius:var(--radius-sm);padding:10px 14px;font-size:12px;color:var(--amber);line-height:1.5;margin-bottom:14px;}
+.sbox2{background:var(--green-bg);border:1px solid rgba(61,153,112,0.18);border-radius:var(--radius-sm);padding:10px 14px;font-size:12px;color:var(--green);line-height:1.5;margin-bottom:14px;}
+
+/* MODAL */
+.mo{position:fixed;inset:0;z-index:400;background:rgba(240,237,232,0.78);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s;}
+.mo.open{opacity:1;pointer-events:all;}
+.modal{background:var(--white);border-radius:var(--radius);border:1px solid var(--border2);box-shadow:var(--shadow-lg);width:100%;max-width:520px;transform:translateY(16px);transition:transform .25s;overflow:hidden;max-height:90vh;display:flex;flex-direction:column;}
+.mo.open .modal{transform:translateY(0);}
+.mh{padding:20px 24px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.mh-title{font-size:16px;font-weight:600;}
+.mclose{width:28px;height:28px;border-radius:7px;background:var(--bg2);border:none;cursor:pointer;font-size:15px;color:var(--text3);font-family:'Outfit',sans-serif;display:flex;align-items:center;justify-content:center;transition:background .15s;}
+.mclose:hover{background:var(--border2);}
+.mb{padding:20px 24px;display:flex;flex-direction:column;gap:12px;overflow-y:auto;}
+.mf{padding:14px 24px 20px;border-top:1px solid var(--border);display:flex;gap:8px;flex-shrink:0;}
+.mf .btn{flex:1;height:40px;}
+.fr{display:flex;flex-direction:column;gap:5px;}
+.fr2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.fr3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
+.flbl{font-size:11px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;}
+.fi{height:38px;padding:0 12px;border:1px solid var(--border2);border-radius:var(--radius-sm);background:var(--surface);font-family:'Outfit',sans-serif;font-size:13px;color:var(--text);outline:none;transition:border-color .15s;width:100%;}
+.fi:focus{border-color:var(--accent-dk);background:var(--white);}
+.fi::placeholder{color:var(--text3);}
+.fi-ro{background:var(--bg2);color:var(--text3);}
+.fsel2{height:38px;padding:0 12px;border:1px solid var(--border2);border-radius:var(--radius-sm);background:var(--surface);font-family:'Outfit',sans-serif;font-size:13px;color:var(--text2);outline:none;cursor:pointer;width:100%;}
+.fblock{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px 16px;}
+.fblock-lbl{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px;}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(8px);background:var(--text);color:var(--white);border-radius:10px;padding:10px 20px;font-size:13px;font-weight:500;box-shadow:var(--shadow-lg);z-index:999;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;white-space:nowrap;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+::-webkit-scrollbar{width:4px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="tl">
+    <div class="logo-pill">yaro</div>
+    <div class="tdiv"></div>
+    <div>
+      <div class="ttitle">Contabilidad</div>
+      <div class="tsub">Sistema contable · PUC restaurantero · DIAN integrado</div>
+    </div>
+  </div>
+  <div class="tr">
+    <div class="pill pill-dian">🏛 DIAN conectada</div>
+    <div class="pill pill-live"><div class="pdot"></div>Facture.co activo</div>
+    <div class="pill pill-time" id="clock">--:--</div>
+  </div>
+</div>
+
+<div class="shell">
+
+  <!-- SIDENAV -->
+  <nav class="sidenav">
+    <div class="snhead">
+      <div class="nit-box">
+        <div class="nit-lbl">NIT del restaurante</div>
+        <div class="nit-val">901.234.567-8</div>
+        <div class="nit-name">911 Hot Burger SAS</div>
+      </div>
+      <div class="op-box">
+        <div class="op-dot"></div>
+        <div class="op-info">
+          <p>Facture.co · Operador FE</p>
+          <p>Habilitado · Set 42/2020</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="nsec">
+      <div class="nlbl">Documentos DIAN</div>
+      <div class="ni active" onclick="setNav('pos',this)">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="6" width="16" height="12" rx="1.5"/><line x1="2" y1="10" x2="18" y2="10" stroke-linecap="round"/><line x1="6" y1="13.5" x2="9" y2="13.5" stroke-linecap="round"/><line x1="11" y1="13.5" x2="14" y2="13.5" stroke-linecap="round"/></svg>
+        Tiquetes POS
+        <span class="nbadge" style="background:var(--accent-dk);color:var(--text)">247</span>
+      </div>
+      <div class="ni" onclick="setNav('fe',this)">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 2h9l4 4v12a1 1 0 01-1 1H4a1 1 0 01-1-1V3a1 1 0 011-1z" stroke-linecap="round" stroke-linejoin="round"/><path d="M13 2v5h5" stroke-linecap="round"/><line x1="7" y1="10" x2="13" y2="10" stroke-linecap="round"/><line x1="7" y1="13" x2="11" y2="13" stroke-linecap="round"/></svg>
+        Facturas de venta
+        <span class="nbadge" style="background:var(--green)">18</span>
+      </div>
+      <div class="ni" onclick="setNav('nc',this)">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="10" cy="10" r="7.5"/><path d="M7 10h6M10 7v6" stroke-linecap="round"/></svg>
+        Notas crédito
+      </div>
+      <div class="ni" onclick="setNav('buzon',this)">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="4" width="16" height="14" rx="1.5"/><path d="M2 8l8 5 8-5" stroke-linecap="round"/></svg>
+        Buzón DIAN
+        <span class="nbadge" style="background:var(--purple)">4</span>
+      </div>
+      <div class="ni" onclick="setNav('dsce',this)">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 2h9l4 4v12a1 1 0 01-1 1H4a1 1 0 01-1-1V3a1 1 0 011-1z" stroke-linecap="round"/><path d="M13 2v5h5" stroke-linecap="round"/><path d="M7 13l2 2 4-4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Doc. soporte compras
+      </div>
+    </div>
+
+    <div class="nsec">
+      <div class="nlbl">Personal</div>
+      <div class="ni" onclick="setNav('nomina',this)">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="7" r="3"/><path d="M1 17.5C1 14.74 3.24 12.5 6 12.5H8C10.76 12.5 13 14.74 13 17.5"/><path d="M14 5a2.5 2.5 0 010 5M17 17.5c0-2.76-1.79-5.1-4.27-5.74"/></svg>
+        Nómina electrónica
+      </div>
+    </div>
+
+    <div class="nsec">
+      <div class="nlbl">Contabilidad</div>
+      <div class="ni" onclick="setNav('gastos',this)">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="6" width="16" height="10" rx="1.5"/><line x1="2" y1="10" x2="18" y2="10" stroke-linecap="round"/><line x1="6" y1="13.5" x2="8" y2="13.5" stroke-linecap="round"/></svg>
+        Gastos fijos
+        <span class="nbadge" style="background:var(--amber)">3</span>
+      </div>
+      <div class="ni" onclick="setNav('compras-reg',this)">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="4" width="16" height="14" rx="1.5"/><line x1="2" y1="9" x2="18" y2="9" stroke-linecap="round"/><line x1="6" y1="4" x2="6" y2="9" stroke-linecap="round"/></svg>
+        Facturas de compra
+      </div>
+      <div class="ni" onclick="setNav('puc',this)">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="2" width="14" height="16" rx="1.5"/><line x1="7" y1="7" x2="13" y2="7" stroke-linecap="round"/><line x1="7" y1="10" x2="13" y2="10" stroke-linecap="round"/><line x1="7" y1="13" x2="10" y2="13" stroke-linecap="round"/></svg>
+        Plan de cuentas PUC
+      </div>
+      <div class="ni" onclick="setNav('pyg',this)">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 15V8m4 7V4m4 11V7m4 9V5"/></svg>
+        P&G mensual
+      </div>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <div class="main">
+    <div class="subtabs" id="stabs"></div>
+    <div class="toolbar" id="tbar"></div>
+    <div class="content" id="cont"></div>
+  </div>
+</div>
+
+<!-- MODAL FE -->
+<div class="mo" id="m-fe">
+  <div class="modal">
+    <div class="mh"><div class="mh-title" id="mfe-title">Nueva factura de venta</div><button class="mclose" onclick="cm('m-fe')">✕</button></div>
+    <div class="mb">
+      <div class="ibox">💡 Esta factura se transmitirá automáticamente a la DIAN via Facture.co. El cliente recibirá el PDF + XML a su correo electrónico.</div>
+      <div class="fr2">
+        <div class="fr"><div class="flbl">NIT / Cédula cliente</div><input class="fi" placeholder="900.123.456-7" id="fe-nit"></div>
+        <div class="fr"><div class="flbl">Razón social / Nombre</div><input class="fi" placeholder="Empresa o persona" id="fe-rs"></div>
+      </div>
+      <div class="fr2">
+        <div class="fr"><div class="flbl">Correo electrónico</div><input class="fi" type="email" placeholder="cliente@empresa.com"></div>
+        <div class="fr"><div class="flbl">Fecha de emisión</div><input class="fi" type="date" id="fe-fecha"></div>
+      </div>
+      <div class="fr"><div class="flbl">Concepto / Descripción</div><input class="fi" placeholder="Consumo restaurante 911 Hot Burger — Mesa 4"></div>
+      <div class="fr3">
+        <div class="fr"><div class="flbl">Subtotal</div><input class="fi" type="number" placeholder="0" id="fe-sub" oninput="calcFE()"></div>
+        <div class="fr"><div class="flbl">Impoconsumo (8%)</div><input class="fi fi-ro" id="fe-imp" readonly></div>
+        <div class="fr"><div class="flbl">Total</div><input class="fi fi-ro" id="fe-tot" readonly style="font-weight:600"></div>
+      </div>
+      <div class="fr2">
+        <div class="fr"><div class="flbl">Forma de pago</div>
+          <select class="fsel2"><option>Efectivo</option><option>Tarjeta crédito</option><option>Tarjeta débito</option><option>Transferencia</option><option>Crédito (30 días)</option></select>
+        </div>
+        <div class="fr"><div class="flbl">Sede emisora</div>
+          <select class="fsel2"><option>Guarne</option><option>La Ceja</option></select>
+        </div>
+      </div>
+    </div>
+    <div class="mf">
+      <button class="btn b-outline" onclick="cm('m-fe')">Cancelar</button>
+      <button class="btn b-primary" onclick="emitirFE()">Emitir FE → DIAN</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL GASTO FIJO -->
+<div class="mo" id="m-gasto">
+  <div class="modal">
+    <div class="mh"><div class="mh-title">Nuevo gasto fijo recurrente</div><button class="mclose" onclick="cm('m-gasto')">✕</button></div>
+    <div class="mb">
+      <div class="fr"><div class="flbl">Concepto</div><input class="fi" placeholder="Ej: Arriendo local Guarne"></div>
+      <div class="fr2">
+        <div class="fr"><div class="flbl">Cuenta PUC</div>
+          <select class="fsel2"><option>5205 – Arrendamientos</option><option>5220 – Servicios públicos</option><option>5240 – Mantenimiento</option><option>5250 – Seguros</option><option>5299 – Otros gastos</option></select>
+        </div>
+        <div class="fr"><div class="flbl">Proveedor</div><input class="fi" placeholder="Ej: Inmobiliaria XYZ"></div>
+      </div>
+      <div class="fr2">
+        <div class="fr"><div class="flbl">Valor mensual</div><input class="fi" type="number" placeholder="4200000"></div>
+        <div class="fr"><div class="flbl">Sede</div>
+          <select class="fsel2"><option>Guarne</option><option>La Ceja</option><option>Ambas</option></select>
+        </div>
+      </div>
+      <div class="fblock">
+        <div class="fblock-lbl">⏰ Configuración de alerta</div>
+        <div class="fr3">
+          <div class="fr"><div class="flbl">Día del mes</div><input class="fi" type="number" min="1" max="28" placeholder="5" style="background:var(--white)"></div>
+          <div class="fr"><div class="flbl">Avisar con</div>
+            <select class="fsel2" style="background:var(--white)"><option>5 días antes</option><option>3 días antes</option><option>7 días antes</option><option>10 días antes</option></select>
+          </div>
+          <div class="fr"><div class="flbl">Recurrencia</div>
+            <select class="fsel2" style="background:var(--white)"><option>Mensual</option><option>Solo este mes</option><option>Anual</option></select>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="mf">
+      <button class="btn b-outline" onclick="cm('m-gasto')">Cancelar</button>
+      <button class="btn b-primary" onclick="showToast('Gasto fijo guardado con alerta activa ✓');cm('m-gasto')">Guardar y activar alerta</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL NC -->
+<div class="mo" id="m-nc">
+  <div class="modal">
+    <div class="mh"><div class="mh-title">Nueva nota crédito</div><button class="mclose" onclick="cm('m-nc')">✕</button></div>
+    <div class="mb">
+      <div class="wbox">⚠️ Las facturas electrónicas no pueden eliminarse. Para anular o ajustar una FE ya emitida debes emitir una nota crédito que referencia el número de la factura original.</div>
+      <div class="fr2">
+        <div class="fr"><div class="flbl">Factura que se ajusta</div><input class="fi" placeholder="FE-2026-00018"></div>
+        <div class="fr"><div class="flbl">Motivo</div>
+          <select class="fsel2"><option>Devolución total</option><option>Devolución parcial</option><option>Descuento posterior</option><option>Anulación</option><option>Error en factura</option></select>
+        </div>
+      </div>
+      <div class="fr2">
+        <div class="fr"><div class="flbl">Valor nota crédito</div><input class="fi" type="number" placeholder="0"></div>
+        <div class="fr"><div class="flbl">Impoconsumo (8%)</div><input class="fi fi-ro" placeholder="0" readonly></div>
+      </div>
+      <div class="fr"><div class="flbl">Descripción del ajuste</div><input class="fi" placeholder="Devolución plato por inconformidad del cliente"></div>
+    </div>
+    <div class="mf">
+      <button class="btn b-outline" onclick="cm('m-nc')">Cancelar</button>
+      <button class="btn b-primary" onclick="showToast('Nota crédito NC-2026-004 emitida y transmitida a la DIAN ✓');cm('m-nc')">Emitir nota crédito</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── CLOCK ──
+setInterval(()=>{ document.getElementById('clock').textContent=new Date().toLocaleTimeString('es-CO',{hour:'2-digit',minute:'2-digit'}); },1000);
+document.getElementById('clock').textContent=new Date().toLocaleTimeString('es-CO',{hour:'2-digit',minute:'2-digit'});
+
+function fp(n){ return '$'+Math.round(n).toLocaleString('es-CO'); }
+function cm(id){ document.getElementById(id).classList.toggle('open'); }
+
+function calcFE(){
+  const s=parseFloat(document.getElementById('fe-sub').value)||0;
+  document.getElementById('fe-imp').value=fp(s*0.08);
+  document.getElementById('fe-tot').value=fp(s*1.08);
+}
+
+function emitirFE(){
+  cm('m-fe');
+  showToast('FE transmitida a la DIAN · CUFE generado · PDF enviado al cliente ✓');
+}
+
+let currentNav='pos';
+function setNav(n,el){
+  currentNav=n;
+  document.querySelectorAll('.ni').forEach(i=>i.classList.remove('active'));
+  el.classList.add('active');
+  render();
+}
+
+function render(){
+  const map={pos:renderPOS,fe:renderFE,nc:renderNC,buzon:renderBuzon,dsce:renderDSCE,nomina:renderNomina,gastos:renderGastos,'compras-reg':renderComprasReg,puc:renderPUC,pyg:renderPYG};
+  (map[currentNav]||renderPOS)();
+}
+
+// ═══════════════════════════════════
+// TIQUETES POS
+// ═══════════════════════════════════
+function renderPOS(){
+  document.getElementById('stabs').innerHTML=`
+    <div class="st active">Hoy</div>
+    <div class="st" onclick="showToast('Ayer')">Ayer</div>
+    <div class="st" onclick="showToast('Esta semana')">Esta semana</div>
+    <div class="st" onclick="showToast('Este mes')">Este mes</div>`;
+  document.getElementById('tbar').innerHTML=`
+    <div class="sbox"><span style="color:var(--text3);font-size:14px">🔍</span><input type="text" placeholder="Buscar por mesa, monto o estado..."></div>
+    <select class="fsel"><option>Ambas sedes</option><option>Guarne</option><option>La Ceja</option></select>
+    <select class="fsel"><option>Todos los estados</option><option>Transmitido DIAN</option><option>Pendiente</option><option>Error</option></select>
+    <div style="margin-left:auto;display:flex;gap:8px">
+      <button class="btn b-outline" onclick="showToast('Exportando reporte...')">↓ Exportar</button>
+    </div>`;
+
+  const tiquetes=[
+    {n:'Mesa 4',  tipo:'Salón',    monto:132000, estado:'ok',  hora:'8:42 pm', cufe:'8a2f...d91c', metodo:'Tarjeta', sede:'Guarne'},
+    {n:'Mesa 7',  tipo:'Salón',    monto:120000, estado:'ok',  hora:'8:38 pm', cufe:'3b7e...a40f', metodo:'Efectivo', sede:'Guarne'},
+    {n:'Dom. 8',  tipo:'Domicilio',monto:94000,  estado:'ok',  hora:'8:31 pm', cufe:'c2d9...7b1e', metodo:'Rappi',   sede:'La Ceja'},
+    {n:'Barra',   tipo:'Barra',    monto:38000,  estado:'ok',  hora:'8:20 pm', cufe:'9f4a...2c83', metodo:'Efectivo', sede:'Guarne'},
+    {n:'Mesa 2',  tipo:'Salón',    monto:186000, estado:'ok',  hora:'7:55 pm', cufe:'7d1b...e552', metodo:'Tarjeta', sede:'La Ceja'},
+    {n:'Mesa 11', tipo:'Salón',    monto:74000,  estado:'err', hora:'7:40 pm', cufe:'—',            metodo:'Efectivo', sede:'Guarne'},
+    {n:'Mesa 5',  tipo:'Salón',    monto:48000,  estado:'pend',hora:'7:30 pm', cufe:'—',            metodo:'Efectivo', sede:'La Ceja'},
+  ];
+
+  const totalHoy=tiquetes.reduce((a,t)=>a+t.monto,0);
+  const transmitidos=tiquetes.filter(t=>t.estado==='ok').length;
+
+  document.getElementById('cont').innerHTML=`
+    <div class="krow">
+      <div class="kpi" style="--kb:var(--accent-dk)">
+        <div class="klbl">Tiquetes hoy</div>
+        <div class="kval">247</div>
+        <div class="kfoot"><span class="d dup">▲ 18</span>vs ayer</div>
+      </div>
+      <div class="kpi" style="--kb:var(--green)">
+        <div class="klbl">Transmitidos DIAN</div>
+        <div class="kval" style="color:var(--green)">245</div>
+        <div class="kfoot"><span class="d dup">99.2%</span>tasa de éxito</div>
+      </div>
+      <div class="kpi" style="--kb:var(--red)">
+        <div class="klbl">Con error / pendiente</div>
+        <div class="kval" style="color:var(--red)">2</div>
+        <div class="kfoot"><span class="d ddn">⚠ Reintentar</span></div>
+      </div>
+      <div class="kpi" style="--kb:var(--blue)">
+        <div class="klbl">Total ventas hoy</div>
+        <div class="kval">$6.93M</div>
+        <div class="kfoot"><span class="d dup">▲ 12%</span>vs ayer</div>
+      </div>
+    </div>
+
+    <div class="wbox" id="warn-pos" style="${tiquetes.filter(t=>t.estado!=='ok').length?'':'display:none'}">
+      ⚠️ Hay ${tiquetes.filter(t=>t.estado!=='ok').length} tiquetes que no pudieron transmitirse a la DIAN. YARO reintentará automáticamente en los próximos 15 minutos. Si persiste, puedes retransmitir manualmente.
+    </div>
+
+    <div class="twrap">
+      <table class="dt">
+        <thead><tr>
+          <th>Mesa / Punto</th><th>Tipo</th><th>Sede</th><th>Hora</th><th>Método pago</th><th>Total</th><th>CUFE</th><th>Estado DIAN</th><th></th>
+        </tr></thead>
+        <tbody>
+          ${tiquetes.map(t=>`
+          <tr>
+            <td style="font-weight:600">${t.n}</td>
+            <td><span class="sp ${t.tipo==='Salón'?'sp-fe':t.tipo==='Domicilio'?'sp-pend':'sp-pos'}" style="font-size:10px">${t.tipo}</span></td>
+            <td style="font-size:12px;color:var(--text2)">${t.sede}</td>
+            <td style="font-size:12px;color:var(--text3);font-variant-numeric:tabular-nums">${t.hora}</td>
+            <td style="font-size:12px;color:var(--text2)">${t.metodo}</td>
+            <td style="font-weight:700;font-variant-numeric:tabular-nums">${fp(t.monto)}</td>
+            <td style="font-size:10px;color:${t.cufe==='—'?'var(--red)':'var(--text3)'};font-family:monospace">${t.cufe}</td>
+            <td>${t.estado==='ok'?'<span class="sp sp-ok">✓ Transmitido</span>':t.estado==='err'?'<span class="sp sp-err">Error</span>':'<span class="sp sp-pend">Pendiente</span>'}</td>
+            <td>
+              <div class="ra-wrap">
+                ${t.estado!=='ok'?`<button class="btn b-accent b-sm" onclick="showToast('Retransmitiendo...')">↻ Reintentar</button>`:''}
+                <div class="ra" onclick="showToast('Descargando PDF...')">↓</div>
+              </div>
+            </td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>`;
+}
+
+// ═══════════════════════════════════
+// FACTURAS DE VENTA
+// ═══════════════════════════════════
+function renderFE(){
+  document.getElementById('stabs').innerHTML=`<div class="st active">Mayo 2026</div><div class="st" onclick="showToast('Abril')">Abril 2026</div><div class="st" onclick="showToast('Historial')">Historial</div>`;
+  document.getElementById('tbar').innerHTML=`
+    <div class="sbox"><span style="color:var(--text3);font-size:14px">🔍</span><input type="text" placeholder="Buscar por NIT, N° factura o razón social..."></div>
+    <select class="fsel"><option>Todos los estados</option><option>Emitida</option><option>Anulada</option><option>Error DIAN</option></select>
+    <div style="margin-left:auto;display:flex;gap:8px">
+      <button class="btn b-outline" onclick="showToast('Exportando...')">↓ Exportar</button>
+      <button class="btn b-primary" onclick="cm('m-fe')">+ Nueva FE</button>
+    </div>`;
+
+  const fes=[
+    {num:'FE-2026-00018',cliente:'Hotel Portón del Oriente',nit:'800.234.567-1',fecha:'09 may',sub:640000,imp:51200,total:691200,estado:'ok',cufe:'9f4a...2c83'},
+    {num:'FE-2026-00017',cliente:'Inversiones Montaña SAS',nit:'901.112.334-5',fecha:'08 may',sub:320000,imp:25600,total:345600,estado:'ok',cufe:'3b7e...a40f'},
+    {num:'FE-2026-00016',cliente:'Universidad de Antioquia',nit:'890.000.757-7',fecha:'07 may',sub:1280000,imp:102400,total:1382400,estado:'ok',cufe:'8a2f...d91c'},
+    {num:'FE-2026-00015',cliente:'Consumidor final',nit:'222.222.222',fecha:'06 may',sub:86000,imp:6880,total:92880,estado:'ok',cufe:'c2d9...7b1e'},
+    {num:'FE-2026-00014',cliente:'Catering Eventos SAS',nit:'900.876.543-2',fecha:'05 may',sub:2400000,imp:192000,total:2592000,estado:'nc',cufe:'7d1b...e552'},
+  ];
+
+  document.getElementById('cont').innerHTML=`
+    <div class="krow">
+      <div class="kpi" style="--kb:var(--green)">
+        <div class="klbl">FE emitidas mes</div><div class="kval" style="color:var(--green)">18</div>
+        <div class="kfoot"><span class="d dup">▲ 5</span>vs abril</div>
+      </div>
+      <div class="kpi" style="--kb:var(--accent-dk)">
+        <div class="klbl">Total facturado</div><div class="kval">$24.8M</div>
+        <div class="kfoot">impoconsumo incluido</div>
+      </div>
+      <div class="kpi" style="--kb:var(--blue)">
+        <div class="klbl">Notas crédito</div><div class="kval" style="color:var(--blue)">1</div>
+        <div class="kfoot">FE-2026-00014 anulada</div>
+      </div>
+      <div class="kpi" style="--kb:var(--text)">
+        <div class="klbl">Impoconsumo 8%</div><div class="kval">$1.98M</div>
+        <div class="kfoot">a declarar este periodo</div>
+      </div>
+    </div>
+    <div class="twrap">
+      <table class="dt">
+        <thead><tr>
+          <th>N° Factura</th><th>Cliente</th><th>NIT</th><th>Fecha</th><th>Subtotal</th><th>Impoconsumo</th><th>Total</th><th>CUFE</th><th>Estado</th><th></th>
+        </tr></thead>
+        <tbody>
+          ${fes.map(f=>`
+          <tr>
+            <td style="font-weight:600;color:var(--blue);font-size:12px">${f.num}</td>
+            <td style="font-weight:500">${f.cliente}</td>
+            <td style="font-size:11px;color:var(--text3)">${f.nit}</td>
+            <td style="font-size:12px;color:var(--text2)">${f.fecha}</td>
+            <td style="font-variant-numeric:tabular-nums">${fp(f.sub)}</td>
+            <td style="font-size:12px;color:var(--text3);font-variant-numeric:tabular-nums">${fp(f.imp)}</td>
+            <td style="font-weight:700;font-variant-numeric:tabular-nums">${fp(f.total)}</td>
+            <td style="font-size:10px;color:var(--text3);font-family:monospace">${f.cufe}</td>
+            <td>${f.estado==='ok'?'<span class="sp sp-fe">✓ Emitida</span>':'<span class="sp sp-nc">NC emitida</span>'}</td>
+            <td><div class="ra-wrap">
+              <div class="ra" title="Descargar PDF" onclick="showToast('PDF descargado')">↓</div>
+              <div class="ra" title="Descargar XML" onclick="showToast('XML descargado')">⟨⟩</div>
+              ${f.estado==='ok'?`<div class="ra" title="Emitir nota crédito" onclick="cm('m-nc')">✕</div>`:''}
+            </div></td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>`;
+}
+
+// ═══════════════════════════════════
+// NOTAS CRÉDITO
+// ═══════════════════════════════════
+function renderNC(){
+  document.getElementById('stabs').innerHTML=`<div class="st active">Mayo 2026</div><div class="st">Historial</div>`;
+  document.getElementById('tbar').innerHTML=`<div style="font-size:13px;font-weight:300;color:var(--text3)">Anulaciones y ajustes a facturas de venta electrónicas</div><div style="margin-left:auto;display:flex;gap:8px"><button class="btn b-primary" onclick="cm('m-nc')">+ Nueva nota crédito</button></div>`;
+  document.getElementById('cont').innerHTML=`
+    <div class="wbox">⚠️ Las facturas electrónicas son documentos legales que <strong>no pueden eliminarse</strong>. Para anular o ajustar una FE ya transmitida a la DIAN debes emitir una nota crédito que referencia la factura original. La nota crédito también se transmite a la DIAN en tiempo real.</div>
+    <div class="twrap">
+      <table class="dt">
+        <thead><tr><th>N° Nota crédito</th><th>Factura original</th><th>Cliente</th><th>Motivo</th><th>Valor</th><th>Fecha</th><th>Estado</th></tr></thead>
+        <tbody>
+          <tr>
+            <td style="font-weight:600;color:var(--blue);font-size:12px">NC-2026-003</td>
+            <td style="font-size:12px;color:var(--text2)">FE-2026-00014</td>
+            <td style="font-weight:500">Catering Eventos SAS</td>
+            <td style="font-size:12px;color:var(--text2)">Anulación total</td>
+            <td style="font-weight:700;font-variant-numeric:tabular-nums;color:var(--red)">($2.592.000)</td>
+            <td style="font-size:12px;color:var(--text3)">05 may</td>
+            <td><span class="sp sp-ok">✓ Transmitida</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600;color:var(--blue);font-size:12px">NC-2026-002</td>
+            <td style="font-size:12px;color:var(--text2)">FE-2026-00009</td>
+            <td style="font-weight:500">Hotel Portón del Oriente</td>
+            <td style="font-size:12px;color:var(--text2)">Devolución parcial</td>
+            <td style="font-weight:700;font-variant-numeric:tabular-nums;color:var(--red)">($108.000)</td>
+            <td style="font-size:12px;color:var(--text3)">28 abr</td>
+            <td><span class="sp sp-ok">✓ Transmitida</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>`;
+}
+
+// ═══════════════════════════════════
+// BUZÓN DIAN
+// ═══════════════════════════════════
+function renderBuzon(){
+  document.getElementById('stabs').innerHTML=`<div class="st active">Pendientes (4)</div><div class="st">Clasificadas</div><div class="st">Todas</div>`;
+  document.getElementById('tbar').innerHTML=`
+    <div class="sbox"><span style="color:var(--text3);font-size:14px">🔍</span><input type="text" placeholder="Buscar por NIT o proveedor..."></div>
+    <div style="margin-left:auto;display:flex;gap:8px">
+      <button class="btn b-outline" onclick="showToast('Sincronizando buzón DIAN...')">↻ Sincronizar ahora</button>
+    </div>`;
+  const items=[
+    {prov:'Carnes Antioqueñas SAS',nit:'900.234.567-1',num:'FE-2026-04821',fecha:'08 may',sub:1428000,iva:271320,ia:'1430 – Inventarios · Guarne',cufe:'8a2f...d91c'},
+    {prov:'PanArtesanal SAS',nit:'901.112.334-5',num:'FE-2026-04718',fecha:'07 may',sub:384000,iva:72960,ia:'1430 – Inventarios · Guarne',cufe:'3b7e...a40f'},
+    {prov:'Dist. La Montaña',nit:'800.456.789-2',num:'FE-2026-04690',fecha:'06 may',sub:892000,iva:169480,ia:'1430 – Inventarios · La Ceja',cufe:'c2d9...7b1e'},
+    {prov:'Sodexo Colombia',nit:'860.007.386-1',num:'FE-2026-04580',fecha:'04 may',sub:2100000,iva:0,ia:'5205 – Arrendamiento · Guarne',cufe:'7d1b...e552'},
+  ];
+  document.getElementById('cont').innerHTML=`
+    <div class="ibox">✦ Las facturas electrónicas que tus proveedores te envían llegan automáticamente aquí desde la DIAN. La IA sugiere la cuenta PUC y la sede. Solo confirma con un clic para contabilizarlas.</div>
+    <div class="twrap">
+      <table class="dt">
+        <thead><tr><th>Proveedor</th><th>N° Factura</th><th>Fecha</th><th>Subtotal</th><th>IVA</th><th>Total</th><th>Sugerencia IA</th><th></th></tr></thead>
+        <tbody>
+          ${items.map(i=>`
+          <tr>
+            <td><div style="font-weight:500">${i.prov}</div><div style="font-size:10px;color:var(--text3)">NIT ${i.nit} · CUFE ${i.cufe}</div></td>
+            <td style="font-size:12px;font-weight:500;color:var(--blue)">${i.num}</td>
+            <td style="font-size:12px;color:var(--text2)">${i.fecha}</td>
+            <td style="font-variant-numeric:tabular-nums">${fp(i.sub)}</td>
+            <td style="font-size:12px;color:var(--text3);font-variant-numeric:tabular-nums">${fp(i.iva)}</td>
+            <td style="font-weight:700;font-variant-numeric:tabular-nums">${fp(i.sub+i.iva)}</td>
+            <td><span style="font-size:10px;font-weight:600;padding:2px 8px;border-radius:6px;background:var(--purple-bg);color:var(--purple)">✦ ${i.ia}</span></td>
+            <td><div class="ra-wrap">
+              <button class="btn b-accent b-sm" onclick="showToast('Clasificada y contabilizada ✓')">✓ Confirmar</button>
+              <div class="ra" onclick="showToast('Rechazada')">✕</div>
+            </div></td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>`;
+}
+
+// ═══════════════════════════════════
+// DOCUMENTO SOPORTE COMPRAS
+// ═══════════════════════════════════
+function renderDSCE(){
+  document.getElementById('stabs').innerHTML=`<div class="st active">Mayo 2026</div><div class="st">Historial</div>`;
+  document.getElementById('tbar').innerHTML=`<div style="font-size:13px;font-weight:300;color:var(--text3)">Para compras a proveedores no obligados a facturar (plaza de mercado, campesinos, régimen simple)</div><div style="margin-left:auto"><button class="btn b-primary" onclick="showToast('Abriendo formulario DSCE...')">+ Nuevo doc. soporte</button></div>`;
+  document.getElementById('cont').innerHTML=`
+    <div class="ibox">ℹ️ El documento soporte de compras (DSCE) te permite deducir ante la DIAN los gastos con proveedores que no emiten factura electrónica — campesinos en la plaza, negocios de régimen simple, o personas naturales no obligadas a facturar. YARO genera y transmite este documento automáticamente.</div>
+    <div class="twrap">
+      <table class="dt">
+        <thead><tr><th>Proveedor</th><th>Cédula / NIT</th><th>Concepto</th><th>Fecha</th><th>Valor</th><th>IVA</th><th>Estado DIAN</th></tr></thead>
+        <tbody>
+          <tr>
+            <td style="font-weight:500">Pedro Álvarez (campesino)</td>
+            <td style="font-size:11px;color:var(--text3)">15.234.678</td>
+            <td style="font-size:12px;color:var(--text2)">Verduras frescas — semana 19</td>
+            <td style="font-size:12px;color:var(--text3)">06 may</td>
+            <td style="font-weight:700;font-variant-numeric:tabular-nums">${fp(180000)}</td>
+            <td style="font-size:12px;color:var(--text3)">No aplica</td>
+            <td><span class="sp sp-ok">✓ Transmitido</span></td>
+          </tr>
+          <tr>
+            <td style="font-weight:500">Abarrotes La Esquina</td>
+            <td style="font-size:11px;color:var(--text3)">800.111.222-1</td>
+            <td style="font-size:12px;color:var(--text2)">Insumos varios — semana 18</td>
+            <td style="font-size:12px;color:var(--text3)">30 abr</td>
+            <td style="font-weight:700;font-variant-numeric:tabular-nums">${fp(94000)}</td>
+            <td style="font-size:12px;color:var(--text3)">No aplica</td>
+            <td><span class="sp sp-ok">✓ Transmitido</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>`;
+}
+
+// ═══════════════════════════════════
+// NÓMINA ELECTRÓNICA
+// ═══════════════════════════════════
+function renderNomina(){
+  document.getElementById('stabs').innerHTML=`<div class="st active">Mayo 2026</div><div class="st">Abril 2026</div><div class="st">Historial</div>`;
+  document.getElementById('tbar').innerHTML=`
+    <select class="fsel"><option>Ambas sedes</option><option>Guarne</option><option>La Ceja</option></select>
+    <div style="margin-left:auto;display:flex;gap:8px">
+      <button class="btn b-outline" onclick="showToast('Descargando todos los comprobantes PDF...')">↓ Todos los comprobantes</button>
+      <button class="btn b-green" onclick="showToast('Generando documentos soporte nómina DIAN para 13 empleados...')">✓ Generar docs. soporte DIAN</button>
+      <button class="btn b-primary" onclick="showToast('Procesando nómina...')">Procesar nómina</button>
+    </div>`;
+
+  const empleados=[
+    {n:'Carlos Martínez',   r:'Mesero',      s:'Guarne',  base:1300000, extra:180000, transp:162000, eps:52000, pension:52000, arl:4680, neto:1333320, dian:true},
+    {n:'Laura Pacheco',     r:'Mesera',      s:'Guarne',  base:1300000, extra:0,      transp:162000, eps:52000, pension:52000, arl:4680, neto:1153320, dian:true},
+    {n:'Jorge Vargas',      r:'Cocinero',    s:'Guarne',  base:1500000, extra:240000, transp:162000, eps:60000, pension:60000, arl:5400, neto:1576600, dian:false},
+    {n:'Sandra López',      r:'Cajera',      s:'Guarne',  base:1300000, extra:60000,  transp:162000, eps:52000, pension:52000, arl:4680, neto:1213320, dian:true},
+    {n:'Paola Moreno',      r:'Mesera',      s:'La Ceja', base:1300000, extra:0,      transp:162000, eps:52000, pension:52000, arl:4680, neto:1153320, dian:true},
+    {n:'Ricardo Hernández', r:'Jefe cocina', s:'La Ceja', base:2200000, extra:320000, transp:0,      eps:88000, pension:88000, arl:7920, neto:2336080, dian:true},
+  ];
+
+  const totalNomina=empleados.reduce((a,e)=>a+e.base+e.extra+e.transp,0);
+
+  document.getElementById('cont').innerHTML=`
+    <div class="krow">
+      <div class="kpi" style="--kb:var(--text)">
+        <div class="klbl">Total nómina bruta</div><div class="kval">${fp(totalNomina)}</div>
+        <div class="kfoot">13 empleados · Mayo 2026</div>
+      </div>
+      <div class="kpi" style="--kb:var(--red)">
+        <div class="klbl">Deducciones empleados</div>
+        <div class="kval" style="color:var(--red)">${fp(empleados.reduce((a,e)=>a+e.eps+e.pension+e.arl,0))}</div>
+        <div class="kfoot">EPS · Pensión · ARL</div>
+      </div>
+      <div class="kpi" style="--kb:var(--green)">
+        <div class="klbl">Neto a pagar</div>
+        <div class="kval" style="color:var(--green)">${fp(empleados.reduce((a,e)=>a+e.neto,0))}</div>
+        <div class="kfoot">total transferencias</div>
+      </div>
+      <div class="kpi" style="--kb:var(--purple)">
+        <div class="klbl">Docs. soporte DIAN</div>
+        <div class="kval" style="color:var(--purple)">${empleados.filter(e=>e.dian).length}/${empleados.length}</div>
+        <div class="kfoot">${empleados.filter(e=>!e.dian).length} pendiente${empleados.filter(e=>!e.dian).length!==1?'s':''} de generar</div>
+      </div>
+    </div>
+
+    <div style="margin-bottom:14px">
+      ${empleados.map((e,i)=>`
+      <div class="emp-card" style="animation-delay:${i*.04}s">
+        <div class="emp-head" onclick="toggleEmp(${i})">
+          <div class="emp-av">${e.n.split(' ').map(p=>p[0]).slice(0,2).join('')}</div>
+          <div class="emp-info">
+            <div class="emp-name">${e.n}</div>
+            <div class="emp-role">${e.r} · ${e.s}${e.extra?` · ${fp(e.extra)} extras`:''}</div>
+          </div>
+          <div style="margin-right:12px">
+            ${e.dian?`<span class="sp sp-ok" style="font-size:10px">✓ Doc. DIAN</span>`:`<span class="sp sp-pend" style="font-size:10px">Pendiente DIAN</span>`}
+          </div>
+          <div class="emp-right">
+            <div class="emp-neto">${fp(e.neto)}</div>
+            <div class="emp-tag">Neto · Bruto: ${fp(e.base+e.extra+e.transp)}</div>
+          </div>
+          <div class="emp-chev" id="chev-${i}">⌄</div>
+        </div>
+        <div class="emp-body" id="emp-body-${i}">
+          <div class="emp-inner">
+            <div class="dr"><span class="dr-lbl">Salario base</span><span class="dr-val">${fp(e.base)}</span></div>
+            ${e.extra?`<div class="dr"><span class="dr-lbl">Horas extra</span><span class="dr-val">${fp(e.extra)}</span></div>`:''}
+            ${e.transp?`<div class="dr"><span class="dr-lbl">Auxilio de transporte</span><span class="dr-val">${fp(e.transp)}</span></div>`:''}
+            <div class="dr"><span class="dr-lbl">Salario total devengado</span><span class="dr-val" style="color:var(--green)">${fp(e.base+e.extra+e.transp)}</span></div>
+            <div class="dr-sep"></div>
+            <div class="dr"><span class="dr-lbl">EPS empleado (4%)</span><span class="dr-val neg">(${fp(e.eps)})</span></div>
+            <div class="dr"><span class="dr-lbl">Pensión empleado (4%)</span><span class="dr-val neg">(${fp(e.pension)})</span></div>
+            <div class="dr"><span class="dr-lbl ind">ARL</span><span class="dr-val neg">(${fp(e.arl)})</span></div>
+            <div class="dr-sep"></div>
+            <div class="dr"><span class="dr-lbl" style="font-weight:600;color:var(--text)">NETO A PAGAR</span><span class="dr-val big pos">${fp(e.neto)}</span></div>
+            <div class="emp-acts">
+              ${!e.dian?`<button class="btn b-primary" style="font-size:12px;height:32px;padding:0 12px" onclick="showToast('Doc. soporte nómina generado y transmitido a la DIAN ✓')">✓ Generar doc. soporte DIAN</button>`:''}
+              <button class="btn b-outline" style="font-size:12px;height:32px;padding:0 12px" onclick="showToast('Comprobante PDF de ${e.n} descargado')">↓ Comprobante PDF</button>
+            </div>
+          </div>
+        </div>
+      </div>`).join('')}
+    </div>`;
+}
+
+function toggleEmp(i){
+  const body=document.getElementById('emp-body-'+i);
+  const chev=document.getElementById('chev-'+i);
+  body.classList.toggle('open');
+  chev.classList.toggle('open');
+}
+
+// ═══════════════════════════════════
+// GASTOS FIJOS
+// ═══════════════════════════════════
+function renderGastos(){
+  document.getElementById('stabs').innerHTML=`<div class="st active">Gastos fijos</div><div class="st" onclick="showToast('Gastos variables')">Gastos variables</div><div class="st" onclick="showToast('Calendario')">Calendario pagos</div>`;
+  document.getElementById('tbar').innerHTML=`
+    <div style="font-size:13px;font-weight:500">Mayo 2026</div>
+    <select class="fsel"><option>Ambas sedes</option><option>Guarne</option><option>La Ceja</option></select>
+    <div style="margin-left:auto;display:flex;gap:8px">
+      <button class="btn b-outline" onclick="showToast('Exportando...')">↓ Exportar</button>
+      <button class="btn b-primary" onclick="cm('m-gasto')">+ Gasto fijo</button>
+    </div>`;
+
+  const gastos=[
+    {c:'Arriendo Guarne',        cuenta:'5205',prov:'Inmobiliaria Los Pinos', val:4200000,dia:5, dias:3, pagado:false,sede:'Guarne'},
+    {c:'Arriendo La Ceja',       cuenta:'5205',prov:'Inmuebles del Oriente',  val:2800000,dia:5, dias:3, pagado:false,sede:'La Ceja'},
+    {c:'Energía EPM Guarne',     cuenta:'5220',prov:'EPM',                    val:480000, dia:18,dias:10,pagado:false,sede:'Guarne'},
+    {c:'Energía EDEQ La Ceja',   cuenta:'5220',prov:'EDEQ',                   val:320000, dia:20,dias:12,pagado:false,sede:'La Ceja'},
+    {c:'Acueducto Guarne',       cuenta:'5220',prov:'Aguas de Guarne',         val:180000, dia:22,dias:14,pagado:true, sede:'Guarne'},
+    {c:'Internet + telefonía',   cuenta:'5299',prov:'Claro Colombia',          val:340000, dia:15,dias:7, pagado:true, sede:'Ambas'},
+    {c:'Seguro todo riesgo',     cuenta:'5250',prov:'Seguros Bolívar',          val:890000, dia:1, dias:24,pagado:true, sede:'Ambas'},
+    {c:'Mantenimiento equipos',  cuenta:'5240',prov:'TecniService SAS',         val:250000, dia:28,dias:20,pagado:false,sede:'Guarne'},
+  ];
+
+  const totalMes=gastos.reduce((a,g)=>a+g.val,0);
+  const pendiente=gastos.filter(g=>!g.pagado).reduce((a,g)=>a+g.val,0);
+  const urgentes=gastos.filter(g=>!g.pagado&&g.dias<=5);
+
+  document.getElementById('cont').innerHTML=`
+    <div class="krow">
+      <div class="kpi" style="--kb:var(--text)"><div class="klbl">Total gastos mes</div><div class="kval">${fp(totalMes)}</div><div class="kfoot">${gastos.length} conceptos</div></div>
+      <div class="kpi" style="--kb:var(--amber)"><div class="klbl">Pendiente de pago</div><div class="kval" style="color:var(--amber)">${fp(pendiente)}</div><div class="kfoot">${gastos.filter(g=>!g.pagado).length} gastos sin pagar</div></div>
+      <div class="kpi" style="--kb:var(--red)"><div class="klbl">Vencen en ≤5 días</div><div class="kval" style="color:var(--red)">${urgentes.length}</div><div class="kfoot"><span class="d ddn">⚠ Atención</span></div></div>
+      <div class="kpi" style="--kb:var(--green)"><div class="klbl">Ya pagados</div><div class="kval" style="color:var(--green)">${gastos.filter(g=>g.pagado).length}</div><div class="kfoot">${fp(gastos.filter(g=>g.pagado).reduce((a,g)=>a+g.val,0))}</div></div>
+    </div>
+    ${urgentes.length?`<div class="wbox">⚠️ <strong>Próximos a vencer:</strong> ${urgentes.map(g=>`${g.c} — día ${g.dia} (faltan ${g.dias} días)`).join(' · ')}</div>`:''}
+    <div class="gasto-grid">
+      ${gastos.map(g=>{
+        const pct=g.pagado?100:Math.max(5,Math.round((1-g.dias/30)*100));
+        const col=g.pagado?'var(--green)':g.dias<=5?'var(--red)':g.dias<=10?'var(--amber)':'var(--accent-dk)';
+        return `<div class="gc" style="--gcol:${col}">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px">
+            <div>
+              <div class="gc-title">${g.c}</div>
+              <div class="gc-meta">${g.cuenta} · ${g.prov} · ${g.sede}</div>
+            </div>
+            ${g.pagado?`<span class="sp sp-ok">Pagado</span>`:`<span class="sp sp-pend">Pendiente</span>`}
+          </div>
+          <div class="gc-amount" style="color:${col}">${fp(g.val)}</div>
+          <div class="gc-track"><div class="gc-fill" style="width:${pct}%;background:${col}"></div></div>
+          <div class="gc-foot">
+            <span>Día ${g.dia} · ${g.dias}d restantes</span>
+            ${!g.pagado?`<span style="cursor:pointer;font-weight:500;color:var(--text);text-decoration:underline;text-underline-offset:2px" onclick="showToast('${g.c} marcado como pagado ✓')">Marcar pagado</span>`:'<span style="color:var(--green)">✓ Completado</span>'}
+          </div>
+        </div>`;}).join('')}
+    </div>`;
+}
+
+// ═══════════════════════════════════
+// FACTURAS DE COMPRA (MANUAL)
+// ═══════════════════════════════════
+function renderComprasReg(){
+  document.getElementById('stabs').innerHTML=`<div class="st active">Mayo 2026</div><div class="st">Historial</div>`;
+  document.getElementById('tbar').innerHTML=`
+    <div class="sbox"><span style="color:var(--text3);font-size:14px">🔍</span><input placeholder="Buscar..."></div>
+    <div style="margin-left:auto;display:flex;gap:8px">
+      <button class="btn b-outline" onclick="showToast('Exportando...')">↓ Exportar</button>
+      <button class="btn b-primary" onclick="showToast('Abriendo formulario de compra...')">+ Factura manual</button>
+    </div>`;
+  document.getElementById('cont').innerHTML=`
+    <div class="ibox">💡 Aquí van las facturas de compra físicas o de proveedores que no emiten FE. Las facturas electrónicas de proveedores llegan automáticamente al Buzón DIAN.</div>
+    <div class="twrap">
+      <table class="dt">
+        <thead><tr><th>Proveedor</th><th>N° Factura</th><th>Cuenta PUC</th><th>Fecha</th><th>Subtotal</th><th>IVA</th><th>Total</th><th>Sede</th><th>Estado</th></tr></thead>
+        <tbody>
+          <tr><td style="font-weight:500">Ferretería el Centro</td><td style="font-size:12px;color:var(--blue)">FC-0892</td><td style="font-size:11px;color:var(--text3)">5240 – Mantenimiento</td><td style="font-size:12px;color:var(--text2)">07 may</td><td style="font-variant-numeric:tabular-nums">${fp(320000)}</td><td style="font-size:12px;color:var(--text3)">${fp(60800)}</td><td style="font-weight:700;font-variant-numeric:tabular-nums">${fp(380800)}</td><td style="font-size:12px">Guarne</td><td><span class="sp sp-ok">Contabilizada</span></td></tr>
+          <tr><td style="font-weight:500">Papelería Pronto</td><td style="font-size:12px;color:var(--blue)">TK-1124</td><td style="font-size:11px;color:var(--text3)">5299 – Otros gastos</td><td style="font-size:12px;color:var(--text2)">05 may</td><td style="font-variant-numeric:tabular-nums">${fp(48000)}</td><td style="font-size:12px;color:var(--text3)">${fp(9120)}</td><td style="font-weight:700;font-variant-numeric:tabular-nums">${fp(57120)}</td><td style="font-size:12px">La Ceja</td><td><span class="sp sp-ok">Contabilizada</span></td></tr>
+        </tbody>
+      </table>
+    </div>`;
+}
+
+// ═══════════════════════════════════
+// PUC
+// ═══════════════════════════════════
+function renderPUC(){
+  document.getElementById('stabs').innerHTML=`<div class="st active">Saldos actuales</div><div class="st">Movimientos</div><div class="st">Configurar cuentas</div>`;
+  document.getElementById('tbar').innerHTML=`
+    <div class="sbox"><span style="color:var(--text3);font-size:14px">🔍</span><input placeholder="Buscar cuenta PUC..."></div>
+    <select class="fsel"><option>Ambas sedes</option><option>Guarne</option><option>La Ceja</option></select>
+    <div style="margin-left:auto;display:flex;gap:8px">
+      <button class="btn b-outline" onclick="showToast('Exportando PUC...')">↓ Exportar</button>
+      <button class="btn b-primary" onclick="showToast('Agregando subcuenta...')">+ Subcuenta</button>
+    </div>`;
+
+  const puc=[
+    {g:'1',gn:'ACTIVO',gs:'DB',items:[
+      {c:'1105',n:'Caja y bancos',nat:'d',sal:'$4.820.000'},
+      {c:'1330',n:'Anticipo de impuestos',nat:'d',sal:'$1.240.000'},
+      {c:'1430',n:'Inventarios (insumos)',nat:'d',sal:'$18.640.000'},
+    ]},
+    {g:'2',gn:'PASIVO',gs:'CR',items:[
+      {c:'2205',n:'Proveedores nacionales',nat:'c',sal:'$9.840.000'},
+      {c:'2365',n:'Retención en la fuente',nat:'c',sal:'$480.000'},
+      {c:'2404',n:'Impuesto al consumo por pagar',nat:'c',sal:'$1.980.000'},
+    ]},
+    {g:'4',gn:'INGRESOS',gs:'CR',items:[
+      {c:'4135',n:'Ventas de servicios restaurante',nat:'c',sal:'$24.800.000'},
+      {c:'4175',n:'Otros ingresos',nat:'c',sal:'$320.000'},
+    ]},
+    {g:'5',gn:'GASTOS',gs:'DB',items:[
+      {c:'5110',n:'Gastos de personal',nat:'d',sal:'$16.690.000'},
+      {c:'5205',n:'Arrendamientos',nat:'d',sal:'$7.000.000'},
+      {c:'5220',n:'Servicios públicos',nat:'d',sal:'$980.000'},
+      {c:'5240',n:'Mantenimiento y reparaciones',nat:'d',sal:'$570.000'},
+      {c:'5250',n:'Seguros',nat:'d',sal:'$890.000'},
+      {c:'6205',n:'Food cost — materias primas',nat:'d',sal:'$7.780.000'},
+    ]},
+  ];
+
+  document.getElementById('cont').innerHTML=`
+    <div class="twrap" style="padding:0">
+      ${puc.map(g=>`
+        <div class="puc-group" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'':'none'">
+          <span class="puc-gcode">${g.g}</span>
+          <span class="puc-gname">${g.gn}</span>
+          <span style="margin-left:auto;font-size:10px;font-weight:600;padding:2px 8px;border-radius:6px;background:${g.gs==='DB'?'var(--blue-bg)':'var(--red-bg)'};color:${g.gs==='DB'?'var(--blue)':'var(--red)'}">${g.gs}</span>
+        </div>
+        <div>
+          ${g.items.map(r=>`
+          <div class="puc-row">
+            <span class="puc-code">${r.c}</span>
+            <span class="puc-name">${r.n}</span>
+            <span class="puc-nat ${r.nat==='d'?'nat-d':'nat-c'}">${r.nat==='d'?'DB':'CR'}</span>
+            <span class="puc-sal">${r.sal}</span>
+          </div>`).join('')}
+        </div>`).join('')}
+    </div>`;
+}
+
+// ═══════════════════════════════════
+// P&G
+// ═══════════════════════════════════
+function renderPYG(){
+  document.getElementById('stabs').innerHTML=`<div class="st active">Mayo 2026</div><div class="st">Consolidado 2026</div><div class="st">Comparativo</div>`;
+  document.getElementById('tbar').innerHTML=`
+    <select class="fsel"><option>Ambas sedes</option><option>Guarne</option><option>La Ceja</option></select>
+    <div style="margin-left:auto;display:flex;gap:8px">
+      <button class="btn b-outline" onclick="showToast('Exportando PDF...')">↓ PDF</button>
+      <button class="btn b-outline" onclick="showToast('Exportando Excel...')">↓ Excel</button>
+    </div>`;
+
+  document.getElementById('cont').innerHTML=`
+    <div class="g2">
+      ${[['Guarne','$18.400.000','$5.552.000','$7.780.000','$10.620.000','$16.690.000','$9.440.000','var(--red)','($5.510.000)'],
+         ['La Ceja','$9.600.000','$2.892.000','$3.220.000','$6.380.000','$9.010.000','$5.260.000','var(--amber)','($2.630.000)']].map(([sede,ven,imp,fc,ub,nom,color,ebitda])=>`
+      <div class="card">
+        <div class="clbl">${sede} <span class="ctag">Mayo 2026</span></div>
+        <div class="pyg-row"><span class="pl h">Ventas brutas</span><span class="pv">${ven}</span></div>
+        <div class="pyg-row"><span class="pl ind">Impoconsumo cobrado (8%)</span><span class="pv" style="color:var(--text3)">(${imp})</span></div>
+        <div class="pyg-row"><span class="pl h">Ventas netas</span><span class="pv">${fp(parseInt(ven.replace(/\D/g,''))-parseInt(imp.replace(/\D/g,'')))}</span></div>
+        <div style="height:1px;background:var(--border);margin:6px 0"></div>
+        <div class="pyg-row"><span class="pl ind">Food cost</span><span class="pv r">(${fc})</span></div>
+        <div class="pyg-row"><span class="pl h" style="color:var(--green)">Utilidad bruta</span><span class="pv g">${ub}</span></div>
+        <div style="height:1px;background:var(--border);margin:6px 0"></div>
+        <div class="pyg-row"><span class="pl ind">Nómina total</span><span class="pv r">(${nom})</span></div>
+        <div class="pyg-row"><span class="pl ind">Gastos fijos</span><span class="pv r">(${fp(parseInt(ven.replace(/\D/g,''))*0.046)})</span></div>
+        <div class="pyg-row total"><span class="pl h">EBITDA</span><span class="pv big" style="color:${color}">${ebitda}</span></div>
+        <div style="font-size:10px;font-weight:300;color:var(--text3);margin-top:8px">Propinas excluidas de todos los cálculos · Impoconsumo 8% registrado por separado para declaración</div>
+      </div>`).join('')}
+    </div>`;
+}
+
+// ── TOAST ──
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2800);
+}
+
+// ── INIT ──
+const today=new Date().toISOString().split('T')[0];
+document.getElementById('fe-fecha') && (document.getElementById('fe-fecha').value=today);
+render();
+</script>
+</body>
+</html>

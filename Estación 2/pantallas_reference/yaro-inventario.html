@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>YARO — Inventario</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:        #f0ede8;
+  --bg2:       #ece9e3;
+  --surface:   #faf9f7;
+  --white:     #ffffff;
+  --border:    rgba(0,0,0,0.07);
+  --border2:   rgba(0,0,0,0.11);
+  --text:      #1a1916;
+  --text2:     #6b6760;
+  --text3:     #a8a49e;
+  --accent:    #f7fd9c;
+  --accent-dk: #d4e200;
+  --accent-txt:#6b7200;
+  --green:     #3d9970;
+  --green-bg:  rgba(61,153,112,0.09);
+  --red:       #c0392b;
+  --red-bg:    rgba(192,57,43,0.07);
+  --amber:     #b7860b;
+  --amber-bg:  rgba(183,134,11,0.09);
+  --blue:      #2471a3;
+  --blue-bg:   rgba(36,113,163,0.07);
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.06),0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.08),0 1px 4px rgba(0,0,0,0.04);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,0.10),0 2px 8px rgba(0,0,0,0.05);
+  --radius:    14px;
+  --radius-sm: 9px;
+}
+
+* { box-sizing:border-box; margin:0; padding:0; }
+
+body {
+  font-family:'Outfit',sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  min-height:100vh;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+}
+
+/* ── TOPBAR ── */
+.topbar {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:0 32px; height:64px;
+  background:var(--surface); border-bottom:1px solid var(--border);
+  position:sticky; top:0; z-index:200; box-shadow:var(--shadow-sm);
+}
+.topbar-left { display:flex; align-items:center; gap:16px; }
+.logo-pill { background:var(--text); border-radius:11px; padding:6px 14px; font-size:18px; font-weight:300; color:var(--white); letter-spacing:0.4px; }
+.topbar-div { width:1px; height:20px; background:var(--border2); }
+.topbar-title { font-size:17px; font-weight:600; letter-spacing:-0.2px; }
+.topbar-sub { font-size:12px; font-weight:300; color:var(--text3); margin-top:1px; }
+.topbar-right { display:flex; align-items:center; gap:10px; }
+.pill { padding:6px 13px; border-radius:20px; font-size:11px; font-weight:500; }
+.pill-time { background:var(--white); border:1px solid var(--border2); color:var(--text2); font-size:12px; font-weight:400; box-shadow:var(--shadow-sm); font-variant-numeric:tabular-nums; }
+.pill-sede { background:rgba(212,226,0,0.1); border:1px solid rgba(212,226,0,0.25); color:var(--accent-txt); }
+
+/* ── SHELL ── */
+.shell { display:flex; height:calc(100vh - 64px); overflow:hidden; }
+
+/* ── SIDEBAR NAV ── */
+.sidenav {
+  width:200px; flex-shrink:0;
+  background:var(--surface); border-right:1px solid var(--border);
+  display:flex; flex-direction:column; padding:20px 12px;
+  gap:2px;
+}
+.sidenav-label { font-size:9px; font-weight:600; color:var(--text3); text-transform:uppercase; letter-spacing:0.12em; padding:0 10px; margin:12px 0 6px; }
+.sidenav-item {
+  display:flex; align-items:center; gap:10px;
+  padding:9px 12px; border-radius:var(--radius-sm);
+  font-size:13px; font-weight:400; color:var(--text2);
+  cursor:pointer; transition:all .15s;
+}
+.sidenav-item:hover { background:var(--bg2); color:var(--text); }
+.sidenav-item.active { background:var(--accent); color:var(--accent-txt); font-weight:600; box-shadow:var(--shadow-sm); }
+.sidenav-icon { width:16px; height:16px; opacity:.6; flex-shrink:0; }
+.sidenav-item.active .sidenav-icon { opacity:1; }
+.sidenav-badge { margin-left:auto; background:var(--red); color:#fff; font-size:10px; font-weight:600; border-radius:10px; padding:1px 7px; }
+
+/* ── MAIN CONTENT ── */
+.main { flex:1; display:flex; flex-direction:column; overflow:hidden; }
+
+/* ── SUB-TABS ── */
+.subtabs {
+  display:flex; align-items:center; gap:0;
+  background:var(--white); border-bottom:1px solid var(--border);
+  padding:0 28px; height:48px; flex-shrink:0;
+  box-shadow:var(--shadow-sm);
+}
+.subtab {
+  padding:0 18px; height:100%;
+  display:flex; align-items:center;
+  font-size:13px; font-weight:500; color:var(--text3);
+  cursor:pointer; border-bottom:2px solid transparent;
+  transition:all .15s; white-space:nowrap;
+}
+.subtab:hover { color:var(--text2); }
+.subtab.active { color:var(--text); border-bottom-color:var(--accent-dk); font-weight:600; }
+.subtab-badge { margin-left:6px; font-size:10px; font-weight:700; background:var(--red-bg); color:var(--red); padding:1px 6px; border-radius:10px; }
+
+/* ── TOOLBAR ── */
+.toolbar {
+  display:flex; align-items:center; gap:10px;
+  padding:16px 28px; background:var(--surface);
+  border-bottom:1px solid var(--border); flex-shrink:0;
+}
+
+.search-box {
+  display:flex; align-items:center; gap:8px;
+  background:var(--white); border:1px solid var(--border2);
+  border-radius:var(--radius-sm); padding:0 14px; height:36px;
+  flex:1; max-width:320px; box-shadow:var(--shadow-sm);
+}
+.search-box input {
+  border:none; outline:none; background:transparent;
+  font-family:'Outfit',sans-serif; font-size:13px; font-weight:400;
+  color:var(--text); width:100%;
+}
+.search-box input::placeholder { color:var(--text3); }
+.search-icon { color:var(--text3); font-size:14px; flex-shrink:0; }
+
+.filter-select {
+  height:36px; padding:0 12px;
+  border:1px solid var(--border2); border-radius:var(--radius-sm);
+  background:var(--white); font-family:'Outfit',sans-serif;
+  font-size:12px; font-weight:400; color:var(--text2);
+  box-shadow:var(--shadow-sm); cursor:pointer; outline:none;
+}
+
+.toolbar-btn {
+  height:36px; padding:0 16px;
+  border-radius:var(--radius-sm);
+  font-size:13px; font-weight:600; cursor:pointer;
+  border:none; font-family:'Outfit',sans-serif;
+  transition:all .15s; white-space:nowrap;
+}
+.btn-primary { background:var(--text); color:var(--white); }
+.btn-primary:hover { background:#2d2c28; box-shadow:var(--shadow-md); }
+.btn-outline { background:var(--white); color:var(--text2); border:1px solid var(--border2); font-weight:400; }
+.btn-outline:hover { background:var(--bg2); }
+.btn-accent { background:rgba(212,226,0,0.12); color:var(--accent-txt); border:1px solid rgba(212,226,0,0.28); }
+.btn-accent:hover { background:rgba(212,226,0,0.22); }
+
+/* ── KPI ROW ── */
+.kpi-row {
+  display:grid; grid-template-columns:repeat(4,1fr);
+  gap:12px; padding:16px 28px;
+  background:var(--surface); border-bottom:1px solid var(--border);
+  flex-shrink:0;
+}
+.kpi-card {
+  background:var(--white); border:1px solid var(--border);
+  border-radius:var(--radius); padding:16px 18px;
+  box-shadow:var(--shadow-md); position:relative; overflow:hidden;
+  transition:box-shadow .2s, transform .2s;
+}
+.kpi-card:hover { box-shadow:var(--shadow-lg); transform:translateY(-1px); }
+.kpi-card::after {
+  content:''; position:absolute; top:0; left:0; right:0; height:3px;
+  background:var(--kpi-bar, var(--border2));
+  border-radius:var(--radius) var(--radius) 0 0;
+}
+.kpi-lbl { font-size:10px; font-weight:500; color:var(--text3); text-transform:uppercase; letter-spacing:.08em; margin-bottom:8px; }
+.kpi-val { font-size:22px; font-weight:700; letter-spacing:-.5px; line-height:1; margin-bottom:8px; }
+.kpi-sub { font-size:11px; font-weight:300; color:var(--text3); display:flex; align-items:center; gap:6px; }
+.delta { font-size:10px; font-weight:600; padding:2px 6px; border-radius:5px; }
+.delta-up   { background:var(--green-bg); color:var(--green); }
+.delta-down { background:var(--red-bg);   color:var(--red); }
+.delta-warn { background:var(--amber-bg); color:var(--amber); }
+
+/* ── TABLE AREA ── */
+.table-area { flex:1; overflow-y:auto; padding:20px 28px; }
+
+/* ── FLOATING TABLE CARD ── */
+.table-wrap {
+  background:var(--white); border:1px solid var(--border);
+  border-radius:var(--radius); box-shadow:var(--shadow-md);
+  overflow:hidden; animation:floatUp .4s cubic-bezier(.22,1,.36,1) both;
+}
+@keyframes floatUp { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+
+/* data table */
+.data-table { width:100%; border-collapse:collapse; }
+
+.data-table thead th {
+  text-align:left; padding:12px 16px;
+  font-size:10px; font-weight:600; color:var(--text3);
+  text-transform:uppercase; letter-spacing:.08em;
+  border-bottom:1px solid var(--border);
+  background:var(--surface);
+  white-space:nowrap;
+}
+.data-table thead th.sortable { cursor:pointer; user-select:none; }
+.data-table thead th.sortable:hover { color:var(--text2); }
+.data-table thead th .sort-arrow { margin-left:4px; opacity:.4; font-size:9px; }
+.data-table thead th.sorted .sort-arrow { opacity:1; color:var(--accent-dk); }
+
+.data-table tbody tr {
+  border-bottom:1px solid var(--border);
+  transition:background .12s; cursor:pointer;
+}
+.data-table tbody tr:last-child { border-bottom:none; }
+.data-table tbody tr:hover { background:rgba(0,0,0,0.02); }
+.data-table tbody tr.selected-row { background:rgba(212,226,0,0.05); }
+
+.data-table tbody td { padding:13px 16px; font-size:13px; vertical-align:middle; }
+
+/* specific cols */
+.col-name { font-weight:500; }
+.col-name small { display:block; font-size:11px; font-weight:300; color:var(--text3); margin-top:1px; }
+.col-stock { font-weight:600; font-variant-numeric:tabular-nums; }
+.col-unit  { font-size:11px; color:var(--text3); margin-left:3px; }
+
+/* stock status bar */
+.stock-bar-wrap { display:flex; align-items:center; gap:10px; min-width:120px; }
+.stock-bar-track { flex:1; height:5px; background:var(--bg2); border-radius:3px; overflow:hidden; }
+.stock-bar-fill  { height:100%; border-radius:3px; transition:width .6s; }
+
+/* status badge */
+.status-tag {
+  display:inline-flex; align-items:center; gap:5px;
+  padding:3px 10px; border-radius:6px;
+  font-size:10px; font-weight:600;
+}
+.tag-ok      { background:var(--green-bg); color:var(--green); }
+.tag-low     { background:var(--amber-bg); color:var(--amber); }
+.tag-critico { background:var(--red-bg);   color:var(--red); }
+.tag-dot { width:5px; height:5px; border-radius:50%; background:currentColor; }
+
+/* action icons */
+.row-actions { display:flex; gap:6px; justify-content:flex-end; }
+.action-icon {
+  width:28px; height:28px; border-radius:7px;
+  background:var(--bg2); border:1px solid var(--border);
+  display:flex; align-items:center; justify-content:center;
+  font-size:13px; cursor:pointer; transition:all .15s;
+  color:var(--text2);
+}
+.action-icon:hover { background:var(--border2); color:var(--text); }
+
+/* allergen tag */
+.allergen-pill {
+  display:inline-block; font-size:9px; font-weight:600;
+  padding:1px 6px; border-radius:4px;
+  background:var(--red-bg); color:var(--red);
+  border:1px solid rgba(192,57,43,0.15);
+  margin-left:4px; vertical-align:middle;
+}
+
+/* ── MODAL ── */
+.modal-overlay {
+  position:fixed; inset:0; z-index:400;
+  background:rgba(240,237,232,0.75); backdrop-filter:blur(4px);
+  display:flex; align-items:center; justify-content:center;
+  opacity:0; pointer-events:none; transition:opacity .2s;
+}
+.modal-overlay.open { opacity:1; pointer-events:all; }
+.modal {
+  background:var(--white); border-radius:var(--radius);
+  border:1px solid var(--border2); box-shadow:var(--shadow-lg);
+  width:100%; max-width:460px;
+  transform:translateY(16px); transition:transform .25s; overflow:hidden;
+}
+.modal-overlay.open .modal { transform:translateY(0); }
+.modal-head {
+  padding:20px 24px 16px; border-bottom:1px solid var(--border);
+  display:flex; align-items:center; justify-content:space-between;
+}
+.modal-title { font-size:16px; font-weight:600; }
+.modal-close {
+  width:28px; height:28px; border-radius:7px;
+  background:var(--bg2); border:none; cursor:pointer;
+  font-size:15px; color:var(--text3); font-family:'Outfit',sans-serif;
+  display:flex; align-items:center; justify-content:center;
+  transition:background .15s;
+}
+.modal-close:hover { background:var(--border2); }
+.modal-body { padding:20px 24px; display:flex; flex-direction:column; gap:14px; }
+.form-row { display:flex; flex-direction:column; gap:5px; }
+.form-row-2 { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.form-label { font-size:11px; font-weight:500; color:var(--text3); text-transform:uppercase; letter-spacing:.06em; }
+.form-input {
+  height:38px; padding:0 12px;
+  border:1px solid var(--border2); border-radius:var(--radius-sm);
+  background:var(--surface); font-family:'Outfit',sans-serif;
+  font-size:13px; font-weight:400; color:var(--text);
+  outline:none; transition:border-color .15s;
+}
+.form-input:focus { border-color:var(--accent-dk); background:var(--white); }
+.form-input::placeholder { color:var(--text3); }
+.form-select {
+  height:38px; padding:0 12px;
+  border:1px solid var(--border2); border-radius:var(--radius-sm);
+  background:var(--surface); font-family:'Outfit',sans-serif;
+  font-size:13px; color:var(--text2); outline:none; cursor:pointer;
+}
+.modal-foot {
+  padding:14px 24px 20px; border-top:1px solid var(--border);
+  display:flex; gap:8px;
+}
+.modal-foot .btn-primary, .modal-foot .btn-outline { flex:1; height:40px; border-radius:var(--radius-sm); font-size:13px; font-weight:600; cursor:pointer; border:none; font-family:'Outfit',sans-serif; transition:all .15s; }
+.modal-foot .btn-outline { background:var(--white); color:var(--text2); border:1px solid var(--border2); font-weight:400; }
+.modal-foot .btn-outline:hover { background:var(--bg2); }
+.modal-foot .btn-primary { background:var(--text); color:var(--white); }
+.modal-foot .btn-primary:hover { background:#2d2c28; }
+
+/* info box inside modal */
+.info-box {
+  background:var(--green-bg); border:1px solid rgba(61,153,112,0.18);
+  border-radius:var(--radius-sm); padding:10px 12px;
+  font-size:12px; font-weight:400; color:var(--green); line-height:1.5;
+}
+.warn-box {
+  background:var(--amber-bg); border:1px solid rgba(183,134,11,0.2);
+  border-radius:var(--radius-sm); padding:10px 12px;
+  font-size:12px; font-weight:400; color:var(--amber); line-height:1.5;
+}
+
+/* ── TOAST ── */
+.toast {
+  position:fixed; bottom:24px; left:50%;
+  transform:translateX(-50%) translateY(8px);
+  background:var(--text); color:var(--white);
+  border-radius:10px; padding:10px 20px;
+  font-size:13px; font-weight:500; box-shadow:var(--shadow-lg);
+  z-index:999; opacity:0; pointer-events:none;
+  transition:opacity .2s, transform .2s; white-space:nowrap;
+}
+.toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+
+::-webkit-scrollbar { width:4px; }
+::-webkit-scrollbar-track { background:transparent; }
+::-webkit-scrollbar-thumb { background:var(--border2); border-radius:2px; }
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="topbar-left">
+    <div class="logo-pill">yaro</div>
+    <div class="topbar-div"></div>
+    <div>
+      <div class="topbar-title">Inventario</div>
+      <div class="topbar-sub">Gestión de insumos y stock</div>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <div class="pill pill-sede">📍 Guarne</div>
+    <div class="pill pill-time" id="clock">--:--</div>
+  </div>
+</div>
+
+<div class="shell">
+
+  <!-- SIDENAV -->
+  <nav class="sidenav">
+    <div class="sidenav-label">Inventario</div>
+    <div class="sidenav-item active" onclick="setNav(this,'insumos')">
+      <svg class="sidenav-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="4" width="16" height="14" rx="1.5"/><line x1="2" y1="9" x2="18" y2="9" stroke-linecap="round"/><line x1="6" y1="4" x2="6" y2="9" stroke-linecap="round"/><line x1="14" y1="4" x2="14" y2="9" stroke-linecap="round"/><line x1="6" y1="13" x2="14" y2="13" stroke-linecap="round"/></svg>
+      Insumos
+    </div>
+    <div class="sidenav-item" onclick="setNav(this,'ordenes')">
+      <svg class="sidenav-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 2h9l4 4v12a1 1 0 01-1 1H4a1 1 0 01-1-1V3a1 1 0 011-1z" stroke-linecap="round" stroke-linejoin="round"/><path d="M13 2v5h5" stroke-linecap="round"/><line x1="7" y1="10" x2="13" y2="10" stroke-linecap="round"/><line x1="7" y1="13" x2="11" y2="13" stroke-linecap="round"/></svg>
+      Órdenes de compra
+      <span class="sidenav-badge">3</span>
+    </div>
+    <div class="sidenav-item" onclick="setNav(this,'lotes')">
+      <svg class="sidenav-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10 2L18 6v8l-8 4L2 14V6l8-4z" stroke-linecap="round" stroke-linejoin="round"/><path d="M10 2v12M2 6l8 4 8-4" stroke-linecap="round"/></svg>
+      Lotes y FIFO
+    </div>
+    <div class="sidenav-item" onclick="setNav(this,'conteo')">
+      <svg class="sidenav-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1" transform="translate(-3,0)"/><line x1="7" y1="11" x2="13" y2="11" stroke-linecap="round"/><line x1="7" y1="14" x2="10" y2="14" stroke-linecap="round"/></svg>
+      Conteo manual
+    </div>
+    <div class="sidenav-item" onclick="setNav(this,'traslados')">
+      <svg class="sidenav-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 10h12M12 6l4 4-4 4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Traslados
+    </div>
+    <div class="sidenav-label">Proveedores</div>
+    <div class="sidenav-item" onclick="setNav(this,'proveedores')">
+      <svg class="sidenav-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="7" r="3"/><path d="M1 17c0-3.3 2.7-6 6-6h.5M13 7a2.5 2.5 0 110 5M17 17c0-2.76-1.79-5.1-4.27-5.74"/></svg>
+      Proveedores
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <div class="main" id="main-area">
+
+    <!-- SUB-TABS -->
+    <div class="subtabs">
+      <div class="subtab active" onclick="setTab('todos',this)">Todos los insumos</div>
+      <div class="subtab" onclick="setTab('carnes',this)">Carnes</div>
+      <div class="subtab" onclick="setTab('salsas',this)">Salsas y condimentos</div>
+      <div class="subtab" onclick="setTab('panaderia',this)">Panadería</div>
+      <div class="subtab" onclick="setTab('otros',this)">Otros</div>
+      <div class="subtab" onclick="setTab('criticos',this)">
+        Críticos
+        <span class="subtab-badge" id="badge-criticos">2</span>
+      </div>
+    </div>
+
+    <!-- TOOLBAR -->
+    <div class="toolbar">
+      <div class="search-box">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="search-input" placeholder="Buscar insumo..." oninput="filterTable()">
+      </div>
+      <select class="filter-select" id="filter-sede" onchange="filterTable()">
+        <option value="all">Ambas sedes</option>
+        <option value="guarne">Guarne</option>
+        <option value="laceja">La Ceja</option>
+      </select>
+      <select class="filter-select" id="filter-status" onchange="filterTable()">
+        <option value="all">Todos los estados</option>
+        <option value="ok">Stock OK</option>
+        <option value="low">Stock bajo</option>
+        <option value="critico">Crítico</option>
+      </select>
+      <div style="margin-left:auto;display:flex;gap:8px">
+        <button class="toolbar-btn btn-outline" onclick="openConteoModal()">📋 Conteo rápido</button>
+        <button class="toolbar-btn btn-accent" onclick="openOCModal()">+ Orden de compra</button>
+        <button class="toolbar-btn btn-primary" onclick="openInsumoModal()">+ Nuevo insumo</button>
+      </div>
+    </div>
+
+    <!-- KPI ROW -->
+    <div class="kpi-row">
+      <div class="kpi-card" style="--kpi-bar:var(--accent-dk)">
+        <div class="kpi-lbl">Total insumos</div>
+        <div class="kpi-val">24</div>
+        <div class="kpi-sub"><span class="delta delta-up">▲ 2</span>este mes</div>
+      </div>
+      <div class="kpi-card" style="--kpi-bar:var(--green)">
+        <div class="kpi-lbl">Stock OK</div>
+        <div class="kpi-val" style="color:var(--green)" id="kpi-ok">20</div>
+        <div class="kpi-sub">insumos en nivel normal</div>
+      </div>
+      <div class="kpi-card" style="--kpi-bar:var(--amber)">
+        <div class="kpi-lbl">Stock bajo</div>
+        <div class="kpi-val" style="color:var(--amber)" id="kpi-low">2</div>
+        <div class="kpi-sub"><span class="delta delta-warn">⚠</span>requieren reposición pronto</div>
+      </div>
+      <div class="kpi-card" style="--kpi-bar:var(--red)">
+        <div class="kpi-lbl">Críticos</div>
+        <div class="kpi-val" style="color:var(--red)" id="kpi-crit">2</div>
+        <div class="kpi-sub"><span class="delta delta-down">🚨</span>ordenar inmediatamente</div>
+      </div>
+    </div>
+
+    <!-- TABLE -->
+    <div class="table-area">
+      <div class="table-wrap">
+        <table class="data-table" id="inv-table">
+          <thead>
+            <tr>
+              <th class="sortable" onclick="sort('name')">Insumo <span class="sort-arrow">↕</span></th>
+              <th class="sortable" onclick="sort('categoria')">Categoría <span class="sort-arrow">↕</span></th>
+              <th>Stock actual</th>
+              <th style="min-width:140px">Nivel</th>
+              <th class="sortable" onclick="sort('status')">Estado <span class="sort-arrow">↕</span></th>
+              <th>Costo unit.</th>
+              <th>Factor corr.</th>
+              <th>Proveedor</th>
+              <th style="min-width:90px"></th>
+            </tr>
+          </thead>
+          <tbody id="inv-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- MODAL INSUMO -->
+<div class="modal-overlay" id="modal-insumo">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title" id="mi-title">Nuevo insumo</div>
+      <button class="modal-close" onclick="closeModal('modal-insumo')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row"><div class="form-label">Nombre del insumo</div><input class="form-input" placeholder="Ej: Carne de res" id="fi-nombre"></div>
+      <div class="form-row-2">
+        <div class="form-row"><div class="form-label">Categoría</div>
+          <select class="form-select" id="fi-cat">
+            <option>Carnes</option><option>Salsas y condimentos</option><option>Panadería</option><option>Vegetales</option><option>Lácteos</option><option>Otros</option>
+          </select>
+        </div>
+        <div class="form-row"><div class="form-label">Unidad</div>
+          <select class="form-select" id="fi-uni">
+            <option>kg</option><option>g</option><option>L</option><option>ml</option><option>und</option><option>porciones</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row-2">
+        <div class="form-row"><div class="form-label">Peso bruto (kg)</div><input class="form-input" type="number" placeholder="1.000" id="fi-bruto"></div>
+        <div class="form-row"><div class="form-label">Peso neto (kg)</div><input class="form-input" type="number" placeholder="0.850" id="fi-neto" oninput="calcFC()"></div>
+      </div>
+      <div class="form-row-2">
+        <div class="form-row"><div class="form-label">Precio compra</div><input class="form-input" type="number" placeholder="$28.000" id="fi-precio"></div>
+        <div class="form-row"><div class="form-label">Factor corrección</div><input class="form-input" id="fi-fc" placeholder="1.176" readonly style="background:var(--bg2);color:var(--text3)"></div>
+      </div>
+      <div class="form-row-2">
+        <div class="form-row"><div class="form-label">Stock mínimo</div><input class="form-input" type="number" placeholder="5" id="fi-min"></div>
+        <div class="form-row"><div class="form-label">Proveedor</div>
+          <select class="form-select" id="fi-prov">
+            <option>Carnes Antioqueñas</option><option>Dist. La Montaña</option><option>PanArtesanal SAS</option><option>Condimentos del Valle</option>
+          </select>
+        </div>
+      </div>
+      <div class="info-box">💡 El factor de corrección se calcula automáticamente: <strong>peso bruto ÷ peso neto</strong>. Representa la merma o rendimiento del insumo.</div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-outline" onclick="closeModal('modal-insumo')">Cancelar</button>
+      <button class="btn-primary" onclick="saveInsumo()">Guardar insumo</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL OC -->
+<div class="modal-overlay" id="modal-oc">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title">Nueva orden de compra</div>
+      <button class="modal-close" onclick="closeModal('modal-oc')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row"><div class="form-label">Proveedor</div>
+        <select class="form-select">
+          <option>Carnes Antioqueñas</option><option>Dist. La Montaña</option><option>PanArtesanal SAS</option>
+        </select>
+      </div>
+      <div class="form-row-2">
+        <div class="form-row"><div class="form-label">Sede destino</div>
+          <select class="form-select"><option>Guarne</option><option>La Ceja</option><option>Ambas</option></select>
+        </div>
+        <div class="form-row"><div class="form-label">Fecha esperada</div>
+          <input class="form-input" type="date">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-label">Insumos a ordenar</div>
+        <div style="display:flex;flex-direction:column;gap:6px;margin-top:4px" id="oc-items">
+          <div style="display:flex;gap:8px;align-items:center">
+            <select class="form-select" style="flex:1"><option>Carne de res</option><option>Tocineta ahumada</option><option>Queso cheddar</option><option>Pan brioche</option></select>
+            <input class="form-input" type="number" placeholder="kg" style="width:80px">
+            <button class="toolbar-btn btn-outline" style="padding:0 10px;height:38px;font-size:18px" onclick="addOCItem()">+</button>
+          </div>
+        </div>
+      </div>
+      <div class="warn-box">⚠️ Los ítems recibidos deben ser confirmados en la recepción. Los rechazados generan alerta automática y vuelven a pendiente.</div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-outline" onclick="closeModal('modal-oc')">Cancelar</button>
+      <button class="btn-primary" onclick="saveOC()">Crear orden</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL CONTEO -->
+<div class="modal-overlay" id="modal-conteo">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title">Conteo manual de inventario</div>
+      <button class="modal-close" onclick="closeModal('modal-conteo')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row-2">
+        <div class="form-row"><div class="form-label">Sede</div>
+          <select class="form-select"><option>Guarne</option><option>La Ceja</option></select>
+        </div>
+        <div class="form-row"><div class="form-label">Fecha conteo</div>
+          <input class="form-input" type="date" id="conteo-fecha">
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px;max-height:240px;overflow-y:auto;padding-right:4px" id="conteo-list"></div>
+      <div class="form-row"><div class="form-label">Comentario de ajuste</div>
+        <input class="form-input" placeholder="Ej: Merma por cortes del turno noche" id="conteo-nota">
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-outline" onclick="closeModal('modal-conteo')">Cancelar</button>
+      <button class="btn-primary" onclick="saveConteo()">Guardar conteo</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── CLOCK ──
+setInterval(()=>{ document.getElementById('clock').textContent = new Date().toLocaleTimeString('es-CO',{hour:'2-digit',minute:'2-digit'}); },1000);
+document.getElementById('clock').textContent = new Date().toLocaleTimeString('es-CO',{hour:'2-digit',minute:'2-digit'});
+
+// ── DATA ──
+const insumos = [
+  { id:1,  nombre:'Carne de res',         cat:'Carnes',              stock:3.2,  min:5,    unit:'kg',  precio:28000, fc:1.18, status:'critico', proveedor:'Carnes Antioqueñas', allergen:null },
+  { id:2,  nombre:'Tocineta ahumada',     cat:'Carnes',              stock:1.8,  min:3,    unit:'kg',  precio:32000, fc:1.05, status:'low',     proveedor:'Carnes Antioqueñas', allergen:null },
+  { id:3,  nombre:'Queso cheddar',        cat:'Lácteos',             stock:4.5,  min:3,    unit:'kg',  precio:18500, fc:1.00, status:'ok',      proveedor:'Dist. La Montaña',   allergen:'lácteo' },
+  { id:4,  nombre:'Pan brioche',          cat:'Panadería',           stock:48,   min:20,   unit:'und', precio:1200,  fc:1.00, status:'ok',      proveedor:'PanArtesanal SAS',   allergen:'gluten' },
+  { id:5,  nombre:'Lechuga romana',       cat:'Vegetales',           stock:6.0,  min:4,    unit:'kg',  precio:4500,  fc:1.22, status:'ok',      proveedor:'Dist. La Montaña',   allergen:null },
+  { id:6,  nombre:'Tomate chonto',        cat:'Vegetales',           stock:8.5,  min:5,    unit:'kg',  precio:3800,  fc:1.15, status:'ok',      proveedor:'Dist. La Montaña',   allergen:null },
+  { id:7,  nombre:'Pepinillos en vinagre',cat:'Salsas y condimentos',stock:2.1,  min:2,    unit:'kg',  precio:12000, fc:1.00, status:'low',     proveedor:'Condimentos del Valle',allergen:null },
+  { id:8,  nombre:'Salsa BBQ artesanal',  cat:'Salsas y condimentos',stock:5.4,  min:3,    unit:'L',   precio:9500,  fc:1.00, status:'ok',      proveedor:'Condimentos del Valle',allergen:null },
+  { id:9,  nombre:'Mayonesa de la casa',  cat:'Salsas y condimentos',stock:3.8,  min:2,    unit:'L',   precio:8000,  fc:1.00, status:'ok',      proveedor:'Condimentos del Valle',allergen:'huevo' },
+  { id:10, nombre:'Aceite de girasol',    cat:'Otros',               stock:12,   min:5,    unit:'L',   precio:7200,  fc:1.00, status:'ok',      proveedor:'Dist. La Montaña',   allergen:null },
+  { id:11, nombre:'Papas R12',            cat:'Otros',               stock:22,   min:15,   unit:'kg',  precio:2800,  fc:1.30, status:'ok',      proveedor:'Dist. La Montaña',   allergen:null },
+  { id:12, nombre:'Cebolla cabezona',     cat:'Vegetales',           stock:7.2,  min:4,    unit:'kg',  precio:3200,  fc:1.10, status:'ok',      proveedor:'Dist. La Montaña',   allergen:null },
+  { id:13, nombre:'Jalapeños encurtidos', cat:'Salsas y condimentos',stock:1.4,  min:1,5,  unit:'kg',  precio:14000, fc:1.00, status:'critico', proveedor:'Condimentos del Valle',allergen:null },
+  { id:14, nombre:'Mantequilla clarif.',  cat:'Lácteos',             stock:2.8,  min:2,    unit:'kg',  precio:22000, fc:1.00, status:'ok',      proveedor:'Dist. La Montaña',   allergen:'lácteo' },
+];
+
+let displayData = [...insumos];
+let currentTab  = 'todos';
+let sortCol     = null;
+let sortAsc     = true;
+
+function fmtPesos(n){ return '$'+n.toLocaleString('es-CO'); }
+
+function stockPct(s){ return Math.min(100, Math.round((s.stock/Math.max(s.min*2,1))*100)); }
+function barColor(s){
+  if(s.status==='critico') return 'var(--red)';
+  if(s.status==='low')     return 'var(--amber)';
+  return 'var(--green)';
+}
+
+function statusTag(s){
+  if(s==='critico') return `<span class="status-tag tag-critico"><span class="tag-dot"></span>Crítico</span>`;
+  if(s==='low')     return `<span class="status-tag tag-low"><span class="tag-dot"></span>Stock bajo</span>`;
+  return `<span class="status-tag tag-ok"><span class="tag-dot"></span>OK</span>`;
+}
+
+// ── RENDER TABLE ──
+function renderTable(){
+  const q      = document.getElementById('search-input').value.toLowerCase();
+  const fSede  = document.getElementById('filter-sede').value;
+  const fSt    = document.getElementById('filter-status').value;
+
+  let data = [...insumos];
+
+  // tab filter
+  if(currentTab==='carnes')    data=data.filter(d=>d.cat==='Carnes');
+  else if(currentTab==='salsas')    data=data.filter(d=>d.cat==='Salsas y condimentos');
+  else if(currentTab==='panaderia') data=data.filter(d=>d.cat==='Panadería');
+  else if(currentTab==='otros')     data=data.filter(d=>!['Carnes','Salsas y condimentos','Panadería'].includes(d.cat));
+  else if(currentTab==='criticos')  data=data.filter(d=>d.status==='critico');
+
+  // search
+  if(q) data=data.filter(d=>d.nombre.toLowerCase().includes(q)||d.cat.toLowerCase().includes(q)||d.proveedor.toLowerCase().includes(q));
+
+  // status filter
+  if(fSt!=='all') data=data.filter(d=>d.status===fSt);
+
+  // sort
+  if(sortCol){
+    data.sort((a,b)=>{
+      let va=a[sortCol], vb=b[sortCol];
+      if(typeof va==='string') return sortAsc?va.localeCompare(vb):vb.localeCompare(va);
+      return sortAsc?va-vb:vb-va;
+    });
+  }
+
+  // update KPIs
+  const all    = insumos;
+  const okC    = all.filter(d=>d.status==='ok').length;
+  const lowC   = all.filter(d=>d.status==='low').length;
+  const critC  = all.filter(d=>d.status==='critico').length;
+  document.getElementById('kpi-ok').textContent   = okC;
+  document.getElementById('kpi-low').textContent  = lowC;
+  document.getElementById('kpi-crit').textContent = critC;
+  document.getElementById('badge-criticos').textContent = critC;
+
+  const tbody = document.getElementById('inv-body');
+  tbody.innerHTML = '';
+
+  if(data.length===0){
+    tbody.innerHTML=`<tr><td colspan="9" style="text-align:center;padding:40px;color:var(--text3);font-size:13px;font-weight:300">No se encontraron insumos</td></tr>`;
+    return;
+  }
+
+  data.forEach((d,i)=>{
+    const pct = stockPct(d);
+    const bc  = barColor(d);
+    const ar  = d.allergen ? `<span class="allergen-pill">⚠ ${d.allergen}</span>` : '';
+    tbody.insertAdjacentHTML('beforeend',`
+      <tr style="animation-delay:${i*.03}s" onclick="editInsumo(${d.id})">
+        <td class="col-name">
+          ${d.nombre}${ar}
+          <small>${d.proveedor}</small>
+        </td>
+        <td><span style="font-size:12px;font-weight:400;color:var(--text2)">${d.cat}</span></td>
+        <td class="col-stock">
+          ${d.stock}<span class="col-unit">${d.unit}</span>
+          <small style="color:var(--text3);font-size:10px;font-weight:300">mín: ${d.min}</small>
+        </td>
+        <td>
+          <div class="stock-bar-wrap">
+            <div class="stock-bar-track">
+              <div class="stock-bar-fill" style="width:${pct}%;background:${bc}"></div>
+            </div>
+            <span style="font-size:10px;font-weight:600;color:${bc};min-width:30px;text-align:right">${pct}%</span>
+          </div>
+        </td>
+        <td>${statusTag(d.status)}</td>
+        <td style="font-variant-numeric:tabular-nums;font-weight:500">${fmtPesos(d.precio)}<span class="col-unit">/${d.unit}</span></td>
+        <td style="font-variant-numeric:tabular-nums;color:var(--text2)">${d.fc.toFixed(2)}</td>
+        <td style="font-size:12px;color:var(--text3);font-weight:300">${d.proveedor}</td>
+        <td>
+          <div class="row-actions">
+            <div class="action-icon" title="Ajustar stock" onclick="event.stopPropagation();quickAdjust(${d.id})">±</div>
+            <div class="action-icon" title="Editar" onclick="event.stopPropagation();editInsumo(${d.id})">✏</div>
+          </div>
+        </td>
+      </tr>`);
+  });
+}
+
+function filterTable(){ renderTable(); }
+
+function sort(col){
+  if(sortCol===col) sortAsc=!sortAsc; else { sortCol=col; sortAsc=true; }
+  document.querySelectorAll('.sortable').forEach(th=>{
+    th.classList.remove('sorted');
+    th.querySelector('.sort-arrow').textContent='↕';
+  });
+  const idx=['name','categoria','status'].indexOf(col);
+  if(idx>=0){
+    const ths=document.querySelectorAll('.sortable');
+    ths[idx].classList.add('sorted');
+    ths[idx].querySelector('.sort-arrow').textContent=sortAsc?'↑':'↓';
+  }
+  renderTable();
+}
+
+// ── TABS ──
+function setTab(tab, el){
+  currentTab=tab;
+  document.querySelectorAll('.subtab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  renderTable();
+}
+
+// ── SIDENAV ──
+function setNav(el,section){
+  document.querySelectorAll('.sidenav-item').forEach(i=>i.classList.remove('active'));
+  el.classList.add('active');
+  showToast(`Módulo: ${section}`);
+}
+
+// ── MODALS ──
+function openModal(id){ document.getElementById(id).classList.add('open'); }
+function closeModal(id){ document.getElementById(id).classList.remove('open'); }
+
+function openInsumoModal(){ document.getElementById('mi-title').textContent='Nuevo insumo'; openModal('modal-insumo'); }
+function openOCModal(){ openModal('modal-oc'); }
+
+function openConteoModal(){
+  const today=new Date().toISOString().split('T')[0];
+  document.getElementById('conteo-fecha').value=today;
+  const list=document.getElementById('conteo-list');
+  list.innerHTML='';
+  insumos.forEach(d=>{
+    list.insertAdjacentHTML('beforeend',`
+      <div style="display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm)">
+        <div style="flex:1;font-size:13px;font-weight:500">${d.nombre}</div>
+        <div style="font-size:11px;color:var(--text3);font-weight:300;min-width:40px;text-align:right">sist: ${d.stock}</div>
+        <input type="number" placeholder="${d.stock}" step="0.01" style="width:80px;height:32px;border:1px solid var(--border2);border-radius:6px;background:var(--white);font-family:'Outfit',sans-serif;font-size:13px;padding:0 8px;outline:none;color:var(--text)" id="ct-${d.id}">
+        <span style="font-size:11px;color:var(--text3)">${d.unit}</span>
+      </div>`);
+  });
+  openModal('modal-conteo');
+}
+
+function calcFC(){
+  const bruto=parseFloat(document.getElementById('fi-bruto').value)||0;
+  const neto =parseFloat(document.getElementById('fi-neto').value)||0;
+  document.getElementById('fi-fc').value = bruto&&neto ? (bruto/neto).toFixed(3) : '';
+}
+
+function editInsumo(id){
+  const d=insumos.find(i=>i.id===id);
+  document.getElementById('mi-title').textContent=`Editar — ${d.nombre}`;
+  document.getElementById('fi-nombre').value=d.nombre;
+  document.getElementById('fi-bruto').value=d.stock;
+  document.getElementById('fi-neto').value=(d.stock/d.fc).toFixed(2);
+  document.getElementById('fi-precio').value=d.precio;
+  document.getElementById('fi-fc').value=d.fc;
+  document.getElementById('fi-min').value=d.min;
+  openModal('modal-insumo');
+}
+
+function quickAdjust(id){
+  const d=insumos.find(i=>i.id===id);
+  const adj=parseFloat(prompt(`Ajustar stock de "${d.nombre}" (${d.stock} ${d.unit})\nNuevo valor:`));
+  if(!isNaN(adj)&&adj>=0){
+    d.stock=adj;
+    d.status=adj<=d.min*0.5?'critico':adj<=d.min?'low':'ok';
+    renderTable();
+    showToast(`Stock de ${d.nombre} actualizado ✓`);
+  }
+}
+
+function saveInsumo(){
+  const nombre=document.getElementById('fi-nombre').value.trim();
+  if(!nombre){ showToast('Ingresa el nombre del insumo'); return; }
+  closeModal('modal-insumo');
+  showToast(`${nombre} guardado correctamente ✓`);
+}
+
+function addOCItem(){
+  document.getElementById('oc-items').insertAdjacentHTML('beforeend',`
+    <div style="display:flex;gap:8px;align-items:center">
+      <select class="form-select" style="flex:1"><option>Carne de res</option><option>Tocineta ahumada</option><option>Queso cheddar</option><option>Pan brioche</option></select>
+      <input class="form-input" type="number" placeholder="kg" style="width:80px">
+    </div>`);
+}
+
+function saveOC(){
+  closeModal('modal-oc');
+  showToast('Orden de compra creada ✓ — Estado: Solicitado');
+}
+
+function saveConteo(){
+  closeModal('modal-conteo');
+  showToast('Conteo guardado con ajuste ✓');
+}
+
+// ── TOAST ──
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2800);
+}
+
+// ── INIT ──
+renderTable();
+</script>
+</body>
+</html>

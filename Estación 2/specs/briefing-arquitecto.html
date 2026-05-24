@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="YARO — Briefing de contexto para validación arquitectónica. Léelo antes de revisar los 15 diagramas.">
+<title>YARO · Briefing para el arquitecto</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --yaro-bg: #f0ede8;
+    --yaro-bg2: #ece9e3;
+    --yaro-surface: #faf9f7;
+    --yaro-white: #ffffff;
+    --yaro-text: #1a1916;
+    --yaro-text-2: #6b6760;
+    --yaro-text-3: #a8a49e;
+    --yaro-accent: #f7fd9c;
+    --yaro-accent-dk: #d4e200;
+    --yaro-accent-txt: #6b7200;
+    --yaro-green: #3d9970;
+    --yaro-red: #c0392b;
+    --yaro-amber: #b7860b;
+    --yaro-blue: #2471a3;
+    --yaro-purple: #534AB7;
+    --shadow-sm: 0 1px 2px rgba(26, 25, 22, 0.06);
+    --shadow-md: 0 4px 12px rgba(26, 25, 22, 0.08);
+    --shadow-lg: 0 12px 32px rgba(26, 25, 22, 0.12);
+    --radius: 14px;
+    --radius-sm: 9px;
+    --radius-xs: 6px;
+    --font-sans: 'Outfit', system-ui, -apple-system, sans-serif;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    margin: 0;
+    font-family: var(--font-sans);
+    background: var(--yaro-bg);
+    color: var(--yaro-text);
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* HERO */
+  .hero {
+    background: linear-gradient(135deg, var(--yaro-text) 0%, #2c2a25 100%);
+    color: var(--yaro-white);
+    padding: 72px 24px 88px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -40%; right: -10%;
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, var(--yaro-accent-dk) 0%, transparent 70%);
+    opacity: 0.15;
+    pointer-events: none;
+  }
+  .hero-container { max-width: 900px; margin: 0 auto; position: relative; z-index: 1; }
+
+  .brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 28px;
+  }
+  .brand-logo {
+    width: 44px; height: 44px;
+    background: var(--yaro-accent);
+    border-radius: var(--radius);
+    display: grid; place-items: center;
+    font-weight: 800; font-size: 20px;
+    color: var(--yaro-text);
+    letter-spacing: -1px;
+  }
+  .brand-name { font-size: 26px; font-weight: 700; letter-spacing: -0.5px; }
+
+  .eyebrow {
+    display: inline-block;
+    background: var(--yaro-accent);
+    color: var(--yaro-text);
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+
+  .hero h1 {
+    font-size: clamp(34px, 5vw, 52px);
+    font-weight: 800;
+    margin: 0 0 16px;
+    line-height: 1.1;
+    letter-spacing: -1.5px;
+  }
+  .hero p.tagline {
+    font-size: 19px;
+    color: rgba(255, 255, 255, 0.78);
+    max-width: 720px;
+    margin: 0 0 36px;
+  }
+
+  .hero-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 28px;
+  }
+  .meta-item {
+    border-left: 3px solid var(--yaro-accent);
+    padding-left: 14px;
+  }
+  .meta-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: rgba(255, 255, 255, 0.5);
+    margin-bottom: 4px;
+  }
+  .meta-value { font-size: 15px; font-weight: 600; color: rgba(255, 255, 255, 0.95); }
+
+  /* CONTENT */
+  .wrap {
+    max-width: 900px;
+    margin: -48px auto 0;
+    padding: 0 24px 80px;
+    position: relative;
+    z-index: 2;
+  }
+
+  .card {
+    background: var(--yaro-surface);
+    border-radius: var(--radius);
+    padding: 40px;
+    margin-bottom: 28px;
+    box-shadow: var(--shadow-md);
+    border: 1px solid rgba(26, 25, 22, 0.04);
+  }
+
+  .section-num {
+    display: inline-block;
+    background: var(--yaro-accent);
+    color: var(--yaro-text);
+    font-weight: 800;
+    font-size: 13px;
+    padding: 4px 12px;
+    border-radius: 999px;
+    margin-bottom: 14px;
+  }
+
+  h2 {
+    font-size: 28px;
+    font-weight: 800;
+    margin: 0 0 8px;
+    letter-spacing: -0.8px;
+    line-height: 1.2;
+  }
+  .subtitle {
+    color: var(--yaro-text-2);
+    font-size: 15px;
+    margin: 0 0 28px;
+  }
+
+  h3 {
+    font-size: 17px;
+    font-weight: 700;
+    margin: 28px 0 12px;
+    letter-spacing: -0.3px;
+  }
+
+  p { margin: 0 0 14px; }
+  ul, ol { margin: 0 0 14px; padding-left: 22px; }
+  li { margin-bottom: 6px; }
+
+  strong { font-weight: 700; }
+  em { color: var(--yaro-text-2); font-style: italic; }
+
+  blockquote {
+    border-left: 4px solid var(--yaro-accent-dk);
+    background: var(--yaro-bg);
+    padding: 18px 22px;
+    margin: 18px 0;
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    font-size: 16px;
+    color: var(--yaro-text);
+  }
+  blockquote p:last-child { margin-bottom: 0; }
+
+  code {
+    background: var(--yaro-bg2);
+    padding: 2px 7px;
+    border-radius: 4px;
+    font-family: 'SF Mono', Monaco, monospace;
+    font-size: 13px;
+    color: var(--yaro-accent-txt);
+  }
+
+  /* TABLES */
+  .table-wrapper {
+    overflow-x: auto;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--yaro-bg2);
+    margin: 16px 0;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+    background: var(--yaro-white);
+  }
+  th {
+    background: var(--yaro-bg);
+    text-align: left;
+    padding: 12px 16px;
+    font-weight: 700;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--yaro-text-2);
+    border-bottom: 1px solid var(--yaro-bg2);
+  }
+  td {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--yaro-bg2);
+    vertical-align: top;
+  }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: var(--yaro-bg); }
+
+  /* CALLOUTS */
+  .callout {
+    background: var(--yaro-bg);
+    border-radius: var(--radius-sm);
+    padding: 20px 24px;
+    margin: 18px 0;
+    border-left: 4px solid var(--yaro-accent-dk);
+  }
+  .callout-title {
+    font-weight: 700;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--yaro-accent-txt);
+    margin-bottom: 8px;
+  }
+
+  .callout-warn {
+    background: #fff7e6;
+    border-left-color: var(--yaro-amber);
+  }
+  .callout-warn .callout-title { color: var(--yaro-amber); }
+
+  .callout-danger {
+    background: #fdecea;
+    border-left-color: var(--yaro-red);
+  }
+  .callout-danger .callout-title { color: var(--yaro-red); }
+
+  /* QUESTION CARDS */
+  .question-card {
+    background: linear-gradient(135deg, #fdf894 0%, #f7fd9c 100%);
+    border-radius: var(--radius-sm);
+    padding: 20px 24px;
+    margin-bottom: 14px;
+    border: 1px solid var(--yaro-accent-dk);
+  }
+  .question-num {
+    display: inline-block;
+    background: var(--yaro-text);
+    color: var(--yaro-accent);
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    text-align: center;
+    line-height: 28px;
+    font-weight: 800;
+    font-size: 14px;
+    margin-right: 10px;
+  }
+  .question-title {
+    font-weight: 700;
+    font-size: 16px;
+    display: inline;
+  }
+  .question-card p { margin-top: 10px; color: var(--yaro-text); }
+
+  /* PRINCIPLE GRID */
+  .principles {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 14px;
+    margin: 16px 0;
+  }
+  .principle {
+    background: var(--yaro-white);
+    border: 1px solid var(--yaro-bg2);
+    border-radius: var(--radius-sm);
+    padding: 16px 18px;
+  }
+  .principle-num {
+    display: inline-block;
+    background: var(--yaro-text);
+    color: var(--yaro-accent);
+    font-weight: 800;
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    margin-bottom: 6px;
+  }
+  .principle-name {
+    font-weight: 700;
+    font-size: 15px;
+    margin-bottom: 4px;
+  }
+  .principle-desc { font-size: 13px; color: var(--yaro-text-2); }
+
+  /* DOC LINKS */
+  .doc-links {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 12px;
+    margin: 16px 0;
+  }
+  .doc-link {
+    display: block;
+    background: var(--yaro-white);
+    border: 1px solid var(--yaro-bg2);
+    border-radius: var(--radius-sm);
+    padding: 14px 16px;
+    text-decoration: none;
+    color: var(--yaro-text);
+    transition: border-color 0.2s, transform 0.15s, box-shadow 0.2s;
+  }
+  .doc-link:hover {
+    border-color: var(--yaro-accent-dk);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+  }
+  .doc-link-name { font-weight: 700; font-size: 14px; }
+  .doc-link-desc { font-size: 12px; color: var(--yaro-text-2); margin-top: 2px; }
+
+  /* FOOTER */
+  footer {
+    background: var(--yaro-text);
+    color: var(--yaro-bg);
+    padding: 48px 24px;
+    text-align: center;
+    margin-top: 40px;
+  }
+  footer .brand { justify-content: center; margin-bottom: 16px; }
+  footer p { color: rgba(255, 255, 255, 0.6); font-size: 14px; }
+
+  /* RESPONSIVE */
+  @media (max-width: 640px) {
+    .card { padding: 24px; }
+    .hero { padding: 56px 20px 72px; }
+    .wrap { padding: 0 16px 60px; margin-top: -36px; }
+    table { font-size: 13px; }
+    th, td { padding: 10px 12px; }
+  }
+
+  @media print {
+    .hero { padding: 40px 24px; background: white; color: var(--yaro-text); }
+    .hero::before { display: none; }
+    .meta-value, .meta-label, .hero p.tagline { color: var(--yaro-text); }
+    .brand-name { color: var(--yaro-text); }
+    .card { page-break-inside: avoid; box-shadow: none; }
+    footer { background: white; color: var(--yaro-text); }
+  }
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<header class="hero">
+  <div class="hero-container">
+    <div class="brand">
+      <div class="brand-logo">Y</div>
+      <div class="brand-name">YARO</div>
+    </div>
+    <div class="eyebrow">Documento de contexto · Léelo primero</div>
+    <h1>Briefing para el arquitecto</h1>
+    <p class="tagline">
+      Antes de validar los 15 diagramas, necesitás 10 minutos de contexto: qué es YARO, qué restricciones son innegociables, qué ya está decidido y qué preguntas realmente nos importan.
+    </p>
+    <div class="hero-meta">
+      <div class="meta-item">
+        <div class="meta-label">Autora</div>
+        <div class="meta-value">Valentina Muñoz Tangarife</div>
+      </div>
+      <div class="meta-item">
+        <div class="meta-label">Versión</div>
+        <div class="meta-value">v1.0 · Mayo 2026</div>
+      </div>
+      <div class="meta-item">
+        <div class="meta-label">Tiempo de lectura</div>
+        <div class="meta-value">~10 minutos</div>
+      </div>
+      <div class="meta-item">
+        <div class="meta-label">Validación esperada</div>
+        <div class="meta-value">4-6 horas</div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <!-- DOC LINKS -->
+  <div class="card" style="padding: 28px;">
+    <h3 style="margin-top: 0;">Documentos anexos</h3>
+    <p style="font-size: 14px; color: var(--yaro-text-2);">Este briefing es punto de entrada. Profundizá según lo que necesites.</p>
+    <div class="doc-links">
+      <a class="doc-link" href="./index.html">
+        <div class="doc-link-name">📐 arquitectura-diagrama.html</div>
+        <div class="doc-link-desc">15 vistas + preguntas específicas — la entrada principal</div>
+      </a>
+      <a class="doc-link" href="./arquitectura.md">
+        <div class="doc-link-name">📚 arquitectura.md</div>
+        <div class="doc-link-desc">10 ADRs con trade-offs detallados (1.925 líneas)</div>
+      </a>
+      <a class="doc-link" href="./prd.md">
+        <div class="doc-link-name">🎯 prd.md</div>
+        <div class="doc-link-desc">Producto y casos de uso · el "por qué" del negocio</div>
+      </a>
+      <a class="doc-link" href="./backlog.md">
+        <div class="doc-link-name">🗂️ backlog.md</div>
+        <div class="doc-link-desc">Roadmap F1-F4 · solo si vas a estimar</div>
+      </a>
+    </div>
+  </div>
+
+  <!-- §1 QUÉ ES YARO -->
+  <section class="card">
+    <div class="section-num">§ 1</div>
+    <h2>Qué es YARO en una frase</h2>
+    <blockquote>
+      <strong>YARO es el sistema operativo SaaS B2B multi-tenant para restaurantes colombianos formalizados.</strong>
+      Reemplaza el patchwork de POS + Excel de cierre de caja + contador externo + WhatsApp + carpeta de facturas físicas con <strong>una sola plataforma</strong> que integra: punto de venta, inventario, cumplimiento DIAN (tiquete + factura electrónica + nómina), conciliación bancaria, contabilidad PUC, CRM básico y <strong>6 agentes de IA</strong> que automatizan tareas operativas.
+    </blockquote>
+    <p><strong>Diferenciador clave:</strong> no competimos con Toteat (POS) ni con Alegra (contabilidad) por separado. <strong>Competimos con la suma de los dos + Excel + el contador.</strong></p>
+    <p><strong>Hipótesis:</strong> el dueño de restaurante prefiere pagar UNA mensualidad a un sistema que entiende su flujo completo, antes que mantener 4 herramientas desconectadas.</p>
+    <p><strong>Origen:</strong> yo (Valentina) fundé 911 Hot Burger en 2023. El dolor que estoy resolviendo es el mío propio antes que el de un mercado abstracto.</p>
+  </section>
+
+  <!-- §2 TAMAÑO -->
+  <section class="card">
+    <div class="section-num">§ 2</div>
+    <h2>Tamaño objetivo y dimensionamiento</h2>
+    <p class="subtitle">La arquitectura debe ser <strong>suficiente para F1 sin sub-dimensionar F3</strong>. No queremos rewrite en F2.</p>
+    <div class="table-wrapper">
+      <table>
+        <thead><tr><th>Métrica</th><th>F1 (Mes 8)</th><th>F2 (Mes 14)</th><th>F3 (Mes 24)</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Tenants activos</strong></td><td>100</td><td>500</td><td>2.000</td></tr>
+          <tr><td><strong>Sedes promedio/tenant</strong></td><td>1,2</td><td>1,5</td><td>2,0</td></tr>
+          <tr><td><strong>Tx/min pico (por tenant)</strong></td><td>~50</td><td>~80</td><td>~120</td></tr>
+          <tr><td><strong>Transmisiones DIAN/día (sistema)</strong></td><td>~120k</td><td>~600k</td><td>~2,4M</td></tr>
+          <tr><td><strong>Storage/tenant (12 meses)</strong></td><td>~2 GB</td><td>~3 GB</td><td>~5 GB</td></tr>
+          <tr><td><strong>Latencia P95 POS</strong></td><td>&lt; 200 ms</td><td>&lt; 150 ms</td><td>&lt; 100 ms</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- §3 EQUIPO -->
+  <section class="card">
+    <div class="section-num">§ 3</div>
+    <h2>Equipo y presupuesto (lo que define qué es realista)</h2>
+    <ul>
+      <li><strong>1 fundadora técnica full-stack</strong> (yo) — full-time</li>
+      <li><strong>2-3 ingenieros senior</strong> contratados</li>
+      <li><strong>0 DevOps dedicado</strong> → infra como código obligatoria</li>
+      <li><strong>0 QA dedicado en F1</strong> → tests automatizados desde día 1</li>
+      <li><strong>Capacidad F1:</strong> ~1.440 story points en 8 meses (108% velocity, tight)</li>
+      <li><strong>AWS F1 target:</strong> ~$1.500/mes</li>
+      <li><strong>Anthropic API:</strong> ~$800/mes (Sonnet capa 1 + Haiku tareas baratas)</li>
+    </ul>
+    <div class="callout callout-warn">
+      <div class="callout-title">⚠ Implicación arquitectónica clave</div>
+      <p style="margin-bottom: 0;">Microservicios desde día 1 sería <strong>suicida</strong> con este equipo. El plan es <strong>monolito modular bien diseñado</strong> con extracción de servicios en F3+ si el load lo justifica. Por eso los Bounded Contexts están separados a nivel de módulo, no de despliegue.</p>
+    </div>
+  </section>
+
+  <!-- §4 RESTRICCIONES LEGALES -->
+  <section class="card">
+    <div class="section-num">§ 4</div>
+    <h2>Restricciones legales NO negociables (Colombia)</h2>
+    <p class="subtitle">Estas restricciones <strong>explican muchas decisiones que parecen raras</strong> si venís de contexto no-LATAM.</p>
+
+    <h3>4.1 DIAN — Facturación electrónica</h3>
+    <ul>
+      <li><strong>Tiquete POS (04):</strong> transmisión obligatoria de cada venta retail al consumidor final en &lt; 24h. Validación de CUFE firmado con XAdES-BES.</li>
+      <li><strong>Factura Electrónica (01):</strong> para clientes B2B con NIT. Firma + validación DIAN antes de entregar.</li>
+      <li><strong>Contingencia (03):</strong> si DIAN está caído, el restaurante debe <strong>seguir vendiendo</strong>. Almacenamos local + transmitimos cuando vuelva.</li>
+      <li><strong>Nota Crédito (91):</strong> anulación o devolución parcial. Inmutable.</li>
+      <li><strong>DSCE (05):</strong> documento soporte de adquisiciones a no obligados.</li>
+      <li><strong>Nómina electrónica:</strong> transmisión mensual.</li>
+      <li><strong>Operador DIAN:</strong> Facture.co (lo cubre todo). Habilitarnos como operador propio = 3-6 meses + certificación carísima. Postergado a F3+.</li>
+    </ul>
+
+    <h3>4.2 Append-only obligatorio</h3>
+    <p><strong>Ley 1314 (NIIF):</strong> libros contables <strong>no se pueden editar ni borrar</strong> durante 10 años fiscales. Solo se corrigen con notas crédito/débito.</p>
+    <div class="callout callout-danger">
+      <div class="callout-title">🚨 Implicación crítica</div>
+      <p style="margin-bottom: 0;">Triggers SQL <code>BEFORE DELETE/UPDATE</code> en tablas fiscales bloquean cualquier modificación. <strong>Soft-delete está prohibido</strong> en estas tablas (P1).</p>
+    </div>
+
+    <h3>4.3 Ley 1581 (Habeas Data)</h3>
+    <ul>
+      <li>Registro obligatorio en SIC (Superintendencia de Industria y Comercio)</li>
+      <li>Derechos ARCO (Acceso, Rectificación, Cancelación, Oposición) accionables</li>
+      <li><strong>Implicación:</strong> PII de clientes (CRM) requiere consent log + export + deletion endpoints desde F1</li>
+    </ul>
+
+    <h3>4.4 Decreto 358 / Resolución 165 (POS específico)</h3>
+    <ul>
+      <li>Identificación del cajero en cada transacción</li>
+      <li>Numeración consecutiva sin saltos</li>
+      <li>Arqueo de caja documentado</li>
+    </ul>
+  </section>
+
+  <!-- §5 PRINCIPIOS -->
+  <section class="card">
+    <div class="section-num">§ 5</div>
+    <h2>Los 10 principios no negociables (P1–P10)</h2>
+    <p class="subtitle">Son los axiomas de la arquitectura. Si los cuestionás, todo el resto colapsa. <strong>Léelos antes de los diagramas.</strong></p>
+    <div class="principles">
+      <div class="principle"><div class="principle-num">P1</div><div class="principle-name">Append-only fiscal</div><div class="principle-desc">Triggers SQL bloquean UPDATE/DELETE en tablas fiscales. NCs para corrección.</div></div>
+      <div class="principle"><div class="principle-num">P2</div><div class="principle-name">Multi-tenancy paranoico (4 capas)</div><div class="principle-desc">JWT → Guards NestJS → CLS namespace → Prisma middleware inyectando tenant_id.</div></div>
+      <div class="principle"><div class="principle-num">P3</div><div class="principle-name">Fire-and-forget DIAN</div><div class="principle-desc">UI nunca espera DIAN. Cobro local + BullMQ + retry con backoff. Status en cola.</div></div>
+      <div class="principle"><div class="principle-num">P4</div><div class="principle-name">Offline-first POS</div><div class="principle-desc">Service Worker + Workbox + IndexedDB. @yaro/xml-builder compartido cliente/servidor.</div></div>
+      <div class="principle"><div class="principle-num">P5</div><div class="principle-name">IA verificable, nunca prescriptiva</div><div class="principle-desc">Output siempre con fuentes + confianza. Acción crítica = confirmación humana.</div></div>
+      <div class="principle"><div class="principle-num">P6</div><div class="principle-name">Plug-in country adapters</div><div class="principle-desc">Lógica fiscal aislada en @yaro/fiscal-co. F4 multi-país = módulo nuevo, no rewrite.</div></div>
+      <div class="principle"><div class="principle-num">P7</div><div class="principle-name">Eventos > llamadas directas</div><div class="principle-desc">Outbox + EventBridge (F3+). F1: in-process events + transactional outbox fiscal.</div></div>
+      <div class="principle"><div class="principle-num">P8</div><div class="principle-name">Observabilidad first-class</div><div class="principle-desc">OpenTelemetry desde día 1. Logs estructurados + traces + métricas. Sentry errores.</div></div>
+      <div class="principle"><div class="principle-num">P9</div><div class="principle-name">Cero secrets en código</div><div class="principle-desc">AWS Secrets Manager + IAM roles. SSM Parameter Store para no sensibles.</div></div>
+      <div class="principle"><div class="principle-num">P10</div><div class="principle-name">CI/CD con rollback &lt; 5min</div><div class="principle-desc">GitHub Actions + Fargate blue/green. Migraciones SQL backward-compat 2 versiones.</div></div>
+    </div>
+  </section>
+
+  <!-- §6 YA DECIDIDO -->
+  <section class="card">
+    <div class="section-num">§ 6</div>
+    <h2>Lo que YA está decidido (no abrir esta caja)</h2>
+    <div class="callout callout-warn">
+      <div class="callout-title">⚠ No es para validar</div>
+      <p style="margin-bottom: 0;">Esto está decidido y la organización alineada. Si querés debatirlo, abrimos otra reunión — pero <strong>no en esta validación de arquitectura</strong>.</p>
+    </div>
+    <div class="table-wrapper">
+      <table>
+        <thead><tr><th>Capa</th><th>Decisión</th><th>Por qué</th></tr></thead>
+        <tbody>
+          <tr><td>Backend</td><td>TypeScript + NestJS</td><td>Reutilización con Next.js, ecosistema, tipado</td></tr>
+          <tr><td>Frontend</td><td>Next.js 14 App Router + RSC</td><td>SSR landing, Server Actions POS</td></tr>
+          <tr><td>ORM</td><td>Prisma</td><td>Type-safety end-to-end, middleware multi-tenancy</td></tr>
+          <tr><td>DB</td><td>PostgreSQL 16 (RDS Multi-AZ)</td><td>Triggers, JSON, FTS, ACID</td></tr>
+          <tr><td>Cache + Queue</td><td>Valkey (OSS fork Redis) ElastiCache</td><td>BullMQ requirement, post-licencia Redis</td></tr>
+          <tr><td>Workers</td><td>BullMQ</td><td>Maduro, dashboard, retries, priorities</td></tr>
+          <tr><td>Compute</td><td>AWS Fargate · On-Demand API, SPOT workers</td><td>No queremos administrar EC2/K8s</td></tr>
+          <tr><td>Operador DIAN</td><td>Facture.co</td><td>TCO inferior a operador propio. Plan B Carvajal F3+</td></tr>
+          <tr><td>LLM</td><td>Anthropic Claude (Sonnet 4 + Haiku)</td><td>Opt-out training, latencia, UI clara</td></tr>
+          <tr><td>Auth colaboradores</td><td>Google OAuth + sessions</td><td>~80% gmail en Colombia</td></tr>
+          <tr><td>Auth dueños</td><td>Email + password + 2FA TOTP</td><td>Persistente, control total</td></tr>
+          <tr><td>IaC</td><td>Terraform</td><td>Estándar, módulos reutilizables</td></tr>
+          <tr><td>CI/CD</td><td>GitHub Actions</td><td>Mismo provider del repo</td></tr>
+          <tr><td>Observabilidad</td><td>OpenTelemetry → Grafana Cloud + Sentry</td><td>Costo razonable, no vendor lock-in</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- §7 PREGUNTAS -->
+  <section class="card">
+    <div class="section-num">§ 7</div>
+    <h2>Las 5 preguntas estratégicas</h2>
+    <p class="subtitle">Sin esto, el feedback es un essay genérico de 30 páginas. Estas son las <strong>metapreguntas</strong> (distintas de las preguntas técnicas por vista del HTML de diagramas).</p>
+
+    <div class="question-card">
+      <span class="question-num">1</span>
+      <span class="question-title">Escalabilidad sin rewrite</span>
+      <p>¿La arquitectura sirve para 100 tenants F1 <strong>Y</strong> para 5.000 F3 sin rewrite estructural? Si NO, ¿dónde está el rewrite inevitable y cuándo dispararlo? Si SÍ, ¿qué refactor incremental necesitamos en F2 y F3?</p>
+    </div>
+
+    <div class="question-card">
+      <span class="question-num">2</span>
+      <span class="question-title">Riesgo operacional #1</span>
+      <p>¿Cuál es el cuello de botella real que nos va a romper primero? No el bonito ("podría escalar mejor"). El feo ("esto te va a quemar en producción a los X tenants"). Sospechosos: cola DIAN saturada · pool Postgres agotado · latencia Anthropic en agentes capa 1 · multi-tenancy Prisma middleware si un dev olvida tenant_id.</p>
+    </div>
+
+    <div class="question-card">
+      <span class="question-num">3</span>
+      <span class="question-title">Sobre-ingeniería en F1</span>
+      <p>¿Qué eliminarías de F1 para reducir 20% complejidad sin perder valor? Sospechas: ¿Outbox desde F1 o esperar F3? ¿RLS Postgres + Prisma middleware o solo middleware? ¿OpenTelemetry distributed tracing desde F1 o solo logs? ¿6 agentes IA en F1 o priorizar 3 y diferir 3?</p>
+    </div>
+
+    <div class="question-card">
+      <span class="question-num">4</span>
+      <span class="question-title">Sub-ingeniería en F1</span>
+      <p>¿Qué agregarías a F1 que es barato ahora y carísimo después? Ej clásico: si en F1 no separamos audit_log en su propia DB, en F3 con 200M rows el migrate va a ser sangriento.</p>
+    </div>
+
+    <div class="question-card">
+      <span class="question-num">5</span>
+      <span class="question-title">Realismo del plan</span>
+      <p>¿El alcance F1 (1.440 SP · 3 ingenieros · 8 meses) es realista o estamos delirando? Mi sensación: tight pero alcanzable. ¿Coincidís? Si NO, ¿qué cortamos del scope sin matar la propuesta de valor?</p>
+    </div>
+  </section>
+
+  <!-- §8 GLOSARIO -->
+  <section class="card">
+    <div class="section-num">§ 8</div>
+    <h2>Glosario express (5 minutos)</h2>
+    <p class="subtitle">Términos que aparecen en los diagramas y que un arquitecto sin contexto Colombia/LATAM puede no conocer.</p>
+    <div class="table-wrapper">
+      <table>
+        <thead><tr><th>Término</th><th>Significado</th></tr></thead>
+        <tbody>
+          <tr><td><strong>DIAN</strong></td><td>Dirección de Impuestos y Aduanas Nacionales · ente fiscal de Colombia (≈ SAT México / IRS USA)</td></tr>
+          <tr><td><strong>CUFE</strong></td><td>Código Único de Factura Electrónica · hash firmado XAdES-BES que valida cada transmisión</td></tr>
+          <tr><td><strong>CUDE</strong></td><td>Código Único de Documento Electrónico (variante para tiquete POS)</td></tr>
+          <tr><td><strong>RADIAN</strong></td><td>Registro de la Factura Electrónica como Título Valor · buzón de FE recibidas</td></tr>
+          <tr><td><strong>MUISCA</strong></td><td>Plataforma DIAN para servicios fiscales</td></tr>
+          <tr><td><strong>Tiquete POS (04)</strong></td><td>Doc electrónico para venta al consumidor final sin NIT</td></tr>
+          <tr><td><strong>Factura Electrónica (01)</strong></td><td>Doc electrónico para venta B2B con NIT</td></tr>
+          <tr><td><strong>NC (91)</strong></td><td>Nota Crédito · anulación o devolución parcial</td></tr>
+          <tr><td><strong>ND (92)</strong></td><td>Nota Débito · ajuste al alza</td></tr>
+          <tr><td><strong>DSCE (05)</strong></td><td>Documento Soporte de Adquisición a no obligado a facturar electrónicamente</td></tr>
+          <tr><td><strong>PUC</strong></td><td>Plan Único de Cuentas · catálogo contable colombiano estandarizado</td></tr>
+          <tr><td><strong>NIIF</strong></td><td>Normas Internacionales de Información Financiera · obligatorio en Colombia desde 2015</td></tr>
+          <tr><td><strong>Habeas Data</strong></td><td>Ley 1581/2012 · protección datos personales (≈ LGPD Brasil / GDPR EU)</td></tr>
+          <tr><td><strong>SIC</strong></td><td>Superintendencia de Industria y Comercio · regulador habeas data</td></tr>
+          <tr><td><strong>POS</strong></td><td>En YARO: módulo de venta (no el hardware)</td></tr>
+          <tr><td><strong>KDS</strong></td><td>Kitchen Display System · pantalla en cocina con comandas</td></tr>
+          <tr><td><strong>CDP</strong></td><td>Centro de Producción · cocina central para varias sedes</td></tr>
+          <tr><td><strong>Arqueo de caja</strong></td><td>Cierre diario · cuadre efectivo · denominaciones · transferencias · datáfono</td></tr>
+          <tr><td><strong>Tenant</strong></td><td>En YARO: un restaurante (puede tener N sedes)</td></tr>
+          <tr><td><strong>BC</strong></td><td>Bounded Context (DDD) · 10 en YARO</td></tr>
+          <tr><td><strong>Fire-and-forget</strong></td><td>UI no espera respuesta del worker — devuelve OK y procesa async</td></tr>
+          <tr><td><strong>Append-only</strong></td><td>Tablas donde solo se INSERTA · UPDATE/DELETE bloqueado por triggers</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- §9 CÓMO TRABAJAMOS -->
+  <section class="card">
+    <div class="section-num">§ 9</div>
+    <h2>Cómo trabajamos esta validación</h2>
+
+    <h3>Formato preferido de tu feedback (en orden de utilidad)</h3>
+    <ol>
+      <li><strong>Punch list accionable</strong> · "Cambia X por Y porque Z" — feedback implementable mañana</li>
+      <li><strong>Riesgos con probabilidad</strong> · "Esto tiene 60% probabilidad de romperse a los 500 tenants"</li>
+      <li><strong>Trade-offs alternativos</strong> · "Considerá A en lugar de B porque [...]"</li>
+      <li><strong>Validación silenciosa</strong> · "Esto está bien" (silencio implícito sobre lo no comentado)</li>
+    </ol>
+
+    <h3>Lo que NO necesitamos</h3>
+    <ul>
+      <li>Essay genérico sobre microservicios</li>
+      <li>Recomendaciones de stack distinto (ver §6)</li>
+      <li>"Depende" sin condiciones específicas</li>
+    </ul>
+
+    <h3>Entregable esperado</h3>
+    <p>Documento o sesión de 1h donde respondas las 5 preguntas + decisiones por vista marcadas como ✅ / ⚠️ / ❌.</p>
+  </section>
+
+  <!-- §10 CONTACTO -->
+  <section class="card">
+    <div class="section-num">§ 10</div>
+    <h2>Cómo contactarme</h2>
+    <ul>
+      <li><strong>Email:</strong> yara63valentina@gmail.com</li>
+      <li><strong>GitHub:</strong> ValentinaX63</li>
+      <li><strong>Disponibilidad:</strong> lunes a viernes, 9am-6pm Colombia (UTC-5)</li>
+    </ul>
+    <div class="callout">
+      <div class="callout-title">📍 Cierre</div>
+      <p style="margin-bottom: 0;">Este briefing es la versión "tldr" del contexto. Si en cualquier momento necesitás profundizar, el archivo <code>arquitectura.md</code> tiene los 10 ADRs completos. Gracias por el tiempo — la idea no es que aceptes todo, es que cuestiones lo que tenga que ser cuestionado <strong>antes</strong> de que escribamos código.</p>
+    </div>
+  </section>
+
+</div>
+
+<footer>
+  <div class="brand">
+    <div class="brand-logo">Y</div>
+    <div class="brand-name" style="color: var(--yaro-accent);">YARO</div>
+  </div>
+  <p>Sistema operativo SaaS para restaurantes colombianos · 2026</p>
+  <p style="font-size: 12px; margin-top: 8px;">Briefing v1.0 · Documento interno para validación arquitectónica</p>
+</footer>
+
+</body>
+</html>

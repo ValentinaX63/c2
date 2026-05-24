@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>YARO — KDS Cocina</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:        #f0ede8;
+  --bg2:       #ece9e3;
+  --surface:   #faf9f7;
+  --white:     #ffffff;
+  --border:    rgba(0,0,0,0.07);
+  --border2:   rgba(0,0,0,0.11);
+  --text:      #1a1916;
+  --text2:     #6b6760;
+  --text3:     #a8a49e;
+  --accent:    #f7fd9c;
+  --accent-dk: #d4e200;
+  --accent-txt:#6b7200;
+  --green:     #3d9970;
+  --green-bg:  rgba(61,153,112,0.08);
+  --red:       #c0392b;
+  --red-bg:    rgba(192,57,43,0.07);
+  --amber:     #b7860b;
+  --amber-bg:  rgba(183,134,11,0.08);
+  --blue:      #2471a3;
+  --blue-bg:   rgba(36,113,163,0.07);
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.06),0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.08),0 1px 4px rgba(0,0,0,0.04);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,0.10),0 2px 8px rgba(0,0,0,0.05);
+  --radius:    14px;
+  --radius-sm: 9px;
+}
+
+* { box-sizing:border-box; margin:0; padding:0; }
+
+body {
+  font-family:'Outfit',sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  min-height:100vh;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+}
+
+/* ── TOPBAR ── */
+.topbar {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:0 32px;
+  height:64px;
+  background:var(--surface);
+  border-bottom:1px solid var(--border);
+  position:sticky; top:0; z-index:100;
+  box-shadow:var(--shadow-sm);
+}
+
+.topbar-left { display:flex; align-items:center; gap:16px; }
+
+.logo-pill {
+  background:var(--text);
+  border-radius:11px;
+  padding:6px 14px;
+  font-size:18px; font-weight:300;
+  color:var(--white);
+  letter-spacing:0.4px;
+}
+
+.topbar-divider { width:1px; height:20px; background:var(--border2); }
+
+.topbar-title { font-size:17px; font-weight:600; letter-spacing:-0.2px; }
+.topbar-sub   { font-size:12px; font-weight:300; color:var(--text3); margin-top:1px; }
+
+.topbar-right { display:flex; align-items:center; gap:10px; }
+
+.live-pill {
+  display:flex; align-items:center; gap:6px;
+  padding:6px 13px; border-radius:20px;
+  background:var(--green-bg);
+  border:1px solid rgba(61,153,112,0.2);
+  font-size:11px; font-weight:500; color:var(--green);
+}
+
+.pulse { width:6px; height:6px; border-radius:50%; background:var(--green); animation:pulse 2.2s ease-in-out infinite; }
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.35;transform:scale(.75)} }
+
+.time-pill {
+  padding:6px 13px; border-radius:20px;
+  background:var(--white); border:1px solid var(--border2);
+  font-size:12px; font-weight:400; color:var(--text2);
+  box-shadow:var(--shadow-sm);
+  font-variant-numeric:tabular-nums;
+}
+
+.sede-pill {
+  padding:6px 13px; border-radius:20px;
+  background:rgba(212,226,0,0.1);
+  border:1px solid rgba(212,226,0,0.25);
+  font-size:11px; font-weight:500; color:var(--accent-txt);
+}
+
+/* ── STATS BAR ── */
+.statsbar {
+  display:flex; align-items:center;
+  padding:0 32px;
+  height:52px;
+  background:var(--white);
+  border-bottom:1px solid var(--border);
+  gap:0;
+  overflow-x:auto;
+  box-shadow:var(--shadow-sm);
+}
+
+.stat-item {
+  display:flex; align-items:center; gap:10px;
+  padding:0 24px;
+  border-right:1px solid var(--border);
+  white-space:nowrap; flex-shrink:0;
+}
+.stat-item:first-child { padding-left:0; }
+
+.stat-val { font-size:20px; font-weight:700; letter-spacing:-0.5px; }
+.stat-lbl { font-size:10px; font-weight:400; color:var(--text3); text-transform:uppercase; letter-spacing:0.08em; line-height:1.3; }
+
+/* filter tabs */
+.filter-tabs { display:flex; align-items:center; gap:6px; margin-left:auto; padding-left:20px; }
+
+.filter-tab {
+  padding:5px 14px; border-radius:20px;
+  font-size:12px; font-weight:500; cursor:pointer;
+  border:1px solid var(--border2); color:var(--text3);
+  background:transparent; font-family:'Outfit',sans-serif;
+  transition:all .15s; white-space:nowrap;
+}
+.filter-tab:hover { color:var(--text2); background:var(--bg2); }
+.filter-tab.active {
+  background:var(--text); color:var(--white);
+  border-color:var(--text); box-shadow:var(--shadow-sm);
+}
+
+.f-dot { display:inline-block; width:6px; height:6px; border-radius:50%; margin-right:5px; vertical-align:middle; }
+
+/* ── BOARD ── */
+.board {
+  display:grid; grid-template-columns:repeat(3,1fr);
+  min-height:calc(100vh - 116px);
+  gap:0;
+}
+
+.column {
+  padding:20px 16px;
+  border-right:1px solid var(--border);
+  display:flex; flex-direction:column; gap:12px;
+  overflow-y:auto;
+}
+.column:last-child { border-right:none; }
+
+.col-header {
+  display:flex; align-items:center; justify-content:space-between;
+  margin-bottom:2px; flex-shrink:0;
+}
+
+.col-title {
+  display:flex; align-items:center; gap:7px;
+  font-size:10px; font-weight:600;
+  text-transform:uppercase; letter-spacing:0.12em;
+  color:var(--text3);
+}
+
+.col-dot { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
+
+.col-count {
+  font-size:11px; font-weight:600;
+  background:var(--bg2);
+  border:1px solid var(--border2);
+  border-radius:20px; padding:1px 9px;
+  color:var(--text3);
+}
+
+/* ── ORDER CARD — floating ── */
+.order-card {
+  background:var(--white);
+  border-radius:var(--radius);
+  border:1px solid var(--border);
+  box-shadow:var(--shadow-md);
+  overflow:hidden;
+  cursor:pointer;
+  transition:transform .15s, box-shadow .15s, border-color .15s;
+  animation:floatUp .35s cubic-bezier(.22,1,.36,1) both;
+  position:relative;
+}
+
+@keyframes floatUp { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+
+.order-card:hover {
+  transform:translateY(-2px);
+  box-shadow:var(--shadow-lg);
+  border-color:var(--border2);
+}
+
+/* accent strip left */
+.order-card::before {
+  content:''; position:absolute; left:0; top:0; bottom:0; width:3px;
+  background:var(--card-accent, var(--border2));
+  border-radius:var(--radius) 0 0 var(--radius);
+}
+
+/* urgent pulse on card */
+.order-card.urgent { animation:floatUp .35s cubic-bezier(.22,1,.36,1) both, urgentPulse 2s ease-in-out 1s infinite; }
+@keyframes urgentPulse { 0%,100%{box-shadow:var(--shadow-md)} 50%{box-shadow:0 4px 20px rgba(192,57,43,0.18)} }
+
+/* ── CARD HEADER ── */
+.card-head {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:12px 14px 10px 18px;
+  border-bottom:1px solid var(--border);
+}
+
+.order-meta { display:flex; align-items:center; gap:9px; flex-wrap:wrap; }
+
+.order-num { font-size:15px; font-weight:700; letter-spacing:-0.3px; }
+
+.order-type {
+  font-size:10px; font-weight:600;
+  padding:2px 8px; border-radius:6px;
+  text-transform:uppercase; letter-spacing:0.06em;
+}
+.type-salon  { background:var(--blue-bg);  color:var(--blue); }
+.type-dom    { background:var(--amber-bg); color:var(--amber); }
+.type-barra  { background:rgba(212,226,0,0.12); color:var(--accent-txt); }
+
+.order-id { font-size:11px; font-weight:300; color:var(--text3); }
+
+/* timer */
+.timer-pill {
+  font-size:12px; font-weight:600;
+  font-variant-numeric:tabular-nums;
+  padding:4px 10px; border-radius:8px;
+  background:var(--bg2); border:1px solid var(--border2);
+  color:var(--text2);
+  transition:background .4s, color .4s, border-color .4s;
+  flex-shrink:0;
+}
+.timer-pill.warn  { background:var(--amber-bg); border-color:rgba(183,134,11,0.22); color:var(--amber); }
+.timer-pill.alert { background:var(--red-bg);   border-color:rgba(192,57,43,0.22); color:var(--red); animation:throb 1.1s ease-in-out infinite; }
+@keyframes throb { 0%,100%{opacity:1} 50%{opacity:.55} }
+
+/* ── CARD BODY ── */
+.card-body { padding:10px 14px 10px 18px; }
+
+.order-items { display:flex; flex-direction:column; gap:6px; }
+
+.item-row {
+  display:flex; align-items:baseline; gap:8px;
+  font-size:13px; line-height:1.4;
+}
+
+.item-qty {
+  font-size:12px; font-weight:700;
+  color:var(--accent-dk); min-width:20px;
+  text-align:right; flex-shrink:0;
+}
+
+.item-name { font-weight:500; color:var(--text); flex:1; }
+
+.item-mod {
+  font-size:11px; font-weight:300;
+  color:var(--text3); font-style:italic;
+}
+
+.allergen-tag {
+  font-size:10px; font-weight:600;
+  padding:1px 6px; border-radius:4px;
+  background:var(--red-bg); color:var(--red);
+  flex-shrink:0; border:1px solid rgba(192,57,43,0.15);
+}
+
+.item-row.done .item-name { text-decoration:line-through; color:var(--text3); }
+.item-row.done .item-qty  { color:var(--text3); }
+
+/* note */
+.order-note {
+  margin-top:9px; padding:7px 10px;
+  background:var(--amber-bg);
+  border:1px solid rgba(183,134,11,0.18);
+  border-radius:8px;
+  font-size:11px; font-weight:400; color:var(--amber); line-height:1.4;
+}
+
+/* ── CARD FOOTER ── */
+.card-foot {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:10px 14px 12px 18px;
+  border-top:1px solid var(--border); gap:8px;
+}
+
+.waiter-row {
+  display:flex; align-items:center; gap:7px;
+  font-size:11px; font-weight:400; color:var(--text3);
+}
+
+.waiter-avatar {
+  width:22px; height:22px; border-radius:50%;
+  background:var(--bg2); border:1px solid var(--border2);
+  display:flex; align-items:center; justify-content:center;
+  font-size:9px; font-weight:600; color:var(--text2);
+  flex-shrink:0;
+}
+
+/* action buttons */
+.btn {
+  padding:7px 16px; border-radius:var(--radius-sm);
+  font-size:12px; font-weight:600; cursor:pointer;
+  border:none; font-family:'Outfit',sans-serif;
+  transition:all .15s; flex-shrink:0;
+}
+
+.btn-start {
+  background:rgba(212,226,0,0.12);
+  color:var(--accent-txt);
+  border:1px solid rgba(212,226,0,0.3);
+}
+.btn-start:hover { background:rgba(212,226,0,0.22); }
+
+.btn-ready {
+  background:var(--green); color:var(--white); font-weight:700;
+  box-shadow:0 2px 8px rgba(61,153,112,0.25);
+}
+.btn-ready:hover { background:#44aa7d; box-shadow:0 4px 12px rgba(61,153,112,0.3); }
+
+.btn-done {
+  background:var(--bg2); color:var(--text3);
+  border:1px solid var(--border2); cursor:default; font-weight:400;
+}
+
+/* ── MARKING OVERLAY ── */
+.mark-overlay {
+  position:absolute; inset:0; border-radius:var(--radius);
+  background:rgba(240,237,232,0.7);
+  display:flex; align-items:center; justify-content:center;
+  opacity:0; pointer-events:none; transition:opacity .25s;
+  backdrop-filter:blur(2px);
+}
+.order-card.marking .mark-overlay { opacity:1; }
+.check-circle {
+  width:48px; height:48px; border-radius:50%;
+  background:var(--green); color:var(--white);
+  display:flex; align-items:center; justify-content:center;
+  font-size:22px; font-weight:700;
+  box-shadow:0 4px 16px rgba(61,153,112,0.35);
+}
+
+/* ── EMPTY STATE ── */
+.empty-state {
+  flex:1; display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+  gap:10px; padding:40px 20px; color:var(--text3);
+}
+.empty-icon { font-size:28px; opacity:.4; }
+.empty-txt  { font-size:13px; font-weight:300; text-align:center; line-height:1.5; }
+
+/* ── TOAST ── */
+.toast {
+  position:fixed; bottom:24px; left:50%;
+  transform:translateX(-50%) translateY(8px);
+  background:var(--text); color:var(--white);
+  border-radius:10px; padding:10px 20px;
+  font-size:13px; font-weight:500;
+  box-shadow:var(--shadow-lg);
+  z-index:999; opacity:0; pointer-events:none;
+  transition:opacity .2s, transform .2s;
+  white-space:nowrap;
+}
+.toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar { width:4px; }
+::-webkit-scrollbar-track { background:transparent; }
+::-webkit-scrollbar-thumb { background:var(--border2); border-radius:2px; }
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="topbar-left">
+    <div class="logo-pill">yaro</div>
+    <div class="topbar-divider"></div>
+    <div>
+      <div class="topbar-title">KDS — Cocina</div>
+      <div class="topbar-sub">Kitchen Display System</div>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <div class="sede-pill">📍 Guarne</div>
+    <div class="live-pill"><div class="pulse"></div>Tiempo real</div>
+    <div class="time-pill" id="clock">--:--:--</div>
+  </div>
+</div>
+
+<!-- STATS BAR -->
+<div class="statsbar">
+  <div class="stat-item">
+    <div class="stat-val" id="s-pend" style="color:var(--amber)">4</div>
+    <div class="stat-lbl">Pendientes</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-val" id="s-cook" style="color:var(--accent-dk)">3</div>
+    <div class="stat-lbl">En proceso</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-val" id="s-ready" style="color:var(--green)">2</div>
+    <div class="stat-lbl">Listos hoy</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-val" style="color:var(--text2)">8:24</div>
+    <div class="stat-lbl">Tiempo<br>promedio</div>
+  </div>
+  <div class="filter-tabs">
+    <button class="filter-tab active" onclick="setFilter('all',this)"><span class="f-dot" style="background:var(--text3)"></span>Todos</button>
+    <button class="filter-tab" onclick="setFilter('salon',this)"><span class="f-dot" style="background:var(--blue)"></span>Salón</button>
+    <button class="filter-tab" onclick="setFilter('domicilio',this)"><span class="f-dot" style="background:var(--amber)"></span>Domicilio</button>
+    <button class="filter-tab" onclick="setFilter('barra',this)"><span class="f-dot" style="background:var(--accent-dk)"></span>Barra</button>
+  </div>
+</div>
+
+<!-- BOARD -->
+<div class="board">
+  <div class="column" id="col-pending">
+    <div class="col-header">
+      <div class="col-title"><div class="col-dot" style="background:var(--amber)"></div>Pendiente</div>
+      <div class="col-count" id="cnt-pending">4</div>
+    </div>
+  </div>
+  <div class="column" id="col-cooking">
+    <div class="col-header">
+      <div class="col-title"><div class="col-dot" style="background:var(--accent-dk)"></div>En proceso</div>
+      <div class="col-count" id="cnt-cooking">3</div>
+    </div>
+  </div>
+  <div class="column" id="col-ready">
+    <div class="col-header">
+      <div class="col-title"><div class="col-dot" style="background:var(--green)"></div>Listo para servir</div>
+      <div class="col-count" id="cnt-ready">2</div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── CLOCK ──
+function tick() {
+  document.getElementById('clock').textContent =
+    new Date().toLocaleTimeString('es-CO',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+}
+tick(); setInterval(tick,1000);
+
+// ── DATA ──
+const startTimes = {};
+
+const orders = [
+  // PENDIENTES
+  {
+    id:'#042', num:'Mesa 4', type:'salon', typeLbl:'Salón', status:'pending',
+    elapsed:120, waiter:'Carlos M.', priority:'low',
+    items:[
+      {qty:2,name:'La Criminal',    mod:'sin cebolla', done:false},
+      {qty:1,name:'Smash Classic',  mod:'extra queso', done:false},
+      {qty:3,name:'Papas cargadas', mod:'',            done:false},
+    ]
+  },
+  {
+    id:'#038', num:'Mesa 11', type:'salon', typeLbl:'Salón', status:'pending',
+    elapsed:420, waiter:'Laura P.', priority:'high',
+    items:[
+      {qty:1,name:'La Perla',       mod:'término medio', done:false},
+      {qty:1,name:'Smash Classic',  mod:'',              done:false},
+    ],
+    note:'⚠️ Alérgeno: mariscos — Mesa 11 comensales 3'
+  },
+  {
+    id:'#041', num:'Domicilio 7', type:'domicilio', typeLbl:'Domicilio', status:'pending',
+    elapsed:310, waiter:'Sistema', priority:'med',
+    items:[
+      {qty:2,name:'Combo BBQ',      mod:'',  done:false},
+      {qty:2,name:'Papas cargadas', mod:'',  done:false},
+    ]
+  },
+  {
+    id:'#039', num:'Barra', type:'barra', typeLbl:'Barra', status:'pending',
+    elapsed:65, waiter:'Andrés R.', priority:'low',
+    items:[
+      {qty:1,name:'La Criminal',    mod:'doble carne', done:false},
+    ]
+  },
+  // EN PROCESO
+  {
+    id:'#037', num:'Mesa 2', type:'salon', typeLbl:'Salón', status:'cooking',
+    elapsed:540, waiter:'Carlos M.', priority:'med',
+    items:[
+      {qty:1,name:'Smash Classic',  mod:'',            done:true },
+      {qty:1,name:'La Criminal',    mod:'sin tomate',  done:false},
+      {qty:2,name:'Onion rings',    mod:'',            done:false},
+    ]
+  },
+  {
+    id:'#036', num:'Domicilio 6', type:'domicilio', typeLbl:'Domicilio', status:'cooking',
+    elapsed:710, waiter:'Sistema', priority:'high',
+    items:[
+      {qty:3,name:'Combo BBQ',      mod:'',            done:false},
+      {qty:1,name:'La Perla',       mod:'bien cocida', done:false},
+      {qty:3,name:'Papas cargadas', mod:'',            done:true },
+    ]
+  },
+  {
+    id:'#040', num:'Mesa 7', type:'salon', typeLbl:'Salón', status:'cooking',
+    elapsed:280, waiter:'Laura P.', priority:'low',
+    items:[
+      {qty:2,name:'La Criminal',    mod:'',                                done:false},
+      {qty:1,name:'Smash Classic',  mod:'extra jalapeño', allergen:'picante', done:false},
+    ]
+  },
+  // LISTOS
+  {
+    id:'#034', num:'Mesa 1', type:'salon', typeLbl:'Salón', status:'ready',
+    elapsed:680, waiter:'Andrés R.', priority:'done',
+    items:[
+      {qty:2,name:'La Criminal',    mod:'', done:true},
+      {qty:1,name:'Papas cargadas', mod:'', done:true},
+    ]
+  },
+  {
+    id:'#035', num:'Barra', type:'barra', typeLbl:'Barra', status:'ready',
+    elapsed:420, waiter:'Carlos M.', priority:'done',
+    items:[
+      {qty:1,name:'Smash Classic',  mod:'sin pepinillos', done:true},
+    ]
+  },
+];
+
+orders.forEach(o => { startTimes[o.id] = Date.now() - o.elapsed*1000; });
+
+function elapsed(id){ return Math.floor((Date.now()-startTimes[id])/1000); }
+function fmtTime(s){ return `${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`; }
+function timerCls(s,status){
+  if(status==='ready') return '';
+  if(s>=600) return 'alert';
+  if(s>=360) return 'warn';
+  return '';
+}
+
+// strip color per priority
+const stripColor = {
+  low:  'var(--border2)',
+  med:  'var(--amber)',
+  high: 'var(--red)',
+  done: 'var(--green)',
+};
+
+// type label class
+const typeClass = { salon:'type-salon', domicilio:'type-dom', barra:'type-barra' };
+
+let currentFilter = 'all';
+let orderList = [...orders];
+
+// ── BUILD CARD HTML ──
+function buildCard(o){
+  const s   = elapsed(o.id);
+  const tc  = timerCls(s, o.status);
+  const isUrgent = tc === 'alert';
+
+  const itemsHtml = o.items.map(it=>`
+    <div class="item-row${it.done?' done':''}">
+      <span class="item-qty">${it.qty}×</span>
+      <span class="item-name">${it.name}</span>
+      ${it.mod?`<span class="item-mod">${it.mod}</span>`:''}
+      ${it.allergen?`<span class="allergen-tag">⚠ ${it.allergen}</span>`:''}
+    </div>`).join('');
+
+  let btn = '';
+  if(o.status==='pending')
+    btn=`<button class="btn btn-start" onclick="move('${o.id}','cooking')">Iniciar prep.</button>`;
+  else if(o.status==='cooking')
+    btn=`<button class="btn btn-ready" onclick="move('${o.id}','ready')">✓ Listo</button>`;
+  else
+    btn=`<button class="btn btn-done" disabled>Entregado</button>`;
+
+  return `
+    <div class="order-card${isUrgent?' urgent':''}"
+         id="card-${o.id}"
+         style="--card-accent:${stripColor[o.priority]}"
+         data-type="${o.type}" data-status="${o.status}">
+      <div class="mark-overlay"><div class="check-circle">✓</div></div>
+      <div class="card-head">
+        <div class="order-meta">
+          <span class="order-num">${o.num}</span>
+          <span class="order-type ${typeClass[o.type]}">${o.typeLbl}</span>
+          <span class="order-id">${o.id}</span>
+        </div>
+        <div class="timer-pill ${tc}" id="timer-${o.id}">${fmtTime(s)}</div>
+      </div>
+      <div class="card-body">
+        <div class="order-items">${itemsHtml}</div>
+        ${o.note?`<div class="order-note">${o.note}</div>`:''}
+      </div>
+      <div class="card-foot">
+        <div class="waiter-row">
+          <div class="waiter-avatar">${o.waiter.charAt(0)}</div>
+          ${o.waiter}
+        </div>
+        ${btn}
+      </div>
+    </div>`;
+}
+
+// ── RENDER ──
+function render(){
+  ['pending','cooking','ready'].forEach(st=>{
+    const col = document.getElementById('col-'+st);
+    // keep header, remove rest
+    while(col.children.length > 1) col.removeChild(col.lastChild);
+
+    const visible = orderList.filter(o=>
+      o.status===st && (currentFilter==='all' || o.type===currentFilter)
+    );
+
+    document.getElementById('cnt-'+st).textContent = visible.length;
+
+    if(visible.length===0){
+      const icons  = {pending:'⏳',cooking:'🔥',ready:'✅'};
+      const labels = {pending:'Sin órdenes pendientes',cooking:'Ninguna en preparación',ready:'Todo listo por ahora'};
+      col.insertAdjacentHTML('beforeend',`
+        <div class="empty-state">
+          <div class="empty-icon">${icons[st]}</div>
+          <div class="empty-txt">${labels[st]}</div>
+        </div>`);
+    } else {
+      visible.forEach(o=>col.insertAdjacentHTML('beforeend',buildCard(o)));
+    }
+  });
+
+  document.getElementById('s-pend').textContent  = orderList.filter(o=>o.status==='pending').length;
+  document.getElementById('s-cook').textContent  = orderList.filter(o=>o.status==='cooking').length;
+  document.getElementById('s-ready').textContent = orderList.filter(o=>o.status==='ready').length;
+}
+
+// ── MOVE ──
+function move(id, newStatus){
+  const card = document.getElementById('card-'+id);
+  if(card) card.classList.add('marking');
+  setTimeout(()=>{
+    const o = orderList.find(o=>o.id===id);
+    if(o){ o.status=newStatus; if(newStatus==='ready') o.priority='done'; }
+    render();
+    toast(newStatus==='cooking' ? `${id} — En preparación 🔥` : `${id} — ¡Listo para servir! ✓`);
+  }, 380);
+}
+
+// ── FILTER ──
+function setFilter(f, el){
+  currentFilter = f;
+  document.querySelectorAll('.filter-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  render();
+}
+
+// ── TOAST ──
+function toast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2800);
+}
+
+// ── LIVE TIMERS (every second) ──
+setInterval(()=>{
+  orderList.forEach(o=>{
+    const el = document.getElementById('timer-'+o.id);
+    if(!el) return;
+    const s  = elapsed(o.id);
+    el.textContent = fmtTime(s);
+    const tc = timerCls(s, o.status);
+    el.className   = 'timer-pill'+(tc?' '+tc:'');
+    // also update card urgency class
+    const card = document.getElementById('card-'+o.id);
+    if(card) card.classList.toggle('urgent', tc==='alert' && o.status!=='ready');
+  });
+}, 1000);
+
+// ── SIMULATE NEW ORDER after 10s ──
+setTimeout(()=>{
+  const newO = {
+    id:'#043', num:'Mesa 9', type:'salon', typeLbl:'Salón', status:'pending',
+    elapsed:0, waiter:'Andrés R.', priority:'low',
+    items:[
+      {qty:1,name:'La Criminal',    mod:'',            done:false},
+      {qty:2,name:'Papas cargadas', mod:'',            done:false},
+    ]
+  };
+  startTimes[newO.id] = Date.now();
+  orderList.push(newO);
+  render();
+  toast('🔔 Nueva orden: Mesa 9 — #043');
+}, 10000);
+
+render();
+</script>
+</body>
+</html>

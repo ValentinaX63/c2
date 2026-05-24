@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>YARO — Jefe de Cocina</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#f0ede8; --bg2:#ece9e3; --surface:#faf9f7; --white:#ffffff;
+  --border:rgba(0,0,0,0.07); --border2:rgba(0,0,0,0.11);
+  --text:#1a1916; --text2:#6b6760; --text3:#a8a49e;
+  --accent:#f7fd9c; --accent-dk:#d4e200; --accent-txt:#6b7200;
+  --green:#3d9970; --green-bg:rgba(61,153,112,0.09);
+  --red:#c0392b; --red-bg:rgba(192,57,43,0.07);
+  --amber:#b7860b; --amber-bg:rgba(183,134,11,0.09);
+  --blue:#2471a3; --blue-bg:rgba(36,113,163,0.07);
+  --purple:#534AB7; --purple-bg:rgba(83,74,183,0.09);
+  --shadow-sm:0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
+  --shadow-md:0 4px 16px rgba(0,0,0,.08),0 1px 4px rgba(0,0,0,.04);
+  --shadow-lg:0 8px 32px rgba(0,0,0,.10),0 2px 8px rgba(0,0,0,.05);
+  --radius:14px; --radius-sm:9px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");}
+
+/* TOPBAR */
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 32px;height:64px;background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:200;box-shadow:var(--shadow-sm);}
+.tl{display:flex;align-items:center;gap:16px;}
+.logo-pill{background:var(--text);border-radius:11px;padding:6px 14px;font-size:18px;font-weight:300;color:var(--white);letter-spacing:.4px;}
+.tdiv{width:1px;height:20px;background:var(--border2);}
+.ttitle{font-size:17px;font-weight:600;letter-spacing:-.2px;}
+.tsub{font-size:12px;font-weight:300;color:var(--text3);margin-top:1px;}
+.tr{display:flex;align-items:center;gap:10px;}
+.pill{padding:6px 13px;border-radius:20px;font-size:11px;font-weight:500;box-shadow:var(--shadow-sm);}
+.pill-time{background:var(--white);border:1px solid var(--border2);color:var(--text2);font-size:12px;font-variant-numeric:tabular-nums;}
+.pill-sede{background:rgba(212,226,0,0.1);border:1px solid rgba(212,226,0,0.25);color:var(--accent-txt);}
+.pill-user{background:var(--white);border:1px solid var(--border2);color:var(--text);font-weight:500;}
+.live-pill{display:flex;align-items:center;gap:6px;background:var(--green-bg);border:1px solid rgba(61,153,112,0.2);color:var(--green);}
+.pdot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2.2s ease-in-out infinite;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.35;transform:scale(.75)}}
+
+/* SHELL */
+.shell{display:flex;height:calc(100vh - 64px);overflow:hidden;}
+
+/* SIDENAV */
+.sidenav{width:215px;flex-shrink:0;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow-y:auto;}
+.snhead{padding:18px 16px;border-bottom:1px solid var(--border);}
+.chef-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 12px;margin-bottom:8px;}
+.chef-lbl{font-size:9px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;margin-bottom:2px;}
+.chef-name{font-size:13px;font-weight:600;}
+.chef-sub{font-size:11px;font-weight:300;color:var(--text3);}
+.turno-pill{display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:var(--green-bg);border:1px solid rgba(61,153,112,0.18);border-radius:var(--radius-sm);}
+.turno-txt{font-size:11px;font-weight:600;color:var(--green);}
+.turno-time{font-size:11px;font-weight:300;color:var(--green);font-variant-numeric:tabular-nums;}
+.nsec{padding:14px 12px 4px;}
+.nlbl{font-size:9px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.12em;padding:0 10px;margin-bottom:5px;}
+.ni{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:var(--radius-sm);font-size:13px;font-weight:400;color:var(--text2);cursor:pointer;transition:all .15s;margin-bottom:1px;}
+.ni:hover{background:var(--bg2);color:var(--text);}
+.ni.active{background:var(--accent);color:var(--accent-txt);font-weight:600;box-shadow:var(--shadow-sm);}
+.ni svg{width:16px;height:16px;flex-shrink:0;opacity:.65;}
+.ni.active svg{opacity:1;}
+.nbadge{margin-left:auto;color:#fff;font-size:10px;font-weight:600;border-radius:10px;padding:1px 6px;}
+
+/* MAIN */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+.subtabs{display:flex;align-items:center;background:var(--white);border-bottom:1px solid var(--border);padding:0 28px;height:48px;flex-shrink:0;box-shadow:var(--shadow-sm);overflow-x:auto;}
+.st{padding:0 16px;height:100%;display:flex;align-items:center;font-size:13px;font-weight:500;color:var(--text3);cursor:pointer;border-bottom:2px solid transparent;transition:all .15s;white-space:nowrap;gap:6px;}
+.st:hover{color:var(--text2);}
+.st.active{color:var(--text);border-bottom-color:var(--accent-dk);font-weight:600;}
+.toolbar{display:flex;align-items:center;gap:10px;padding:13px 28px;background:var(--surface);border-bottom:1px solid var(--border);flex-shrink:0;flex-wrap:wrap;}
+.sbox{display:flex;align-items:center;gap:8px;background:var(--white);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:0 12px;height:36px;flex:1;max-width:280px;box-shadow:var(--shadow-sm);}
+.sbox input{border:none;outline:none;background:transparent;font-family:'Outfit',sans-serif;font-size:13px;color:var(--text);width:100%;}
+.sbox input::placeholder{color:var(--text3);}
+.fsel{height:36px;padding:0 10px;border:1px solid var(--border2);border-radius:var(--radius-sm);background:var(--white);font-family:'Outfit',sans-serif;font-size:12px;color:var(--text2);outline:none;cursor:pointer;box-shadow:var(--shadow-sm);}
+.btn{height:36px;padding:0 16px;border-radius:var(--radius-sm);font-size:13px;font-weight:600;cursor:pointer;border:none;font-family:'Outfit',sans-serif;transition:all .15s;white-space:nowrap;}
+.b-primary{background:var(--text);color:var(--white);}
+.b-primary:hover{background:#2d2c28;box-shadow:var(--shadow-md);}
+.b-outline{background:var(--white);color:var(--text2);border:1px solid var(--border2);font-weight:400;}
+.b-outline:hover{background:var(--bg2);}
+.b-accent{background:rgba(212,226,0,0.12);color:var(--accent-txt);border:1px solid rgba(212,226,0,0.28);}
+.b-accent:hover{background:rgba(212,226,0,0.2);}
+.b-amber{background:var(--amber-bg);color:var(--amber);border:1px solid rgba(183,134,11,0.2);}
+.b-amber:hover{background:rgba(183,134,11,0.14);}
+.b-red{background:var(--red-bg);color:var(--red);border:1px solid rgba(192,57,43,0.2);}
+.b-sm{height:28px;padding:0 10px;font-size:11px;}
+.content{flex:1;overflow-y:auto;padding:22px 28px;}
+
+/* CARDS */
+.card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-md);padding:20px 22px;animation:fu .4s cubic-bezier(.22,1,.36,1) both;transition:box-shadow .2s,transform .2s;}
+.card:hover{box-shadow:var(--shadow-lg);transform:translateY(-1px);}
+@keyframes fu{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.clbl{font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.09em;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;}
+.ctag{font-size:10px;font-weight:400;padding:2px 8px;border-radius:6px;background:var(--bg2);color:var(--text3);border:1px solid var(--border);text-transform:none;letter-spacing:0;}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px;}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:18px;}
+
+/* KPI */
+.krow{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px;}
+.kpi{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-md);padding:16px 18px 14px;position:relative;overflow:hidden;animation:fu .4s cubic-bezier(.22,1,.36,1) both;transition:box-shadow .2s,transform .2s;}
+.kpi:hover{box-shadow:var(--shadow-lg);transform:translateY(-1px);}
+.kpi::after{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--kb,var(--border2));border-radius:var(--radius) var(--radius) 0 0;}
+.klbl{font-size:10px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;}
+.kval{font-size:20px;font-weight:700;letter-spacing:-.5px;margin-bottom:6px;}
+.kfoot{font-size:11px;font-weight:300;color:var(--text3);display:flex;align-items:center;gap:6px;}
+.d{font-size:10px;font-weight:600;padding:2px 6px;border-radius:5px;}
+.dup{background:var(--green-bg);color:var(--green);}
+.ddn{background:var(--red-bg);color:var(--red);}
+.dwn{background:var(--amber-bg);color:var(--amber);}
+
+/* TABLE */
+.twrap{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-md);overflow:hidden;margin-bottom:18px;animation:fu .4s cubic-bezier(.22,1,.36,1) both;}
+.dt{width:100%;border-collapse:collapse;}
+.dt thead th{text-align:left;padding:11px 14px;font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;border-bottom:1px solid var(--border);background:var(--surface);white-space:nowrap;}
+.dt tbody tr{border-bottom:1px solid var(--border);transition:background .12s;cursor:pointer;}
+.dt tbody tr:last-child{border-bottom:none;}
+.dt tbody tr:hover{background:rgba(0,0,0,.018);}
+.dt tbody td{padding:12px 14px;font-size:13px;vertical-align:middle;}
+
+/* STATUS PILLS */
+.sp{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:6px;font-size:10px;font-weight:600;}
+.sp-ok{background:var(--green-bg);color:var(--green);}
+.sp-pend{background:var(--amber-bg);color:var(--amber);}
+.sp-low{background:var(--amber-bg);color:var(--amber);}
+.sp-crit{background:var(--red-bg);color:var(--red);}
+.sp-blue{background:var(--blue-bg);color:var(--blue);}
+.sp-gray{background:var(--bg2);color:var(--text3);}
+.sp-lote{background:var(--purple-bg);color:var(--purple);}
+
+/* ROW ACTS */
+.ra-wrap{display:flex;gap:5px;align-items:center;}
+.ra{width:26px;height:26px;border-radius:6px;background:var(--bg2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:12px;cursor:pointer;transition:all .15s;color:var(--text2);}
+.ra:hover{background:var(--border2);color:var(--text);}
+
+/* STOCK BARS */
+.stock-bar-wrap{display:flex;align-items:center;gap:8px;min-width:120px;}
+.stock-track{flex:1;height:5px;background:var(--bg2);border-radius:3px;overflow:hidden;}
+.stock-fill{height:100%;border-radius:3px;}
+
+/* RECIPE CARD */
+.recipe-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-md);overflow:hidden;margin-bottom:12px;animation:fu .4s cubic-bezier(.22,1,.36,1) both;}
+.rc-head{display:flex;align-items:center;gap:14px;padding:16px 20px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .15s;}
+.rc-head:hover{background:rgba(0,0,0,.015);}
+.rc-icon{width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+.rc-meta{flex:1;}
+.rc-name{font-size:14px;font-weight:600;margin-bottom:2px;}
+.rc-sub{font-size:11px;font-weight:300;color:var(--text3);}
+.rc-right{text-align:right;}
+.rc-fc{font-size:16px;font-weight:700;font-variant-numeric:tabular-nums;}
+.rc-fc-lbl{font-size:10px;font-weight:300;color:var(--text3);margin-top:1px;}
+.rc-chev{font-size:16px;color:var(--text3);transition:transform .2s;flex-shrink:0;}
+.rc-chev.open{transform:rotate(180deg);}
+.rc-body{max-height:0;overflow:hidden;transition:max-height .3s ease;}
+.rc-body.open{max-height:500px;}
+.rc-inner{padding:16px 20px;border-top:1px solid var(--border);}
+.ing-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);font-size:12px;}
+.ing-row:last-child{border-bottom:none;}
+.ing-name{flex:1;font-weight:500;}
+.ing-cant{font-variant-numeric:tabular-nums;font-weight:600;min-width:60px;text-align:right;}
+.ing-stock-tag{font-size:10px;padding:2px 7px;border-radius:5px;flex-shrink:0;}
+.ist-ok{background:var(--green-bg);color:var(--green);}
+.ist-low{background:var(--amber-bg);color:var(--amber);}
+.ist-no{background:var(--red-bg);color:var(--red);}
+.allergen-tag{font-size:9px;font-weight:600;padding:1px 6px;border-radius:4px;background:var(--red-bg);color:var(--red);border:1px solid rgba(192,57,43,0.15);flex-shrink:0;}
+
+/* MERMA */
+.merma-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-md);padding:18px 20px;margin-bottom:10px;animation:fu .4s cubic-bezier(.22,1,.36,1) both;position:relative;overflow:hidden;}
+.merma-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--mc,var(--border2));}
+.merma-row{display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid var(--border);font-size:13px;}
+.merma-row:last-child{border-bottom:none;}
+.m-name{flex:1;font-weight:500;}
+.m-cant{font-weight:700;font-variant-numeric:tabular-nums;color:var(--red);}
+.m-motivo{font-size:11px;font-weight:300;color:var(--text3);}
+.m-fecha{font-size:11px;color:var(--text3);flex-shrink:0;}
+
+/* TRASLADO REQUEST */
+.traslado-request{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-md);padding:20px 22px;margin-bottom:12px;animation:fu .4s cubic-bezier(.22,1,.36,1) both;}
+.tr-status-bar{display:flex;align-items:center;gap:8px;margin-bottom:16px;}
+.tr-step{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:500;}
+.tr-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.tr-line{flex:1;height:1px;background:var(--border2);}
+
+/* INFO BOXES */
+.ibox{background:var(--blue-bg);border:1px solid rgba(36,113,163,0.15);border-radius:var(--radius-sm);padding:10px 14px;font-size:12px;color:var(--blue);line-height:1.5;margin-bottom:14px;}
+.wbox{background:var(--amber-bg);border:1px solid rgba(183,134,11,0.18);border-radius:var(--radius-sm);padding:10px 14px;font-size:12px;color:var(--amber);line-height:1.5;margin-bottom:14px;}
+.sbox2{background:var(--green-bg);border:1px solid rgba(61,153,112,0.18);border-radius:var(--radius-sm);padding:10px 14px;font-size:12px;color:var(--green);line-height:1.5;margin-bottom:14px;}
+
+/* MODAL */
+.mo{position:fixed;inset:0;z-index:400;background:rgba(240,237,232,0.78);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s;}
+.mo.open{opacity:1;pointer-events:all;}
+.modal{background:var(--white);border-radius:var(--radius);border:1px solid var(--border2);box-shadow:var(--shadow-lg);width:100%;max-width:500px;transform:translateY(16px);transition:transform .25s;overflow:hidden;max-height:90vh;display:flex;flex-direction:column;}
+.mo.open .modal{transform:translateY(0);}
+.mh{padding:20px 24px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.mh-t{font-size:16px;font-weight:600;}
+.mh-sub{font-size:11px;font-weight:300;color:var(--text3);margin-top:2px;}
+.mcl{width:28px;height:28px;border-radius:7px;background:var(--bg2);border:none;cursor:pointer;font-size:15px;color:var(--text3);font-family:'Outfit',sans-serif;display:flex;align-items:center;justify-content:center;transition:background .15s;}
+.mcl:hover{background:var(--border2);}
+.mb{padding:20px 24px;display:flex;flex-direction:column;gap:12px;overflow-y:auto;}
+.mf{padding:14px 24px 20px;border-top:1px solid var(--border);display:flex;gap:8px;flex-shrink:0;}
+.mf .btn{flex:1;height:40px;}
+.fr{display:flex;flex-direction:column;gap:5px;}
+.fr2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.fr3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
+.flbl{font-size:11px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;}
+.fi{height:38px;padding:0 12px;border:1px solid var(--border2);border-radius:var(--radius-sm);background:var(--surface);font-family:'Outfit',sans-serif;font-size:13px;color:var(--text);outline:none;transition:border-color .15s;width:100%;}
+.fi:focus{border-color:var(--accent-dk);background:var(--white);}
+.fi::placeholder{color:var(--text3);}
+.fi-ro{background:var(--bg2);color:var(--text3);}
+.fsel2{height:38px;padding:0 12px;border:1px solid var(--border2);border-radius:var(--radius-sm);background:var(--surface);font-family:'Outfit',sans-serif;font-size:13px;color:var(--text2);outline:none;cursor:pointer;width:100%;}
+.fblock{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px 16px;}
+.fblock-lbl{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px;}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(8px);background:var(--text);color:var(--white);border-radius:10px;padding:10px 20px;font-size:13px;font-weight:500;box-shadow:var(--shadow-lg);z-index:999;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;white-space:nowrap;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+::-webkit-scrollbar{width:4px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="tl">
+    <div class="logo-pill">yaro</div>
+    <div class="tdiv"></div>
+    <div>
+      <div class="ttitle">Jefe de Cocina</div>
+      <div class="tsub">Vista de sede · Gestión operativa de cocina</div>
+    </div>
+  </div>
+  <div class="tr">
+    <div class="pill pill-sede">📍 La Ceja</div>
+    <div class="pill live-pill"><div class="pdot"></div>Turno activo</div>
+    <div class="pill pill-user">👤 Ricardo H.</div>
+    <div class="pill pill-time" id="clock">--:--</div>
+  </div>
+</div>
+
+<div class="shell">
+  <!-- SIDENAV -->
+  <nav class="sidenav">
+    <div class="snhead">
+      <div class="chef-card">
+        <div class="chef-lbl">Rol</div>
+        <div class="chef-name">Jefe de Cocina</div>
+        <div class="chef-sub">La Ceja · Turno mañana</div>
+      </div>
+      <div class="turno-pill">
+        <div class="turno-txt">⏱ Turno iniciado</div>
+        <div class="turno-time" id="turno-time">5:00 am</div>
+      </div>
+    </div>
+
+    <div class="nsec">
+      <div class="nlbl">Operaciones</div>
+      <div class="ni active" onclick="setNav('panel',this)">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2.5" y="2.5" width="6" height="6" rx="1"/><rect x="11.5" y="2.5" width="6" height="6" rx="1"/><rect x="2.5" y="11.5" width="6" height="6" rx="1"/><rect x="11.5" y="11.5" width="6" height="6" rx="1"/></svg>
+        Panel del día
+      </div>
+      <div class="ni" onclick="setNav('stock',this)">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="4" width="16" height="14" rx="1.5"/><line x1="2" y1="9" x2="18" y2="9" stroke-linecap="round"/><line x1="6" y1="4" x2="6" y2="9" stroke-linecap="round"/><line x1="14" y1="4" x2="14" y2="9" stroke-linecap="round"/><line x1="6" y1="13" x2="14" y2="13" stroke-linecap="round"/></svg>
+        Stock de la sede
+        <span class="nbadge" style="background:var(--red)">2</span>
+      </div>
+      <div class="ni" onclick="setNav('recetas',this)">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 3H5a1 1 0 00-1 1v12a1 1 0 001 1h10a1 1 0 001-1V8l-5-5H8z" stroke-linecap="round" stroke-linejoin="round"/><path d="M13 3v5h5" stroke-linecap="round"/><line x1="7" y1="11" x2="13" y2="11" stroke-linecap="round"/><line x1="7" y1="14" x2="11" y2="14" stroke-linecap="round"/></svg>
+        Recetas del menú
+      </div>
+      <div class="ni" onclick="setNav('traslados',this)">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 10h12M12 6l4 4-4 4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Solicitar traslado CDP
+        <span class="nbadge" style="background:var(--blue)">1</span>
+      </div>
+    </div>
+
+    <div class="nsec">
+      <div class="nlbl">Control</div>
+      <div class="ni" onclick="setNav('mermas',this)">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10 3.5L17.5 16.5H2.5L10 3.5Z" stroke-linecap="round" stroke-linejoin="round"/><line x1="10" y1="8" x2="10" y2="12" stroke-linecap="round"/><circle cx="10" cy="14.5" r=".75" fill="currentColor" stroke="none"/></svg>
+        Reportar merma
+      </div>
+      <div class="ni" onclick="setNav('historial',this)">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10 5v5l3.5 3.5"/><circle cx="10" cy="10" r="8"/></svg>
+        Historial de lotes
+      </div>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <div class="main">
+    <div class="subtabs" id="stabs"></div>
+    <div class="toolbar" id="tbar"></div>
+    <div class="content" id="cont"></div>
+  </div>
+</div>
+
+<!-- MODAL: SOLICITAR TRASLADO -->
+<div class="mo" id="m-traslado">
+  <div class="modal">
+    <div class="mh">
+      <div>
+        <div class="mh-t">Solicitar traslado al CDP</div>
+        <div class="mh-sub">La solicitud será revisada y despachada por el Jefe CDP</div>
+      </div>
+      <button class="mcl" onclick="cm('m-traslado')">✕</button>
+    </div>
+    <div class="mb">
+      <div class="ibox">ℹ️ Solo puedes solicitar productos que el CDP produce. El Jefe CDP aprueba y despacha — YARO notifica cuando el traslado está en camino.</div>
+      <div class="fr2">
+        <div class="fr"><div class="flbl">Sede destino</div><input class="fi fi-ro" value="La Ceja" readonly></div>
+        <div class="fr"><div class="flbl">Urgencia</div>
+          <select class="fsel2" id="tras-urgencia">
+            <option value="normal">Normal — próximas 24h</option>
+            <option value="urgente">Urgente — hoy mismo</option>
+            <option value="programado">Programado — mañana</option>
+          </select>
+        </div>
+      </div>
+      <div class="fblock">
+        <div class="fblock-lbl">Productos a solicitar</div>
+        <div id="tras-items" style="display:flex;flex-direction:column;gap:8px">
+          <div style="display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center">
+            <select class="fsel2">
+              <option>Guacamole base</option>
+              <option>Salsa BBQ artesanal</option>
+              <option>Mix de carne smash</option>
+              <option>Papas pre-fritas</option>
+              <option>Mayonesa de la casa</option>
+            </select>
+            <input class="fi" type="number" placeholder="kg/L" style="width:70px">
+            <button class="btn b-outline" style="height:38px;padding:0 10px;font-size:18px" onclick="addTrasItem()">+</button>
+          </div>
+        </div>
+      </div>
+      <div class="fr"><div class="flbl">Observación (opcional)</div><input class="fi" placeholder="Ej: Necesitamos el guacamole para el servicio del mediodía"></div>
+    </div>
+    <div class="mf">
+      <button class="btn b-outline" onclick="cm('m-traslado')">Cancelar</button>
+      <button class="btn b-primary" onclick="enviarSolicitud()">Enviar solicitud → CDP</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: REPORTAR MERMA -->
+<div class="mo" id="m-merma">
+  <div class="modal">
+    <div class="mh">
+      <div>
+        <div class="mh-t">Reportar merma</div>
+        <div class="mh-sub">Ajusta el inventario real de la sede</div>
+      </div>
+      <button class="mcl" onclick="cm('m-merma')">✕</button>
+    </div>
+    <div class="mb">
+      <div class="wbox">⚠️ Reportar merma descuenta el producto del inventario de la sede. El ajuste queda registrado con tu nombre, fecha y motivo para trazabilidad.</div>
+      <div class="fr2">
+        <div class="fr"><div class="flbl">Producto / Insumo</div>
+          <select class="fsel2">
+            <option>Guacamole base — Lote MDB-029</option>
+            <option>Carne de res</option>
+            <option>Lechuga romana</option>
+            <option>Pan brioche</option>
+            <option>Salsa BBQ — Lote MDB-028</option>
+          </select>
+        </div>
+        <div class="fr"><div class="flbl">Cantidad perdida</div>
+          <div style="display:flex;gap:6px">
+            <input class="fi" type="number" placeholder="0.0" style="flex:1">
+            <select class="fsel2" style="width:70px"><option>kg</option><option>L</option><option>und</option></select>
+          </div>
+        </div>
+      </div>
+      <div class="fr"><div class="flbl">Causa de la merma</div>
+        <select class="fsel2">
+          <option>Producto vencido</option>
+          <option>Daño durante preparación</option>
+          <option>Error en porcionado</option>
+          <option>Contaminación cruzada</option>
+          <option>Daño en almacenamiento</option>
+          <option>Otro</option>
+        </select>
+      </div>
+      <div class="fr"><div class="flbl">Descripción</div><input class="fi" placeholder="Ej: Guacamole oxidado — no se pudo servir en el turno noche"></div>
+    </div>
+    <div class="mf">
+      <button class="btn b-outline" onclick="cm('m-merma')">Cancelar</button>
+      <button class="btn b-red" onclick="confirmarMerma()">Registrar merma</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// CLOCK
+setInterval(()=>{ document.getElementById('clock').textContent=new Date().toLocaleTimeString('es-CO',{hour:'2-digit',minute:'2-digit'}); },1000);
+document.getElementById('clock').textContent=new Date().toLocaleTimeString('es-CO',{hour:'2-digit',minute:'2-digit'});
+
+function cm(id){ document.getElementById(id).classList.toggle('open'); }
+function showToast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2800); }
+function addTrasItem(){
+  document.getElementById('tras-items').insertAdjacentHTML('beforeend',`
+    <div style="display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;margin-top:4px">
+      <select class="fsel2"><option>Guacamole base</option><option>Salsa BBQ artesanal</option><option>Mix de carne smash</option><option>Papas pre-fritas</option></select>
+      <input class="fi" type="number" placeholder="kg/L" style="width:70px">
+    </div>`);
+}
+function enviarSolicitud(){ cm('m-traslado'); showToast('Solicitud enviada al CDP · El Jefe CDP será notificado ✓'); }
+function confirmarMerma(){ cm('m-merma'); showToast('Merma registrada · Inventario de La Ceja actualizado ✓'); }
+
+// NAV
+let nav = 'panel';
+function setNav(n,el){
+  nav=n;
+  document.querySelectorAll('.ni').forEach(i=>i.classList.remove('active'));
+  el.classList.add('active');
+  render();
+}
+
+function render(){
+  const map={panel:renderPanel,stock:renderStock,recetas:renderRecetas,traslados:renderTraslados,mermas:renderMermas,historial:renderHistorial};
+  (map[nav]||renderPanel)();
+}
+
+function fp(n){ return '$'+Math.round(n).toLocaleString('es-CO'); }
+
+// ═══ PANEL ═══
+function renderPanel(){
+  document.getElementById('stabs').innerHTML=`<div class="st active">Hoy · 11 mayo 2026</div>`;
+  document.getElementById('tbar').innerHTML=`
+    <div style="font-size:13px;font-weight:300;color:var(--text3)">Resumen operativo · La Ceja · Turno mañana</div>
+    <div style="margin-left:auto;display:flex;gap:8px">
+      <button class="btn b-amber" onclick="cm('m-merma')">⚠ Reportar merma</button>
+      <button class="btn b-primary" onclick="cm('m-traslado')">→ Solicitar al CDP</button>
+    </div>`;
+
+  document.getElementById('cont').innerHTML=`
+    <div class="krow">
+      <div class="kpi" style="--kb:var(--accent-dk)">
+        <div class="klbl">Órdenes hoy</div>
+        <div class="kval">83</div>
+        <div class="kfoot"><span class="d dup">▲ 6</span>vs ayer</div>
+      </div>
+      <div class="kpi" style="--kb:var(--red)">
+        <div class="klbl">Insumos críticos</div>
+        <div class="kval" style="color:var(--red)">2</div>
+        <div class="kfoot"><span class="d ddn">⚠ Solicitar al CDP</span></div>
+      </div>
+      <div class="kpi" style="--kb:var(--blue)">
+        <div class="klbl">Traslados pendientes</div>
+        <div class="kval" style="color:var(--blue)">1</div>
+        <div class="kfoot">en camino desde CDP</div>
+      </div>
+      <div class="kpi" style="--kb:var(--amber)">
+        <div class="klbl">Mermas del turno</div>
+        <div class="kval" style="color:var(--amber)">0.4 kg</div>
+        <div class="kfoot">guacamole oxidado</div>
+      </div>
+    </div>
+
+    <div class="g2">
+      <!-- STOCK CRÍTICO -->
+      <div class="card" style="animation-delay:.05s">
+        <div class="clbl">Insumos que requieren atención <span class="ctag">La Ceja</span></div>
+        ${[
+          {n:'Carne de res',s:2.1,m:5,u:'kg',st:'crit',lote:null},
+          {n:'Jalapeños encurtidos',s:0.8,m:1.5,u:'kg',st:'crit',lote:null},
+          {n:'Guacamole base',s:1.7,m:1.5,u:'kg',st:'low',lote:'MDB-029'},
+          {n:'Pan brioche',s:24,m:20,u:'und',st:'ok',lote:null},
+          {n:'Salsa BBQ',s:2.2,m:1,u:'L',st:'ok',lote:'MDB-028'},
+        ].map(i=>{
+          const pct=Math.min(100,Math.round((i.s/Math.max(i.m*2,1))*100));
+          const bc=i.st==='crit'?'var(--red)':i.st==='low'?'var(--amber)':'var(--green)';
+          return `
+          <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)">
+            <div style="flex:1">
+              <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">
+                <span style="font-size:13px;font-weight:500">${i.n}</span>
+                ${i.lote?`<span class="sp sp-lote" style="font-size:9px">${i.lote}</span>`:''}
+              </div>
+              <div style="height:4px;background:var(--bg2);border-radius:2px;overflow:hidden"><div style="height:100%;width:${pct}%;background:${bc};border-radius:2px"></div></div>
+            </div>
+            <div style="text-align:right;flex-shrink:0">
+              <div style="font-size:13px;font-weight:700;color:${bc};font-variant-numeric:tabular-nums">${i.s} ${i.u}</div>
+              <div style="font-size:10px;color:var(--text3)">mín: ${i.m}</div>
+            </div>
+            <span class="sp ${i.st==='crit'?'sp-crit':i.st==='low'?'sp-low':'sp-ok'}">${i.st==='crit'?'Crítico':i.st==='low'?'Bajo':'OK'}</span>
+          </div>`;
+        }).join('')}
+        <button class="btn b-primary" style="width:100%;margin-top:12px;font-size:12px" onclick="cm('m-traslado')">→ Solicitar insumos al CDP</button>
+      </div>
+
+      <!-- PANEL DERECHO -->
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <!-- TRASLADO EN CAMINO -->
+        <div class="card" style="animation-delay:.1s">
+          <div class="clbl">Traslados en camino <span class="ctag">desde CDP</span></div>
+          <div style="padding:12px 14px;background:var(--blue-bg);border:1px solid rgba(36,113,163,0.18);border-radius:var(--radius-sm);margin-bottom:10px">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+              <span style="font-size:12px;font-weight:500;color:var(--blue)">TRS-2026-044</span>
+              <span class="sp sp-blue" style="font-size:9px">En camino</span>
+            </div>
+            <div style="font-size:12px;color:var(--blue);font-weight:300">Papas pre-fritas (5.0 kg) · Lote MDB-027</div>
+            <div style="font-size:11px;color:var(--blue);opacity:.7;margin-top:2px">Despachado hace 30 min desde CDP Guarne</div>
+          </div>
+          <div style="font-size:12px;font-weight:300;color:var(--text3)">Llegada estimada: hoy · 9:30 am</div>
+        </div>
+
+        <!-- LOTES PRÓXIMOS A VENCER -->
+        <div class="card" style="animation-delay:.15s">
+          <div class="clbl">Lotes próximos a vencer <span class="ctag">La Ceja</span></div>
+          ${[
+            {n:'Guacamole base',lote:'MDB-029',cant:'1.7 kg',dias:3,vence:'14 may'},
+            {n:'Mix de carne smash',lote:'MDB-026',cant:'10.8 kg',dias:2,vence:'13 may'},
+          ].map(l=>`
+          <div style="display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid var(--border);font-size:12px">
+            <div style="flex:1">
+              <div style="font-weight:500;margin-bottom:2px">${l.n} <span class="sp sp-lote" style="font-size:9px">${l.lote}</span></div>
+              <div style="color:var(--text3);font-weight:300">${l.cant} disponibles</div>
+            </div>
+            <div style="text-align:right">
+              <div style="font-size:11px;font-weight:700;color:${l.dias<=2?'var(--red)':'var(--amber)'}">Vence ${l.vence}</div>
+              <div style="font-size:10px;color:var(--text3)">${l.dias} día${l.dias!==1?'s':''} restantes</div>
+            </div>
+            <span class="sp ${l.dias<=2?'sp-crit':'sp-low'}" style="font-size:9px">${l.dias}d</span>
+          </div>`).join('')}
+          <div style="font-size:11px;font-weight:300;color:var(--text3);margin-top:8px">Prioriza estos productos en el servicio del día.</div>
+        </div>
+
+        <!-- PLATOS MÁS PEDIDOS HOY -->
+        <div class="card" style="animation-delay:.2s">
+          <div class="clbl">Platos más pedidos hoy <span class="ctag">La Ceja</span></div>
+          ${[
+            {n:'La Criminal',u:32,pct:100},
+            {n:'Smash Classic',u:24,pct:75},
+            {n:'Combo BBQ',u:18,pct:56},
+            {n:'La Perla',u:9,pct:28},
+          ].map(p=>`
+          <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);font-size:12px">
+            <div style="flex:1">
+              <div style="font-weight:500;margin-bottom:4px">${p.n}</div>
+              <div style="height:4px;background:var(--bg2);border-radius:2px;overflow:hidden"><div style="height:100%;width:${p.pct}%;background:var(--accent-dk);border-radius:2px"></div></div>
+            </div>
+            <div style="font-size:13px;font-weight:700;font-variant-numeric:tabular-nums;flex-shrink:0">${p.u}</div>
+          </div>`).join('')}
+        </div>
+      </div>
+    </div>`;
+}
+
+// ═══ STOCK ═══
+function renderStock(){
+  document.getElementById('stabs').innerHTML=`
+    <div class="st active">Insumos y CDP</div>
+    <div class="st" onclick="showToast('Solo insumos')">Solo insumos</div>
+    <div class="st" onclick="showToast('Solo productos CDP')">Productos CDP</div>`;
+  document.getElementById('tbar').innerHTML=`
+    <div class="sbox"><span style="color:var(--text3);font-size:14px">🔍</span><input type="text" placeholder="Buscar producto o insumo..."></div>
+    <select class="fsel"><option>Todos los estados</option><option>Crítico</option><option>Stock bajo</option><option>OK</option></select>
+    <div style="margin-left:auto;display:flex;gap:8px">
+      <button class="btn b-amber" onclick="cm('m-merma')">⚠ Reportar merma</button>
+      <button class="btn b-primary" onclick="cm('m-traslado')">→ Solicitar al CDP</button>
+    </div>`;
+
+  const items=[
+    {n:'Carne de res',cat:'Insumo',s:2.1,m:5,u:'kg',lote:null,vence:null,st:'crit'},
+    {n:'Jalapeños encurtidos',cat:'Insumo',s:0.8,m:1.5,u:'kg',lote:null,vence:null,st:'crit'},
+    {n:'Guacamole base',cat:'CDP',s:1.7,m:1.5,u:'kg',lote:'MDB-029',vence:'14 may',st:'low'},
+    {n:'Mix de carne smash',cat:'CDP',s:10.8,m:8,u:'kg',lote:'MDB-026',vence:'13 may',st:'ok'},
+    {n:'Salsa BBQ artesanal',cat:'CDP',s:2.2,m:1,u:'L',lote:'MDB-028',vence:'18 may',st:'ok'},
+    {n:'Papas pre-fritas',cat:'CDP',s:4.0,m:5,u:'kg',lote:'MDB-027',vence:'12 may',st:'low'},
+    {n:'Queso cheddar',cat:'Insumo',s:4.5,m:3,u:'kg',lote:null,vence:null,st:'ok'},
+    {n:'Pan brioche',cat:'Insumo',s:24,m:20,u:'und',lote:null,vence:null,st:'ok'},
+    {n:'Lechuga romana',cat:'Insumo',s:6.0,m:4,u:'kg',lote:null,vence:null,st:'ok'},
+    {n:'Tomate chonto',cat:'Insumo',s:8.5,m:5,u:'kg',lote:null,vence:null,st:'ok'},
+    {n:'Mayonesa de la casa',cat:'CDP',s:1.2,m:1,u:'L',lote:'MDB-025',vence:'16 may',st:'ok'},
+  ];
+
+  document.getElementById('cont').innerHTML=`
+    <div class="twrap">
+      <table class="dt">
+        <thead><tr>
+          <th>Producto / Insumo</th>
+          <th>Tipo</th>
+          <th>Stock actual</th>
+          <th style="min-width:130px">Nivel</th>
+          <th>Estado</th>
+          <th>Lote</th>
+          <th>Vence</th>
+          <th></th>
+        </tr></thead>
+        <tbody>
+          ${items.map(i=>{
+            const pct=Math.min(100,Math.round((i.s/(i.m*2))*100));
+            const bc=i.st==='crit'?'var(--red)':i.st==='low'?'var(--amber)':'var(--green)';
+            return `
+            <tr>
+              <td style="font-weight:600">${i.n}</td>
+              <td><span class="sp ${i.cat==='CDP'?'sp-lote':'sp-gray'}" style="font-size:10px">${i.cat}</span></td>
+              <td style="font-weight:700;font-variant-numeric:tabular-nums;color:${i.st==='crit'?'var(--red)':'var(--text)'}">${i.s} <span style="font-size:11px;color:var(--text3);font-weight:300">${i.u}</span></td>
+              <td>
+                <div class="stock-bar-wrap">
+                  <div class="stock-track"><div class="stock-fill" style="width:${pct}%;background:${bc}"></div></div>
+                  <span style="font-size:10px;font-weight:600;color:${bc};min-width:28px;text-align:right">${pct}%</span>
+                </div>
+              </td>
+              <td><span class="sp ${i.st==='crit'?'sp-crit':i.st==='low'?'sp-low':'sp-ok'}">${i.st==='crit'?'Crítico':i.st==='low'?'Stock bajo':'OK'}</span></td>
+              <td>${i.lote?`<span class="sp sp-lote" style="font-size:10px">${i.lote}</span>`:'<span style="color:var(--text3);font-size:12px">—</span>'}</td>
+              <td style="font-size:12px;font-weight:${i.vence&&(i.vence==='12 may'||i.vence==='13 may')?'600':'400'};color:${i.vence&&(i.vence==='12 may'||i.vence==='13 may')?'var(--red)':i.vence?'var(--text2)':'var(--text3)'}">${i.vence||'—'}</td>
+              <td><div class="ra-wrap">
+                ${i.st!=='ok'?`<button class="btn b-accent b-sm" onclick="cm('m-traslado')">→ Pedir</button>`:''}
+                <div class="ra" onclick="cm('m-merma')" title="Reportar merma">⚠</div>
+              </div></td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table>
+    </div>`;
+}
+
+// ═══ RECETAS ═══
+function renderRecetas(){
+  document.getElementById('stabs').innerHTML=`<div class="st active">Menú activo</div><div class="st" onclick="showToast('Historial')">Historial de costos</div>`;
+  document.getElementById('tbar').innerHTML=`
+    <div class="sbox"><span style="color:var(--text3);font-size:14px">🔍</span><input type="text" placeholder="Buscar receta..."></div>
+    <div style="font-size:12px;font-weight:300;color:var(--text3);margin-left:8px">Solo lectura — los cambios de costo los aprueba el Admin</div>`;
+
+  const recetas=[
+    {n:'La Criminal',icon:'🍔',fc:'24.8%',costo:9420,precio:38000,ings:[
+      {n:'Carne de res',c:'180 g',ok:true,al:null},
+      {n:'Queso cheddar',c:'40 g',ok:true,al:'lácteo'},
+      {n:'Pan brioche',c:'1 und',ok:true,al:'gluten'},
+      {n:'Salsa BBQ artesanal',c:'30 mL',ok:true,al:null},
+      {n:'Lechuga romana',c:'20 g',ok:true,al:null},
+      {n:'Tomate chonto',c:'30 g',ok:true,al:null},
+      {n:'Jalapeños encurtidos',c:'15 g',ok:false,al:null},
+    ]},
+    {n:'Smash Classic',icon:'🫓',fc:'28.4%',costo:6240,precio:22000,ings:[
+      {n:'Carne de res',c:'130 g',ok:true,al:null},
+      {n:'Queso cheddar',c:'30 g',ok:true,al:'lácteo'},
+      {n:'Pan brioche',c:'1 und',ok:true,al:'gluten'},
+      {n:'Mayonesa de la casa',c:'20 mL',ok:true,al:'huevo'},
+      {n:'Tomate chonto',c:'25 g',ok:true,al:null},
+    ]},
+    {n:'La Perla',icon:'🐚',fc:'31.1%',costo:11200,precio:36000,ings:[
+      {n:'Carne de res',c:'200 g',ok:true,al:null},
+      {n:'Queso cheddar',c:'60 g',ok:true,al:'lácteo'},
+      {n:'Pan brioche',c:'1 und',ok:true,al:'gluten'},
+      {n:'Guacamole base',c:'40 g',ok:true,al:null},
+      {n:'Lechuga romana',c:'25 g',ok:true,al:null},
+    ]},
+    {n:'Combo BBQ',icon:'🔥',fc:'30.6%',costo:9800,precio:32000,ings:[
+      {n:'Carne de res',c:'180 g',ok:true,al:null},
+      {n:'Pan brioche',c:'1 und',ok:true,al:'gluten'},
+      {n:'Salsa BBQ artesanal',c:'50 mL',ok:true,al:null},
+      {n:'Papas pre-fritas',c:'150 g',ok:true,al:null},
+    ]},
+  ];
+
+  document.getElementById('cont').innerHTML=`
+    <div class="ibox">ℹ️ Vista de solo lectura. Puedes ver los ingredientes, alérgenos y disponibilidad de stock en tiempo real. Los cambios en costos o precios son aprobados por el administrador de sede.</div>
+    ${recetas.map((r,i)=>`
+    <div class="recipe-card" style="animation-delay:${i*.07}s">
+      <div class="rc-head" onclick="toggleRecipe(${i})">
+        <div class="rc-icon" style="background:rgba(212,226,0,0.15)">${r.icon}</div>
+        <div class="rc-meta">
+          <div class="rc-name">${r.n}</div>
+          <div class="rc-sub">${r.ings.length} ingredientes · ${r.ings.filter(x=>!x.ok).length>0?`<span style="color:var(--red);font-weight:500">⚠ ${r.ings.filter(x=>!x.ok).length} sin stock</span>`:'<span style="color:var(--green)">✓ Stock completo</span>'}</div>
+        </div>
+        <div class="rc-right">
+          <div class="rc-fc" style="color:${parseFloat(r.fc)>30?'var(--amber)':'var(--green)'}">${r.fc}</div>
+          <div class="rc-fc-lbl">food cost</div>
+        </div>
+        <div style="margin:0 8px;padding:5px 12px;border-radius:20px;background:var(--bg2);border:1px solid var(--border);font-size:12px;font-weight:600;font-variant-numeric:tabular-nums;flex-shrink:0">${fp(r.precio)}</div>
+        <div class="rc-chev" id="chev-${i}">⌄</div>
+      </div>
+      <div class="rc-body" id="rb-${i}">
+        <div class="rc-inner">
+          <div style="font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">Ingredientes</div>
+          ${r.ings.map(ing=>`
+          <div class="ing-row">
+            <span class="ing-name">${ing.n}</span>
+            ${ing.al?`<span class="allergen-tag">⚠ ${ing.al}</span>`:''}
+            <span class="ing-cant">${ing.c}</span>
+            <span class="ing-stock-tag ${ing.ok?'ist-ok':'ist-no'}">${ing.ok?'✓ Stock':'Sin stock'}</span>
+          </div>`).join('')}
+          <div style="display:flex;gap:10px;margin-top:12px;padding-top:12px;border-top:1px solid var(--border)">
+            <div style="flex:1;background:var(--bg2);border-radius:var(--radius-sm);padding:10px;text-align:center">
+              <div style="font-size:14px;font-weight:700;font-variant-numeric:tabular-nums">${fp(r.costo)}</div>
+              <div style="font-size:10px;color:var(--text3);margin-top:2px;text-transform:uppercase;letter-spacing:.06em">Costo actual</div>
+            </div>
+            <div style="flex:1;background:var(--bg2);border-radius:var(--radius-sm);padding:10px;text-align:center">
+              <div style="font-size:14px;font-weight:700;font-variant-numeric:tabular-nums">${fp(r.precio-r.costo)}</div>
+              <div style="font-size:10px;color:var(--text3);margin-top:2px;text-transform:uppercase;letter-spacing:.06em">Margen bruto</div>
+            </div>
+            <div style="flex:1;background:${parseFloat(r.fc)>30?'var(--amber-bg)':'var(--green-bg)'};border-radius:var(--radius-sm);padding:10px;text-align:center;border:1px solid ${parseFloat(r.fc)>30?'rgba(183,134,11,.2)':'rgba(61,153,112,.2)'}">
+              <div style="font-size:14px;font-weight:700;color:${parseFloat(r.fc)>30?'var(--amber)':'var(--green)'}">${r.fc}</div>
+              <div style="font-size:10px;color:${parseFloat(r.fc)>30?'var(--amber)':'var(--green)'};margin-top:2px;text-transform:uppercase;letter-spacing:.06em">Food cost</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>`).join('')}`;
+}
+
+function toggleRecipe(i){
+  const body=document.getElementById('rb-'+i);
+  const chev=document.getElementById('chev-'+i);
+  body.classList.toggle('open');
+  chev.classList.toggle('open');
+}
+
+// ═══ TRASLADOS ═══
+function renderTraslados(){
+  document.getElementById('stabs').innerHTML=`<div class="st active">Solicitudes enviadas</div><div class="st" onclick="showToast('Historial')">Historial</div>`;
+  document.getElementById('tbar').innerHTML=`
+    <div style="font-size:13px;font-weight:300;color:var(--text3)">Solicitudes de traslado desde La Ceja al CDP Guarne</div>
+    <div style="margin-left:auto"><button class="btn b-primary" onclick="cm('m-traslado')">+ Nueva solicitud</button></div>`;
+
+  const solicitudes=[
+    {n:'SOL-2026-018',prods:'Papas pre-fritas (5 kg)',urgencia:'Normal',estado:'en-camino',hora:'7:15 am',eta:'9:30 am'},
+    {n:'SOL-2026-017',prods:'Guacamole base (2 kg) · Salsa BBQ (1 L)',urgencia:'Urgente',estado:'entregado',hora:'Ayer 4:00 pm',eta:'—'},
+    {n:'SOL-2026-016',prods:'Mix de carne smash (5 kg)',urgencia:'Normal',estado:'entregado',hora:'Ayer 7:00 am',eta:'—'},
+    {n:'SOL-2026-015',prods:'Mayonesa de la casa (1 L)',urgencia:'Programado',estado:'entregado',hora:'Lun 9 may',eta:'—'},
+  ];
+
+  const stColor={
+    'en-camino':'sp-blue',
+    'entregado':'sp-ok',
+    'pendiente':'sp-pend',
+  };
+  const stLabel={
+    'en-camino':'En camino',
+    'entregado':'Entregado ✓',
+    'pendiente':'Pendiente CDP',
+  };
+
+  document.getElementById('cont').innerHTML=`
+    <div class="ibox" style="margin-bottom:14px">
+      Las solicitudes son revisadas por el Jefe CDP. Una vez aprobadas y despachadas, los productos aparecen automáticamente en el inventario de La Ceja al momento de la recepción.
+    </div>
+    ${solicitudes.map((s,i)=>`
+    <div class="traslado-request" style="animation-delay:${i*.07}s">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <div style="display:flex;align-items:center;gap:10px">
+          <span style="font-size:13px;font-weight:600;color:var(--blue)">${s.n}</span>
+          <span class="sp ${stColor[s.estado]}">${stLabel[s.estado]}</span>
+          ${s.urgencia==='Urgente'?`<span class="sp sp-crit" style="font-size:10px">🚨 Urgente</span>`:
+            s.urgencia==='Programado'?`<span class="sp sp-gray" style="font-size:10px">Programado</span>`:''}
+        </div>
+        <span style="font-size:11px;color:var(--text3)">${s.hora}</span>
+      </div>
+      <div style="font-size:13px;font-weight:500;margin-bottom:6px">${s.prods}</div>
+      ${s.estado==='en-camino'?`
+      <div style="display:flex;align-items:center;gap:8px;margin-top:10px;padding:10px 12px;background:var(--blue-bg);border:1px solid rgba(36,113,163,0.18);border-radius:var(--radius-sm)">
+        <div style="font-size:12px;color:var(--blue);flex:1">🚚 En camino desde CDP Guarne</div>
+        <div style="font-size:12px;font-weight:600;color:var(--blue)">ETA ${s.eta}</div>
+      </div>`:
+      `<div style="font-size:11px;color:var(--text3);font-weight:300">Recibido y contabilizado en inventario de La Ceja</div>`}
+    </div>`).join('')}`;
+}
+
+// ═══ MERMAS ═══
+function renderMermas(){
+  document.getElementById('stabs').innerHTML=`<div class="st active">Este turno</div><div class="st" onclick="showToast('Esta semana')">Esta semana</div><div class="st" onclick="showToast('Historial')">Historial</div>`;
+  document.getElementById('tbar').innerHTML=`
+    <div style="font-size:13px;font-weight:300;color:var(--text3)">Mermas registradas · La Ceja</div>
+    <div style="margin-left:auto"><button class="btn b-red" onclick="cm('m-merma')">⚠ Nueva merma</button></div>`;
+
+  const mermas=[
+    {n:'Guacamole base',lote:'MDB-029',cant:'0.4 kg',motivo:'Producto oxidado',detalle:'No se pudo servir — cambio de color y textura',hora:'hace 45 min',reportado:'Ricardo H.'},
+    {n:'Lechuga romana',lote:null,cant:'0.1 kg',motivo:'Daño durante preparación',detalle:'Hoja exterior dañada al lavar',hora:'hace 2h',reportado:'Ricardo H.'},
+  ];
+
+  document.getElementById('cont').innerHTML=`
+    <div class="wbox">⚠️ Las mermas afectan directamente el food cost del turno. Cada reporte queda registrado con tu nombre y es visible para el administrador de sede.</div>
+    <div class="krow">
+      <div class="kpi" style="--kb:var(--red)"><div class="klbl">Merma del turno</div><div class="kval" style="color:var(--red)">0.5 kg</div><div class="kfoot">2 productos afectados</div></div>
+      <div class="kpi" style="--kb:var(--amber)"><div class="klbl">Merma de la semana</div><div class="kval">2.3 kg</div><div class="kfoot">La Ceja · 5 reportes</div></div>
+      <div class="kpi" style="--kb:var(--text)"><div class="klbl">Mayor causa</div><div class="kval" style="font-size:14px">Vencimiento</div><div class="kfoot">60% de los reportes</div></div>
+      <div class="kpi" style="--kb:var(--green)"><div class="klbl">Impacto estimado</div><div class="kval">$18.400</div><div class="kfoot">costo de merma hoy</div></div>
+    </div>
+    ${mermas.map((m,i)=>`
+    <div class="merma-card" style="--mc:var(--red);animation-delay:${i*.07}s">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px">
+        <div>
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px">
+            <span style="font-size:14px;font-weight:600">${m.n}</span>
+            ${m.lote?`<span class="sp sp-lote" style="font-size:10px">${m.lote}</span>`:''}
+          </div>
+          <div style="font-size:11px;font-weight:300;color:var(--text3)">Reportado por ${m.reportado} · ${m.hora}</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:16px;font-weight:700;color:var(--red);font-variant-numeric:tabular-nums">${m.cant}</div>
+          <div style="font-size:10px;color:var(--red)">merma</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:flex-start">
+        <span class="sp sp-crit" style="flex-shrink:0">${m.motivo}</span>
+        <span style="font-size:12px;font-weight:300;color:var(--text2)">${m.detalle}</span>
+      </div>
+    </div>`).join('')}`;
+}
+
+// ═══ HISTORIAL ═══
+function renderHistorial(){
+  document.getElementById('stabs').innerHTML=`<div class="st active">Lotes recibidos</div><div class="st" onclick="showToast('Mayo')">Mayo 2026</div>`;
+  document.getElementById('tbar').innerHTML=`<div style="font-size:13px;font-weight:300;color:var(--text3)">Trazabilidad de lotes recibidos en La Ceja desde el CDP</div>`;
+
+  document.getElementById('cont').innerHTML=`
+    <div class="twrap">
+      <table class="dt">
+        <thead><tr>
+          <th>Lote</th><th>Producto</th><th>Cant. recibida</th><th>Recibido</th><th>Vence</th><th>Consumido</th><th>Merma</th><th>Estado</th>
+        </tr></thead>
+        <tbody>
+          ${[
+            {l:'MDB-029',n:'Guacamole base',rec:'3.2 kg',fecha:'Hoy',vence:'14 may',cons:'1.1 kg',merma:'0.4 kg',st:'activo'},
+            {l:'MDB-027',n:'Papas pre-fritas',rec:'5.0 kg',fecha:'Hoy',vence:'12 may',cons:'1.0 kg',merma:'—',st:'activo'},
+            {l:'MDB-026',n:'Mix de carne smash',rec:'14.4 kg',fecha:'Hoy',vence:'13 may',cons:'3.6 kg',merma:'—',st:'activo'},
+            {l:'MDB-025',n:'Mayonesa de la casa',rec:'1.0 L',fecha:'Lun',vence:'16 may',cons:'0.6 L',merma:'—',st:'activo'},
+            {l:'MDB-023',n:'Guacamole base',rec:'2.8 kg',fecha:'Dom',vence:'12 may',cons:'2.8 kg',merma:'0.2 kg',st:'agotado'},
+            {l:'MDB-021',n:'Salsa BBQ',rec:'2.0 L',fecha:'Sáb',vence:'17 may',cons:'1.4 L',merma:'—',st:'activo'},
+          ].map(h=>`<tr>
+            <td><span class="sp sp-lote" style="font-size:10px">${h.l}</span></td>
+            <td style="font-weight:600">${h.n}</td>
+            <td style="font-variant-numeric:tabular-nums;font-weight:500">${h.rec}</td>
+            <td style="font-size:12px;color:var(--text2)">${h.fecha}</td>
+            <td style="font-size:12px;font-weight:${h.vence==='12 may'||h.vence==='13 may'?'600':'400'};color:${h.vence==='12 may'||h.vence==='13 may'?'var(--red)':'var(--text2)'}">${h.vence}</td>
+            <td style="font-size:12px;font-variant-numeric:tabular-nums;color:var(--text2)">${h.cons}</td>
+            <td style="font-size:12px;font-variant-numeric:tabular-nums;color:${h.merma!=='—'?'var(--red)':'var(--text3)'}">${h.merma}</td>
+            <td><span class="sp ${h.st==='activo'?'sp-ok':'sp-gray'}">${h.st==='activo'?'Activo':'Agotado'}</span></td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>`;
+}
+
+// INIT
+render();
+</script>
+</body>
+</html>

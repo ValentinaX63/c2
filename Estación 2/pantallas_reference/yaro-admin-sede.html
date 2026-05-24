@@ -1,0 +1,932 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>YARO — Admin de Sede</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:        #f0ede8;
+  --bg2:       #ece9e3;
+  --surface:   #faf9f7;
+  --white:     #ffffff;
+  --border:    rgba(0,0,0,0.07);
+  --border2:   rgba(0,0,0,0.11);
+  --text:      #1a1916;
+  --text2:     #6b6760;
+  --text3:     #a8a49e;
+  --accent:    #f7fd9c;
+  --accent-dk: #d4e200;
+  --accent-txt:#6b7200;
+  --green:     #3d9970;
+  --green-bg:  rgba(61,153,112,0.09);
+  --red:       #c0392b;
+  --red-bg:    rgba(192,57,43,0.07);
+  --amber:     #b7860b;
+  --amber-bg:  rgba(183,134,11,0.09);
+  --blue:      #2471a3;
+  --blue-bg:   rgba(36,113,163,0.07);
+  --guarne:    #1a1916;
+  --laceja:    #6b6760;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.06),0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.08),0 1px 4px rgba(0,0,0,0.04);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,0.10),0 2px 8px rgba(0,0,0,0.05);
+  --radius:    14px;
+  --radius-sm: 9px;
+}
+
+* { box-sizing:border-box; margin:0; padding:0; }
+body {
+  font-family:'Outfit',sans-serif; background:var(--bg); color:var(--text); min-height:100vh;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+}
+
+/* ── TOPBAR ── */
+.topbar {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:0 32px; height:64px;
+  background:var(--surface); border-bottom:1px solid var(--border);
+  position:sticky; top:0; z-index:200; box-shadow:var(--shadow-sm);
+}
+.topbar-left { display:flex; align-items:center; gap:16px; }
+.logo-pill { background:var(--text); border-radius:11px; padding:6px 14px; font-size:18px; font-weight:300; color:var(--white); letter-spacing:0.4px; }
+.topbar-div { width:1px; height:20px; background:var(--border2); }
+.topbar-title { font-size:17px; font-weight:600; letter-spacing:-0.2px; }
+.topbar-sub { font-size:12px; font-weight:300; color:var(--text3); margin-top:1px; }
+.topbar-right { display:flex; align-items:center; gap:10px; }
+
+.pill { padding:6px 13px; border-radius:20px; font-size:11px; font-weight:500; box-shadow:var(--shadow-sm); }
+.pill-time { background:var(--white); border:1px solid var(--border2); color:var(--text2); font-size:12px; font-weight:400; font-variant-numeric:tabular-nums; }
+.pill-user { background:var(--white); border:1px solid var(--border2); color:var(--text); font-weight:500; }
+
+/* sede selector en topbar */
+.sede-switch {
+  display:flex; align-items:center; gap:2px;
+  background:var(--bg2); border:1px solid var(--border2);
+  border-radius:20px; padding:3px;
+}
+.sw-btn {
+  padding:4px 13px; border-radius:16px;
+  font-size:12px; font-weight:500; cursor:pointer;
+  border:none; font-family:'Outfit',sans-serif;
+  transition:all .15s; color:var(--text3); background:transparent;
+}
+.sw-btn.active { background:var(--white); color:var(--text); box-shadow:var(--shadow-sm); font-weight:600; }
+.sw-btn.guarne.active { color:var(--guarne); }
+.sw-btn.laceja.active { color:var(--laceja); }
+
+/* ── SHELL ── */
+.shell { display:flex; height:calc(100vh - 64px); overflow:hidden; }
+
+/* ── SIDENAV ── */
+.sidenav {
+  width:210px; flex-shrink:0;
+  background:var(--surface); border-right:1px solid var(--border);
+  display:flex; flex-direction:column; overflow-y:auto;
+}
+.sidenav-logo-area { padding:22px 20px 18px; border-bottom:1px solid var(--border); }
+.admin-pill {
+  display:flex; align-items:center; gap:10px;
+  padding:10px 12px; border-radius:var(--radius-sm);
+  background:var(--bg2); border:1px solid var(--border);
+}
+.admin-avatar {
+  width:32px; height:32px; border-radius:50%;
+  background:var(--text); color:var(--white);
+  display:flex; align-items:center; justify-content:center;
+  font-size:11px; font-weight:600; flex-shrink:0;
+}
+.admin-name { font-size:13px; font-weight:500; }
+.admin-role { font-size:10px; font-weight:300; color:var(--text3); }
+
+/* sede badge en sidenav */
+.sede-indicator {
+  display:flex; align-items:center; gap:6px;
+  padding:8px 12px; margin:12px 12px 0;
+  border-radius:var(--radius-sm);
+  font-size:11px; font-weight:500;
+  border:1px solid var(--border2);
+  background:var(--white);
+}
+.sede-dot { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
+
+.nav-section { padding:16px 12px 4px; }
+.nav-lbl { font-size:9px; font-weight:600; color:var(--text3); text-transform:uppercase; letter-spacing:0.12em; padding:0 10px; margin-bottom:6px; }
+.nav-item {
+  display:flex; align-items:center; gap:10px;
+  padding:9px 12px; border-radius:var(--radius-sm);
+  font-size:13px; font-weight:400; color:var(--text2);
+  cursor:pointer; transition:all .15s; margin-bottom:1px;
+  position:relative;
+}
+.nav-item:hover { background:var(--bg2); color:var(--text); }
+.nav-item.active { background:var(--accent); color:var(--accent-txt); font-weight:600; box-shadow:var(--shadow-sm); }
+.nav-icon { width:16px; height:16px; flex-shrink:0; opacity:.65; }
+.nav-item.active .nav-icon { opacity:1; }
+.nav-badge { margin-left:auto; background:var(--red); color:#fff; font-size:10px; font-weight:600; border-radius:10px; padding:1px 7px; }
+
+/* ── MAIN ── */
+.main { flex:1; display:flex; flex-direction:column; overflow:hidden; }
+
+/* ── SUB-TABS ── */
+.subtabs {
+  display:flex; align-items:center; gap:0;
+  background:var(--white); border-bottom:1px solid var(--border);
+  padding:0 28px; height:48px; flex-shrink:0; box-shadow:var(--shadow-sm);
+  overflow-x:auto;
+}
+.subtab {
+  padding:0 18px; height:100%;
+  display:flex; align-items:center;
+  font-size:13px; font-weight:500; color:var(--text3);
+  cursor:pointer; border-bottom:2px solid transparent;
+  transition:all .15s; white-space:nowrap; gap:6px;
+}
+.subtab:hover { color:var(--text2); }
+.subtab.active { color:var(--text); border-bottom-color:var(--accent-dk); font-weight:600; }
+
+/* ── CONTENT ── */
+.content { flex:1; overflow-y:auto; padding:24px 28px; }
+
+/* ── SEDE COMPARE HEADER ── */
+.sede-compare-header {
+  display:grid; grid-template-columns:1fr 1fr;
+  gap:14px; margin-bottom:18px;
+}
+.sede-header-card {
+  background:var(--white); border-radius:var(--radius);
+  border:1px solid var(--border); box-shadow:var(--shadow-md);
+  padding:18px 20px; position:relative; overflow:hidden;
+  transition:box-shadow .2s, transform .2s;
+}
+.sede-header-card:hover { box-shadow:var(--shadow-lg); transform:translateY(-1px); }
+.sede-header-card::before {
+  content:''; position:absolute; top:0; left:0; right:0; height:3px;
+  background:var(--shc, var(--border2));
+}
+.shc-title { font-size:13px; font-weight:600; margin-bottom:14px; display:flex; align-items:center; gap:8px; }
+.shc-dot { width:8px; height:8px; border-radius:50%; }
+.shc-kpis { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
+.shc-kpi { text-align:center; }
+.shc-val { font-size:18px; font-weight:700; letter-spacing:-.5px; }
+.shc-lbl { font-size:10px; font-weight:300; color:var(--text3); margin-top:1px; text-transform:uppercase; letter-spacing:.05em; }
+
+/* ── KPI GRID ── */
+.kpi-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:18px; }
+.kpi {
+  background:var(--white); border:1px solid var(--border); border-radius:var(--radius);
+  box-shadow:var(--shadow-md); padding:18px 18px 14px; position:relative; overflow:hidden;
+  animation:floatUp .4s cubic-bezier(.22,1,.36,1) both;
+  transition:box-shadow .2s, transform .2s;
+}
+.kpi:hover { box-shadow:var(--shadow-lg); transform:translateY(-1px); }
+.kpi::after { content:''; position:absolute; top:0; left:0; right:0; height:3px; background:var(--kb,var(--border2)); border-radius:var(--radius) var(--radius) 0 0; }
+.kpi-lbl { font-size:10px; font-weight:500; color:var(--text3); text-transform:uppercase; letter-spacing:.08em; margin-bottom:10px; }
+.kpi-val { font-size:22px; font-weight:700; letter-spacing:-.5px; margin-bottom:8px; }
+.kpi-foot { display:flex; align-items:center; gap:6px; font-size:11px; font-weight:300; color:var(--text3); }
+.delta { font-size:11px; font-weight:600; padding:2px 6px; border-radius:5px; }
+.delta-up   { background:var(--green-bg); color:var(--green); }
+.delta-down { background:var(--red-bg); color:var(--red); }
+.delta-warn { background:var(--amber-bg); color:var(--amber); }
+
+@keyframes floatUp { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+
+/* ── CARDS ── */
+.card {
+  background:var(--white); border:1px solid var(--border); border-radius:var(--radius);
+  box-shadow:var(--shadow-md); padding:20px 22px;
+  animation:floatUp .4s cubic-bezier(.22,1,.36,1) both;
+  transition:box-shadow .2s, transform .2s;
+}
+.card:hover { box-shadow:var(--shadow-lg); transform:translateY(-1px); }
+.card-label {
+  font-size:10px; font-weight:600; color:var(--text3);
+  text-transform:uppercase; letter-spacing:.09em;
+  margin-bottom:14px; display:flex; align-items:center; justify-content:space-between;
+}
+.card-tag {
+  font-size:10px; font-weight:400; padding:2px 8px;
+  border-radius:6px; background:var(--bg2); color:var(--text3);
+  border:1px solid var(--border); text-transform:none; letter-spacing:0;
+}
+
+.grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:18px; }
+.grid-3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px; margin-bottom:18px; }
+
+/* ── SEDE COMPARE TABLE ── */
+.compare-table { width:100%; border-collapse:collapse; }
+.compare-table th {
+  text-align:left; padding:8px 0; font-size:10px; font-weight:600;
+  color:var(--text3); text-transform:uppercase; letter-spacing:.08em;
+  border-bottom:1px solid var(--border);
+}
+.compare-table th:not(:first-child) { text-align:right; }
+.compare-table td { padding:11px 0; font-size:13px; border-bottom:1px solid var(--border); vertical-align:middle; }
+.compare-table tr:last-child td { border-bottom:none; }
+.compare-table td:not(:first-child) { text-align:right; font-variant-numeric:tabular-nums; }
+.ct-label { font-weight:400; color:var(--text2); }
+.ct-g { font-weight:600; }
+.ct-l { font-weight:500; color:var(--text2); }
+.ct-diff { font-size:11px; font-weight:500; padding:2px 7px; border-radius:5px; }
+
+/* ── INSUMOS CRÍTICOS ── */
+.insumo-row {
+  display:flex; align-items:center; gap:12px;
+  padding:10px 12px; border-radius:var(--radius-sm);
+  border:1px solid var(--border); background:var(--surface);
+  margin-bottom:7px; transition:all .15s; cursor:pointer;
+}
+.insumo-row:hover { background:var(--white); border-color:var(--border2); box-shadow:var(--shadow-sm); }
+.insumo-row:last-child { margin-bottom:0; }
+
+.insumo-icon {
+  width:32px; height:32px; border-radius:8px; flex-shrink:0;
+  display:flex; align-items:center; justify-content:center; font-size:14px;
+}
+.insumo-info { flex:1; min-width:0; }
+.insumo-name { font-size:13px; font-weight:500; }
+.insumo-sede { font-size:11px; font-weight:300; color:var(--text3); margin-top:1px; }
+.insumo-stock { display:flex; flex-direction:column; align-items:flex-end; gap:3px; flex-shrink:0; }
+.stock-val { font-size:13px; font-weight:600; font-variant-numeric:tabular-nums; }
+.stock-bar-wrap { display:flex; align-items:center; gap:6px; }
+.stock-track { width:60px; height:4px; background:var(--bg2); border-radius:2px; overflow:hidden; }
+.stock-fill { height:100%; border-radius:2px; }
+
+.status-pill { font-size:10px; font-weight:600; padding:2px 8px; border-radius:20px; }
+.pill-crit { background:var(--red-bg); color:var(--red); border:1px solid rgba(192,57,43,0.15); }
+.pill-low  { background:var(--amber-bg); color:var(--amber); border:1px solid rgba(183,134,11,0.15); }
+.pill-ok   { background:var(--green-bg); color:var(--green); border:1px solid rgba(61,153,112,0.15); }
+
+/* ── PERSONAL ── */
+.personal-row {
+  display:flex; align-items:center; gap:12px;
+  padding:10px 0; border-bottom:1px solid var(--border);
+}
+.personal-row:last-child { border-bottom:none; }
+.pers-avatar {
+  width:32px; height:32px; border-radius:50%;
+  background:var(--bg2); border:1px solid var(--border);
+  display:flex; align-items:center; justify-content:center;
+  font-size:12px; font-weight:600; color:var(--text2); flex-shrink:0;
+}
+.pers-info { flex:1; }
+.pers-name { font-size:13px; font-weight:500; }
+.pers-role { font-size:11px; font-weight:300; color:var(--text3); }
+.pers-sede-badge {
+  font-size:10px; font-weight:600; padding:2px 8px; border-radius:6px;
+  flex-shrink:0;
+}
+.badge-g { background:rgba(26,25,22,0.08); color:var(--text); }
+.badge-l { background:rgba(107,103,96,0.1); color:var(--text2); }
+
+.pers-status {
+  font-size:11px; font-weight:500; padding:3px 9px; border-radius:20px;
+  flex-shrink:0;
+}
+.pers-active   { background:var(--green-bg); color:var(--green); }
+.pers-inactive { background:var(--bg2); color:var(--text3); }
+
+/* ── NOMINA / CONTAB ── */
+.month-bar { display:flex; flex-direction:column; gap:4px; }
+.month-row {
+  display:flex; align-items:center; gap:10px;
+  font-size:12px;
+}
+.month-lbl { width:30px; font-weight:300; color:var(--text3); flex-shrink:0; }
+.month-track { flex:1; height:6px; background:var(--bg2); border-radius:3px; overflow:hidden; }
+.month-fill-g { height:100%; border-radius:3px; background:var(--text); }
+.month-fill-l { height:100%; border-radius:3px; background:var(--text3); }
+.month-val { width:60px; text-align:right; font-weight:500; font-variant-numeric:tabular-nums; color:var(--text2); font-size:11px; }
+
+/* ── CONTABILIDAD ── */
+.contab-row {
+  display:flex; justify-content:space-between; align-items:center;
+  padding:10px 0; border-bottom:1px solid var(--border);
+  font-size:13px;
+}
+.contab-row:last-child { border-bottom:none; }
+.contab-row.total { padding-top:14px; margin-top:4px; }
+.contab-lbl { color:var(--text2); font-weight:400; }
+.contab-lbl.indent { padding-left:16px; color:var(--text3); font-size:12px; }
+.contab-val-g { font-weight:600; font-variant-numeric:tabular-nums; }
+.contab-val-l { font-weight:500; font-variant-numeric:tabular-nums; color:var(--text2); }
+.contab-row.total .contab-lbl { font-weight:600; color:var(--text); font-size:14px; }
+.contab-row.total .contab-val-g { font-size:16px; color:var(--green); }
+
+/* ── ACTION BTN ── */
+.btn {
+  height:36px; padding:0 16px; border-radius:var(--radius-sm);
+  font-size:13px; font-weight:600; cursor:pointer;
+  border:none; font-family:'Outfit',sans-serif; transition:all .15s;
+}
+.btn-primary { background:var(--text); color:var(--white); }
+.btn-primary:hover { background:#2d2c28; box-shadow:var(--shadow-md); }
+.btn-outline { background:var(--white); color:var(--text2); border:1px solid var(--border2); font-weight:400; }
+.btn-outline:hover { background:var(--bg2); }
+.btn-accent { background:rgba(212,226,0,0.12); color:var(--accent-txt); border:1px solid rgba(212,226,0,0.28); }
+.btn-accent:hover { background:rgba(212,226,0,0.22); }
+
+/* ── PERMISO SIDEBAR ── */
+.permiso-banner {
+  margin:12px 12px 0; padding:10px 12px;
+  background:rgba(212,226,0,0.1); border:1px solid rgba(212,226,0,0.25);
+  border-radius:var(--radius-sm); font-size:11px; color:var(--accent-txt);
+  line-height:1.4;
+}
+
+/* ── TOAST ── */
+.toast {
+  position:fixed; bottom:24px; left:50%;
+  transform:translateX(-50%) translateY(8px);
+  background:var(--text); color:var(--white);
+  border-radius:10px; padding:10px 20px;
+  font-size:13px; font-weight:500; box-shadow:var(--shadow-lg);
+  z-index:999; opacity:0; pointer-events:none;
+  transition:opacity .2s, transform .2s; white-space:nowrap;
+}
+.toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+
+::-webkit-scrollbar { width:4px; }
+::-webkit-scrollbar-track { background:transparent; }
+::-webkit-scrollbar-thumb { background:var(--border2); border-radius:2px; }
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="topbar-left">
+    <div class="logo-pill">yaro</div>
+    <div class="topbar-div"></div>
+    <div>
+      <div class="topbar-title">Admin de Sede</div>
+      <div class="topbar-sub">Panel de administración</div>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <!-- Sede switch — controlado por permiso del superadmin -->
+    <div class="sede-switch">
+      <button class="sw-btn all active" onclick="setSede('ambas',this)">Ambas sedes</button>
+      <button class="sw-btn guarne" onclick="setSede('guarne',this)">Guarne</button>
+      <button class="sw-btn laceja" onclick="setSede('laceja',this)">La Ceja</button>
+    </div>
+    <div class="pill pill-user">👤 Mariana T.</div>
+    <div class="pill pill-time" id="clock">--:--</div>
+  </div>
+</div>
+
+<div class="shell">
+
+  <!-- SIDENAV -->
+  <nav class="sidenav">
+    <div class="sidenav-logo-area">
+      <div class="admin-pill">
+        <div class="admin-avatar">MT</div>
+        <div>
+          <div class="admin-name">Mariana Torres</div>
+          <div class="admin-role">Admin · Ambas sedes</div>
+        </div>
+      </div>
+      <div class="permiso-banner">
+        ✓ Acceso concedido por Superadmin a Guarne + La Ceja
+      </div>
+      <div class="sede-indicator" style="margin-top:10px">
+        <div class="sede-dot" style="background:var(--text)"></div>
+        <span style="font-size:11px;font-weight:500;color:var(--text)">Guarne</span>
+        <span style="font-size:10px;color:var(--text3);margin-left:2px">+</span>
+        <div class="sede-dot" style="background:var(--text3);margin-left:2px"></div>
+        <span style="font-size:11px;font-weight:400;color:var(--text2)">La Ceja</span>
+      </div>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-lbl">Operaciones</div>
+      <div class="nav-item active" onclick="setNav('resumen',this)">
+        <svg class="nav-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2.5" y="2.5" width="6" height="6" rx="1"/><rect x="11.5" y="2.5" width="6" height="6" rx="1"/><rect x="2.5" y="11.5" width="6" height="6" rx="1"/><rect x="11.5" y="11.5" width="6" height="6" rx="1"/></svg>
+        Resumen
+      </div>
+      <div class="nav-item" onclick="setNav('inventario',this)">
+        <svg class="nav-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="4" width="16" height="14" rx="1.5"/><line x1="2" y1="9" x2="18" y2="9" stroke-linecap="round"/><line x1="6" y1="4" x2="6" y2="9" stroke-linecap="round"/><line x1="14" y1="4" x2="14" y2="9" stroke-linecap="round"/></svg>
+        Inventario
+        <span class="nav-badge">2</span>
+      </div>
+      <div class="nav-item" onclick="setNav('recetas',this)">
+        <svg class="nav-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 3H5a1 1 0 00-1 1v12a1 1 0 001 1h10a1 1 0 001-1V8l-5-5H8z" stroke-linecap="round" stroke-linejoin="round"/><path d="M13 3v5h5" stroke-linecap="round"/><line x1="7" y1="11" x2="13" y2="11" stroke-linecap="round"/><line x1="7" y1="14" x2="11" y2="14" stroke-linecap="round"/></svg>
+        Recetas y costeo
+      </div>
+      <div class="nav-item" onclick="setNav('proveedores',this)">
+        <svg class="nav-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="7" r="3"/><path d="M1 17c0-3.3 2.7-6 6-6h.5M13 7a2.5 2.5 0 110 5M17 17c0-2.76-1.79-5.1-4.27-5.74"/></svg>
+        Proveedores
+      </div>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-lbl">Personal</div>
+      <div class="nav-item" onclick="setNav('personal',this)">
+        <svg class="nav-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="7" r="3"/><path d="M1 17.5C1 14.74 3.24 12.5 6 12.5H8C10.76 12.5 13 14.74 13 17.5"/><path d="M14 5a2.5 2.5 0 010 5M17 17.5c0-2.76-1.79-5.1-4.27-5.74"/></svg>
+        Personal
+      </div>
+      <div class="nav-item" onclick="setNav('nomina',this)">
+        <svg class="nav-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="2" width="14" height="16" rx="1.5"/><line x1="7" y1="7" x2="13" y2="7" stroke-linecap="round"/><line x1="7" y1="10" x2="13" y2="10" stroke-linecap="round"/><line x1="7" y1="13" x2="10" y2="13" stroke-linecap="round"/></svg>
+        Nómina
+      </div>
+      <div class="nav-item" onclick="setNav('activos',this)">
+        <svg class="nav-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="6" width="16" height="12" rx="1.5"/><path d="M6 6V4a2 2 0 014 0v2M10 6V4a2 2 0 014 0v2"/></svg>
+        Activos fijos
+      </div>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-lbl">Finanzas</div>
+      <div class="nav-item" onclick="setNav('contabilidad',this)">
+        <svg class="nav-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 15V8m4 7V4m4 11V7m4 9V5"/></svg>
+        Contabilidad
+      </div>
+      <div class="nav-item" onclick="setNav('cxp',this)">
+        <svg class="nav-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="6" width="16" height="10" rx="1.5"/><line x1="2" y1="10" x2="18" y2="10" stroke-linecap="round"/><line x1="6" y1="13.5" x2="8" y2="13.5" stroke-linecap="round"/><line x1="10" y1="13.5" x2="14" y2="13.5" stroke-linecap="round"/></svg>
+        Cuentas por pagar
+      </div>
+      <div class="nav-item" onclick="setNav('aprobaciones',this)">
+        <svg class="nav-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="10" cy="10" r="7.5"/><path d="M7 10l2 2 4-4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Aprobaciones
+        <span class="nav-badge">3</span>
+      </div>
+    </div>
+  </nav>
+
+  <!-- MAIN CONTENT -->
+  <div class="main">
+
+    <!-- SUB-TABS -->
+    <div class="subtabs">
+      <div class="subtab active" onclick="setTab('resumen',this)">Resumen</div>
+      <div class="subtab" onclick="setTab('inventario',this)">
+        Inventario
+        <span style="font-size:10px;font-weight:700;background:var(--red-bg);color:var(--red);padding:1px 6px;border-radius:10px">2</span>
+      </div>
+      <div class="subtab" onclick="setTab('recetas',this)">Recetas y costeo</div>
+      <div class="subtab" onclick="setTab('personal',this)">Personal</div>
+      <div class="subtab" onclick="setTab('nomina',this)">Nómina</div>
+      <div class="subtab" onclick="setTab('contabilidad',this)">Contabilidad</div>
+      <div class="subtab" onclick="setTab('aprobaciones',this)">
+        Aprobaciones
+        <span style="font-size:10px;font-weight:700;background:var(--amber-bg);color:var(--amber);padding:1px 6px;border-radius:10px">3</span>
+      </div>
+    </div>
+
+    <!-- CONTENT AREA -->
+    <div class="content" id="main-content">
+      <!-- Rendered by JS -->
+    </div>
+
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── CLOCK ──
+setInterval(()=>{
+  document.getElementById('clock').textContent=new Date().toLocaleTimeString('es-CO',{hour:'2-digit',minute:'2-digit'});
+},1000);
+document.getElementById('clock').textContent=new Date().toLocaleTimeString('es-CO',{hour:'2-digit',minute:'2-digit'});
+
+let currentSede = 'ambas';
+let currentTab  = 'resumen';
+
+function fmtM(n){ return '$'+(n/1000).toFixed(0)+'k'; }
+function fmtPesos(n){ return '$'+n.toLocaleString('es-CO'); }
+
+// ── DATA ──
+const data = {
+  ambas:  { ventas:6930000, ordenes:287, fc:31.4, ticket:25844, ventas_g:2710000+1980000, ventas_l:2110000+130000 },
+  guarne: { ventas:4690000, ordenes:187, fc:30.2, ticket:25080 },
+  laceja: { ventas:2240000, ordenes:100, fc:32.9, ticket:22400 },
+};
+
+// ── SEDE SWITCH ──
+function setSede(sede, el){
+  currentSede = sede;
+  document.querySelectorAll('.sw-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  renderContent();
+}
+
+function setTab(tab, el){
+  currentTab = tab;
+  document.querySelectorAll('.subtab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  renderContent();
+}
+
+function setNav(section, el){
+  document.querySelectorAll('.nav-item').forEach(i=>i.classList.remove('active'));
+  el.classList.add('active');
+  setTab(section, document.querySelector(`.subtab:nth-child(${['resumen','inventario','recetas','personal','nomina','contabilidad','aprobaciones'].indexOf(section)+1})`)||document.querySelector('.subtab'));
+}
+
+// ── RENDER ──
+function renderContent(){
+  const c = document.getElementById('main-content');
+  if(currentTab==='resumen')        c.innerHTML = renderResumen();
+  else if(currentTab==='inventario') c.innerHTML = renderInventario();
+  else if(currentTab==='recetas')    c.innerHTML = renderRecetas();
+  else if(currentTab==='personal')   c.innerHTML = renderPersonal();
+  else if(currentTab==='nomina')     c.innerHTML = renderNomina();
+  else if(currentTab==='contabilidad') c.innerHTML = renderContabilidad();
+  else if(currentTab==='aprobaciones') c.innerHTML = renderAprobaciones();
+  else c.innerHTML = `<div style="padding:60px;text-align:center;color:var(--text3);font-size:13px;font-weight:300">Módulo en construcción...</div>`;
+}
+
+// ── RESUMEN ──
+function renderResumen(){
+  const d = data[currentSede] || data.ambas;
+  const sedeLabel = currentSede==='ambas'?'Ambas sedes':currentSede==='guarne'?'Guarne':'La Ceja';
+
+  const sedeHeader = currentSede==='ambas' ? `
+    <div class="sede-compare-header">
+      <div class="sede-header-card" style="--shc:var(--guarne)">
+        <div class="shc-title"><div class="shc-dot" style="background:var(--guarne)"></div>Guarne</div>
+        <div class="shc-kpis">
+          <div class="shc-kpi"><div class="shc-val">$4.69M</div><div class="shc-lbl">Ventas</div></div>
+          <div class="shc-kpi"><div class="shc-val" style="color:var(--green)">30.2%</div><div class="shc-lbl">Food cost</div></div>
+          <div class="shc-kpi"><div class="shc-val">187</div><div class="shc-lbl">Órdenes</div></div>
+        </div>
+      </div>
+      <div class="sede-header-card" style="--shc:var(--laceja)">
+        <div class="shc-title"><div class="shc-dot" style="background:var(--laceja)"></div>La Ceja</div>
+        <div class="shc-kpis">
+          <div class="shc-kpi"><div class="shc-val">$2.24M</div><div class="shc-lbl">Ventas</div></div>
+          <div class="shc-kpi"><div class="shc-val" style="color:var(--amber)">32.9%</div><div class="shc-lbl">Food cost</div></div>
+          <div class="shc-kpi"><div class="shc-val">100</div><div class="shc-lbl">Órdenes</div></div>
+        </div>
+      </div>
+    </div>` : '';
+
+  return `
+    ${sedeHeader}
+    <div class="kpi-grid">
+      <div class="kpi" style="--kb:var(--accent-dk)">
+        <div class="kpi-lbl">Ventas del día</div>
+        <div class="kpi-val">${fmtM(d.ventas)}</div>
+        <div class="kpi-foot"><span class="delta delta-up">▲ 12%</span>vs ayer · ${sedeLabel}</div>
+      </div>
+      <div class="kpi" style="--kb:var(--green)">
+        <div class="kpi-lbl">Órdenes hoy</div>
+        <div class="kpi-val">${d.ordenes}</div>
+        <div class="kpi-foot"><span class="delta delta-up">▲ 8</span>vs promedio semana</div>
+      </div>
+      <div class="kpi" style="--kb:var(--red)">
+        <div class="kpi-lbl">Food cost %</div>
+        <div class="kpi-val">${d.fc}%</div>
+        <div class="kpi-foot"><span class="delta delta-warn">▼ 1.2pp</span>objetivo: 30%</div>
+      </div>
+      <div class="kpi" style="--kb:var(--blue)">
+        <div class="kpi-lbl">Ticket promedio</div>
+        <div class="kpi-val">${fmtPesos(d.ticket)}</div>
+        <div class="kpi-foot"><span class="delta delta-up">▲ 3%</span>vs semana pasada</div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card" style="animation-delay:.08s">
+        <div class="card-label">Comparativo sedes <span class="card-tag">mes actual</span></div>
+        <table class="compare-table">
+          <thead><tr><th>Métrica</th><th>Guarne</th><th>La Ceja</th><th>Dif.</th></tr></thead>
+          <tbody>
+            <tr><td class="ct-label">Ventas</td><td class="ct-g">$18.4M</td><td class="ct-l">$9.6M</td><td><span class="ct-diff delta-up">+92%</span></td></tr>
+            <tr><td class="ct-label">Food cost</td><td class="ct-g" style="color:var(--green)">30.2%</td><td class="ct-l" style="color:var(--amber)">32.9%</td><td><span class="ct-diff delta-warn">-2.7pp</span></td></tr>
+            <tr><td class="ct-label">Ticket prom.</td><td class="ct-g">$25.080</td><td class="ct-l">$22.400</td><td><span class="ct-diff delta-up">+12%</span></td></tr>
+            <tr><td class="ct-label">Órdenes</td><td class="ct-g">4.812</td><td class="ct-l">2.100</td><td><span class="ct-diff" style="background:var(--blue-bg);color:var(--blue)">+129%</span></td></tr>
+            <tr><td class="ct-label">Personal activo</td><td class="ct-g">8</td><td class="ct-l">5</td><td></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="card" style="animation-delay:.13s">
+        <div class="card-label">Insumos críticos y bajos <span class="card-tag">ambas sedes</span></div>
+        <div class="insumo-row">
+          <div class="insumo-icon" style="background:var(--red-bg)">🥩</div>
+          <div class="insumo-info">
+            <div class="insumo-name">Carne de res</div>
+            <div class="insumo-sede">📍 La Ceja · 2.1 kg de 5 mín.</div>
+          </div>
+          <div class="insumo-stock">
+            <span class="status-pill pill-crit">Crítico</span>
+            <div class="stock-bar-wrap">
+              <div class="stock-track"><div class="stock-fill" style="width:42%;background:var(--red)"></div></div>
+              <span style="font-size:10px;font-weight:600;color:var(--red)">42%</span>
+            </div>
+          </div>
+        </div>
+        <div class="insumo-row">
+          <div class="insumo-icon" style="background:var(--amber-bg)">🥒</div>
+          <div class="insumo-info">
+            <div class="insumo-name">Pepinillos en vinagre</div>
+            <div class="insumo-sede">📍 Guarne · 1.8 kg de 3 mín.</div>
+          </div>
+          <div class="insumo-stock">
+            <span class="status-pill pill-low">Stock bajo</span>
+            <div class="stock-bar-wrap">
+              <div class="stock-track"><div class="stock-fill" style="width:60%;background:var(--amber)"></div></div>
+              <span style="font-size:10px;font-weight:600;color:var(--amber)">60%</span>
+            </div>
+          </div>
+        </div>
+        <div class="insumo-row">
+          <div class="insumo-icon" style="background:var(--red-bg)">🫙</div>
+          <div class="insumo-info">
+            <div class="insumo-name">Jalapeños encurtidos</div>
+            <div class="insumo-sede">📍 Guarne · 0.8 kg de 1.5 mín.</div>
+          </div>
+          <div class="insumo-stock">
+            <span class="status-pill pill-crit">Crítico</span>
+            <div class="stock-bar-wrap">
+              <div class="stock-track"><div class="stock-fill" style="width:53%;background:var(--red)"></div></div>
+              <span style="font-size:10px;font-weight:600;color:var(--red)">53%</span>
+            </div>
+          </div>
+        </div>
+        <div style="margin-top:12px">
+          <button class="btn btn-accent" style="width:100%;font-size:12px" onclick="showToast('Abriendo módulo de órdenes de compra...')">+ Crear orden de compra para críticos</button>
+        </div>
+      </div>
+    </div>`;
+}
+
+// ── INVENTARIO ──
+function renderInventario(){
+  return `
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px">
+      <div>
+        <div style="font-size:16px;font-weight:600">Inventario consolidado</div>
+        <div style="font-size:12px;font-weight:300;color:var(--text3);margin-top:2px">${currentSede==='ambas'?'Guarne + La Ceja':currentSede==='guarne'?'Guarne':'La Ceja'} · ${new Date().toLocaleDateString('es-CO')}</div>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-outline" onclick="showToast('Exportando a Excel...')">↓ Exportar</button>
+        <button class="btn btn-accent" onclick="showToast('Abriendo orden de compra...')">+ Orden de compra</button>
+        <button class="btn btn-primary" onclick="showToast('Iniciando conteo manual...')">📋 Conteo manual</button>
+      </div>
+    </div>
+    <div class="card" style="padding:0;overflow:hidden">
+      <table style="width:100%;border-collapse:collapse">
+        <thead>
+          <tr style="background:var(--surface)">
+            <th style="padding:12px 18px;text-align:left;font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;border-bottom:1px solid var(--border)">Insumo</th>
+            ${currentSede==='ambas'?'<th style="padding:12px 10px;text-align:right;font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;border-bottom:1px solid var(--border)">Guarne</th><th style="padding:12px 10px;text-align:right;font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;border-bottom:1px solid var(--border)">La Ceja</th><th style="padding:12px 10px;text-align:right;font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;border-bottom:1px solid var(--border)">Total</th>':'<th style="padding:12px 18px;text-align:right;font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;border-bottom:1px solid var(--border)">Stock</th>'}
+            <th style="padding:12px 10px;text-align:center;font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;border-bottom:1px solid var(--border)">Estado</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${[
+            {n:'Carne de res',    g:'12.4',  l:'2.1',  u:'kg', crit:'La Ceja'},
+            {n:'Tocineta ahumada',g:'4.2',   l:'3.1',  u:'kg', low:'Guarne'},
+            {n:'Queso cheddar',   g:'8.5',   l:'5.0',  u:'kg'},
+            {n:'Pan brioche',     g:'96',    l:'48',   u:'und'},
+            {n:'Pepinillos',      g:'1.8',   l:'3.2',  u:'kg', low:'Guarne'},
+            {n:'Jalapeños',       g:'0.8',   l:'1.9',  u:'kg', crit:'Guarne'},
+            {n:'Salsa BBQ',       g:'8.4',   l:'4.2',  u:'L'},
+            {n:'Papas R12',       g:'38.0',  l:'22.0', u:'kg'},
+          ].map((r,i)=>{
+            const tot = currentSede==='ambas'?(parseFloat(r.g)+parseFloat(r.l)).toFixed(1):'—';
+            const stok = currentSede==='guarne'?r.g:currentSede==='laceja'?r.l:null;
+            const hasCrit = r.crit&&(currentSede==='ambas'||r.crit===currentSede);
+            const hasLow  = r.low&&(currentSede==='ambas'||r.low===currentSede)&&!hasCrit;
+            const badge = hasCrit?`<span class="status-pill pill-crit">Crítico${currentSede==='ambas'?' · '+r.crit:''}</span>`:hasLow?`<span class="status-pill pill-low">Stock bajo${currentSede==='ambas'?' · '+r.low:''}</span>`:`<span class="status-pill pill-ok">OK</span>`;
+            return `<tr style="border-bottom:1px solid var(--border);cursor:pointer;transition:background .12s" onmouseover="this.style.background='rgba(0,0,0,.02)'" onmouseout="this.style.background=''">
+              <td style="padding:13px 18px;font-size:13px;font-weight:500">${r.n}</td>
+              ${currentSede==='ambas'?`<td style="padding:13px 10px;text-align:right;font-size:13px;font-variant-numeric:tabular-nums">${r.g} <span style="font-size:11px;color:var(--text3)">${r.u}</span></td><td style="padding:13px 10px;text-align:right;font-size:13px;font-variant-numeric:tabular-nums">${r.l} <span style="font-size:11px;color:var(--text3)">${r.u}</span></td><td style="padding:13px 10px;text-align:right;font-size:13px;font-weight:600;font-variant-numeric:tabular-nums">${tot} <span style="font-size:11px;color:var(--text3)">${r.u}</span></td>`:`<td style="padding:13px 18px;text-align:right;font-size:13px;font-weight:600;font-variant-numeric:tabular-nums">${stok} <span style="font-size:11px;color:var(--text3)">${r.u}</span></td>`}
+              <td style="padding:13px 10px;text-align:center">${badge}</td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table>
+    </div>`;
+}
+
+// ── RECETAS ──
+function renderRecetas(){
+  const recetas = [
+    {n:'La Criminal',     costo:9420,  precio:38000, margen:'75.2%', fc:'24.8%', tag:'Ganador'},
+    {n:'Smash Classic',   costo:6240,  precio:22000, margen:'71.6%', fc:'28.4%', tag:''},
+    {n:'La Perla',        costo:11200, precio:36000, margen:'68.9%', fc:'31.1%', tag:''},
+    {n:'Combo BBQ',       costo:9800,  precio:32000, margen:'69.4%', fc:'30.6%', tag:''},
+    {n:'Papas cargadas',  costo:3200,  precio:18000, margen:'82.2%', fc:'17.8%', tag:'Top margen'},
+  ];
+  return `
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px">
+      <div><div style="font-size:16px;font-weight:600">Recetas y costeo</div>
+      <div style="font-size:12px;font-weight:300;color:var(--text3);margin-top:2px">Los precios nunca cambian automáticamente · Cambios de costo requieren aprobación de Superadmin</div></div>
+      <button class="btn btn-primary" onclick="showToast('Abriendo editor de receta...')">+ Nueva receta</button>
+    </div>
+    <div class="card" style="padding:0;overflow:hidden">
+      <table style="width:100%;border-collapse:collapse">
+        <thead><tr style="background:var(--surface)">
+          ${['Receta','Costo actual','Precio menú','Margen bruto','Food cost %',''].map(h=>`<th style="padding:12px 18px;text-align:${h?'left':'center'};font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;border-bottom:1px solid var(--border)">${h}</th>`).join('')}
+        </tr></thead>
+        <tbody>
+          ${recetas.map(r=>`
+          <tr style="border-bottom:1px solid var(--border);cursor:pointer;transition:background .12s" onmouseover="this.style.background='rgba(0,0,0,.02)'" onmouseout="this.style.background=''">
+            <td style="padding:13px 18px;font-size:13px;font-weight:500">${r.n} ${r.tag?`<span style="font-size:10px;font-weight:600;padding:2px 7px;border-radius:6px;background:rgba(212,226,0,0.15);color:var(--accent-txt);margin-left:6px">${r.tag}</span>`:''}</td>
+            <td style="padding:13px 18px;font-size:13px;font-variant-numeric:tabular-nums">${fmtPesos(r.costo)}</td>
+            <td style="padding:13px 18px;font-size:13px;font-weight:600;font-variant-numeric:tabular-nums">${fmtPesos(r.precio)}</td>
+            <td style="padding:13px 18px"><span style="font-size:13px;font-weight:600;color:var(--green)">${r.margen}</span></td>
+            <td style="padding:13px 18px"><span style="font-size:13px;font-weight:500;color:${parseFloat(r.fc)>30?'var(--amber)':'var(--green)'}">${r.fc}</span></td>
+            <td style="padding:13px 18px;text-align:center">
+              <div style="display:flex;gap:6px;justify-content:center">
+                <button class="btn btn-outline" style="height:28px;padding:0 10px;font-size:11px" onclick="showToast('Editando receta...')">Ver receta</button>
+                <button class="btn btn-accent" style="height:28px;padding:0 10px;font-size:11px" onclick="showToast('Costo pendiente de aprobación del Superadmin')">Sugerir costo</button>
+              </div>
+            </td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>`;
+}
+
+// ── PERSONAL ──
+function renderPersonal(){
+  const personal = [
+    {n:'Carlos M.',    r:'Mesero',         s:'Guarne', activo:true,  h:7.5},
+    {n:'Laura P.',     r:'Mesera',         s:'Guarne', activo:true,  h:7.5},
+    {n:'Andrés R.',    r:'Mesero',         s:'Guarne', activo:false, h:0},
+    {n:'Jorge V.',     r:'Cocinero',       s:'Guarne', activo:true,  h:8},
+    {n:'Sandra L.',    r:'Cajera',         s:'Guarne', activo:true,  h:8},
+    {n:'Paola M.',     r:'Mesera',         s:'La Ceja',activo:true,  h:7},
+    {n:'Esteban C.',   r:'Cocinero',       s:'La Ceja',activo:true,  h:8},
+    {n:'Valentina G.', r:'Cajera',         s:'La Ceja',activo:false, h:0},
+    {n:'Ricardo H.',   r:'Jefe cocina',    s:'La Ceja',activo:true,  h:9},
+    {n:'Mónica B.',    r:'Administradora', s:'Ambas',  activo:true,  h:8},
+  ];
+  const filtered = currentSede==='ambas'?personal:personal.filter(p=>p.s===( currentSede==='guarne'?'Guarne':'La Ceja')||p.s==='Ambas');
+  return `
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px">
+      <div><div style="font-size:16px;font-weight:600">Personal</div>
+      <div style="font-size:12px;font-weight:300;color:var(--text3);margin-top:2px">${filtered.length} empleados · ${filtered.filter(p=>p.activo).length} activos hoy</div></div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-outline" onclick="showToast('Exportando reporte...')">↓ Reporte</button>
+        <button class="btn btn-primary" onclick="showToast('Registrando nuevo empleado...')">+ Empleado</button>
+      </div>
+    </div>
+    <div class="grid-2">
+      <div class="card" style="animation-delay:.05s">
+        <div class="card-label">Equipo <span class="card-tag">${currentSede==='ambas'?'Ambas sedes':currentSede==='guarne'?'Guarne':'La Ceja'}</span></div>
+        ${filtered.map(p=>`
+        <div class="personal-row">
+          <div class="pers-avatar">${p.n.charAt(0)}${p.n.split(' ')[1]?.charAt(0)||''}</div>
+          <div class="pers-info">
+            <div class="pers-name">${p.n}</div>
+            <div class="pers-role">${p.r} ${p.activo?'· '+p.h+'h hoy':''}</div>
+          </div>
+          ${p.s!=='Ambas'?`<span class="pers-sede-badge ${p.s==='Guarne'?'badge-g':'badge-l'}">${p.s}</span>`:''}
+          <span class="pers-status ${p.activo?'pers-active':'pers-inactive'}">${p.activo?'Activo':'Libre'}</span>
+        </div>`).join('')}
+      </div>
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <div class="card" style="animation-delay:.1s">
+          <div class="card-label">Horas trabajadas hoy</div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            ${filtered.filter(p=>p.activo).slice(0,5).map(p=>`
+            <div style="display:flex;align-items:center;gap:10px;font-size:12px">
+              <div style="font-weight:500;width:90px;color:var(--text2)">${p.n.split(' ')[0]}</div>
+              <div style="flex:1;height:5px;background:var(--bg2);border-radius:3px;overflow:hidden"><div style="height:100%;width:${(p.h/10*100)}%;background:var(--text);border-radius:3px"></div></div>
+              <div style="font-weight:600;font-variant-numeric:tabular-nums;color:var(--text);min-width:30px;text-align:right">${p.h}h</div>
+            </div>`).join('')}
+          </div>
+        </div>
+        <div class="card" style="animation-delay:.15s">
+          <div class="card-label">Resumen turno</div>
+          <div class="contab-row"><span class="contab-lbl">Personal activo</span><span class="contab-val-g">${filtered.filter(p=>p.activo).length}</span></div>
+          <div class="contab-row"><span class="contab-lbl">Total horas hoy</span><span class="contab-val-g">${filtered.reduce((a,p)=>a+p.h,0)}h</span></div>
+          <div class="contab-row"><span class="contab-lbl">Propinas turno</span><span style="font-size:13px;font-weight:600;color:var(--green)">$48.000</span></div>
+          <div style="font-size:10px;font-weight:300;color:var(--text3);margin-top:6px">Las propinas no aparecen en reportes financieros</div>
+        </div>
+      </div>
+    </div>`;
+}
+
+// ── NOMINA ──
+function renderNomina(){
+  return `
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px">
+      <div><div style="font-size:16px;font-weight:600">Nómina</div>
+      <div style="font-size:12px;font-weight:300;color:var(--text3);margin-top:2px">Mayo 2026 · Periodo actual</div></div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-outline" onclick="showToast('Descargando comprobantes...')">↓ Comprobantes</button>
+        <button class="btn btn-primary" onclick="showToast('Procesando nómina...')">Procesar nómina</button>
+      </div>
+    </div>
+    <div class="grid-2">
+      <div class="card" style="animation-delay:.05s">
+        <div class="card-label">Nómina mes actual <span class="card-tag">${currentSede==='ambas'?'Ambas':'Guarne'}</span></div>
+        <div class="contab-row"><span class="contab-lbl">Salarios base</span><span class="contab-val-g">$9.200.000</span></div>
+        <div class="contab-row"><span class="contab-lbl indent">SENA (2%)</span><span style="font-size:12px;color:var(--text3)">$184.000</span></div>
+        <div class="contab-row"><span class="contab-lbl indent">ICBF (3%)</span><span style="font-size:12px;color:var(--text3)">$276.000</span></div>
+        <div class="contab-row"><span class="contab-lbl indent">Caja comp. (4%)</span><span style="font-size:12px;color:var(--text3)">$368.000</span></div>
+        <div class="contab-row"><span class="contab-lbl">Total parafiscales</span><span class="contab-val-g">$828.000</span></div>
+        <div class="contab-row"><span class="contab-lbl">Horas extra</span><span class="contab-val-g">$340.000</span></div>
+        <div class="contab-row total"><span class="contab-lbl">Total nómina</span><span style="font-size:16px;font-weight:700;color:var(--text)">$10.368.000</span></div>
+        <div style="font-size:10px;font-weight:300;color:var(--text3);margin-top:8px">Propinas registradas por separado y excluidas de este reporte</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <div class="card" style="animation-delay:.1s">
+          <div class="card-label">Histórico nómina <span class="card-tag">6 meses</span></div>
+          <div class="month-bar">
+            ${[['Dic','9.2M',90],['Ene','9.4M',92],['Feb','9.1M',89],['Mar','9.6M',94],['Abr','9.8M',96],['May','10.4M',100]].map(([m,v,p])=>`
+            <div class="month-row">
+              <div class="month-lbl">${m}</div>
+              <div class="month-track"><div class="month-fill-g" style="width:${p}%"></div></div>
+              <div class="month-val">$${v}</div>
+            </div>`).join('')}
+          </div>
+        </div>
+        <div class="card" style="animation-delay:.15s">
+          <div class="card-label">La Ceja <span class="card-tag">Mayo 2026</span></div>
+          <div class="contab-row"><span class="contab-lbl">Salarios base</span><span class="contab-val-g">$5.800.000</span></div>
+          <div class="contab-row"><span class="contab-lbl">Parafiscales</span><span class="contab-val-g">$522.000</span></div>
+          <div class="contab-row total"><span class="contab-lbl">Total nómina</span><span style="font-size:16px;font-weight:700;color:var(--text)">$6.322.000</span></div>
+        </div>
+      </div>
+    </div>`;
+}
+
+// ── CONTABILIDAD ──
+function renderContabilidad(){
+  return `
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px">
+      <div><div style="font-size:16px;font-weight:600">Contabilidad</div>
+      <div style="font-size:12px;font-weight:300;color:var(--text3);margin-top:2px">Estado de resultados simplificado · Mayo 2026</div></div>
+      <button class="btn btn-outline" onclick="showToast('Exportando PDF...')">↓ Exportar PDF</button>
+    </div>
+    <div class="grid-2">
+      ${['Guarne','La Ceja'].map((sede,si)=>`
+      <div class="card" style="animation-delay:${si*.08}s">
+        <div class="card-label">${sede} <span class="card-tag">Mayo 2026</span></div>
+        <div class="contab-row"><span class="contab-lbl" style="font-weight:500;color:var(--text)">Ventas brutas</span><span class="contab-val-g">${si===0?'$18.400.000':'$9.600.000'}</span></div>
+        <div class="contab-row"><span class="contab-lbl">Imp. consumo (8%)</span><span style="font-size:13px;color:var(--text3)">(${si===0?'$1.472.000':'$768.000'})</span></div>
+        <div class="contab-row"><span class="contab-lbl" style="font-weight:500">Ventas netas</span><span class="contab-val-g">${si===0?'$16.928.000':'$8.832.000'}</span></div>
+        <div style="height:1px;background:var(--border);margin:8px 0"></div>
+        <div class="contab-row"><span class="contab-lbl">Food cost (${si===0?'30.2':'32.9'}%)</span><span style="font-size:13px;color:var(--red)">(${si===0?'$5.112.000':'$2.905.000'})</span></div>
+        <div class="contab-row"><span class="contab-lbl" style="font-weight:500;color:var(--green)">Utilidad bruta</span><span style="font-size:14px;font-weight:700;color:var(--green)">${si===0?'$11.816.000':'$5.927.000'}</span></div>
+        <div style="height:1px;background:var(--border);margin:8px 0"></div>
+        <div class="contab-row"><span class="contab-lbl">Nómina</span><span style="font-size:13px;color:var(--text2)">(${si===0?'$10.368.000':'$6.322.000'})</span></div>
+        <div class="contab-row"><span class="contab-lbl">Gastos fijos</span><span style="font-size:13px;color:var(--text2)">(${si===0?'$2.400.000':'$1.800.000'})</span></div>
+        <div style="height:1px;background:var(--border);margin:8px 0"></div>
+        <div class="contab-row total">
+          <span class="contab-lbl">EBITDA</span>
+          <span style="font-size:16px;font-weight:700;color:${si===0?'var(--green)':'var(--amber)'}">${si===0?'$(-952.000)':'$(-2.195.000)'}</span>
+        </div>
+        <div style="font-size:10px;font-weight:300;color:var(--text3);margin-top:6px">Las propinas ($${si===0?'192':'88'}.000) están excluidas de todos los cálculos financieros</div>
+      </div>`).join('')}
+    </div>`;
+}
+
+// ── APROBACIONES ──
+function renderAprobaciones(){
+  const items = [
+    {tipo:'Costo sugerido',  desc:'La Criminal — nuevo costo: $9.420 (+4.2%)',      sede:'Guarne',  tiempo:'hace 5h',   urgencia:'warn'},
+    {tipo:'Orden de compra', desc:'Carnes Antioqueñas · Carne de res · 10 kg · $280.000', sede:'La Ceja', tiempo:'hace 3h', urgencia:'danger'},
+    {tipo:'Ajuste de stock', desc:'Pepinillos · conteo: 1.8 kg vs sistema: 2.4 kg', sede:'Guarne',  tiempo:'hace 8h',   urgencia:'info'},
+  ];
+  const colors = {warn:'var(--amber)',danger:'var(--red)',info:'var(--blue)'};
+  const bgs    = {warn:'var(--amber-bg)',danger:'var(--red-bg)',info:'var(--blue-bg)'};
+  return `
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px">
+      <div><div style="font-size:16px;font-weight:600">Aprobaciones pendientes</div>
+      <div style="font-size:12px;font-weight:300;color:var(--text3);margin-top:2px">3 elementos requieren tu revisión</div></div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      ${items.map(item=>`
+      <div class="card" style="display:flex;align-items:flex-start;gap:14px;padding:18px 20px">
+        <div style="width:36px;height:36px;border-radius:10px;background:${bgs[item.urgencia]};display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:16px">
+          ${item.urgencia==='warn'?'⚠️':item.urgencia==='danger'?'🚨':'ℹ️'}
+        </div>
+        <div style="flex:1">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+            <span style="font-size:13px;font-weight:600">${item.tipo}</span>
+            <span style="font-size:10px;font-weight:600;padding:2px 8px;border-radius:6px;background:${bgs[item.urgencia]};color:${colors[item.urgencia]}">${item.sede}</span>
+          </div>
+          <div style="font-size:12px;font-weight:300;color:var(--text2);margin-bottom:2px">${item.desc}</div>
+          <div style="font-size:11px;color:var(--text3)">${item.tiempo}</div>
+        </div>
+        <div style="display:flex;gap:8px;flex-shrink:0">
+          <button class="btn btn-outline" style="height:32px;padding:0 12px;font-size:12px" onclick="showToast('Rechazado')">Rechazar</button>
+          <button class="btn btn-primary" style="height:32px;padding:0 12px;font-size:12px" onclick="showToast('Aprobado ✓')">Aprobar</button>
+        </div>
+      </div>`).join('')}
+    </div>`;
+}
+
+// ── TOAST ──
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2600);
+}
+
+// ── INIT ──
+renderContent();
+</script>
+</body>
+</html>

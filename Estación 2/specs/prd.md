@@ -23,6 +23,7 @@
 11. [Plan de Evaluación del Agente + Bloqueo por impago + Optimización de costo IA + Hardening](#s11)
 12. [Riesgos y Mitigaciones](#s12)
 13. [Plan de Entrega 30/60/90 Días](#s13)
+14. [Sistema de Diseño YARO (`@yaro/ui`)](#s14)
 
 ---
 
@@ -575,6 +576,9 @@ flowchart TB
 - ❌ Forzar al food truck a configurar un plano de mesas inexistente
 - ❌ Operaciones críticas sin registro de quién las hizo
 - ❌ Bloquear el onboarding si el tenant no tiene NIT con dígito de verificación
+- ❌ Construir cualquier pantalla nueva fuera del sistema de diseño `@yaro/ui` (ver [§14](#s14))
+
+> **Manifestación operativa:** los principios P2 (latencia), P7 (lenguaje del usuario), P9 (alertas accionables) y P10 (trazabilidad visual) se materializan a través del **sistema de diseño YARO** documentado en [§14](#s14). La carpeta [`preparation/`](../preparation/) contiene tokens y componentes; la carpeta [`pantallas_reference/`](../pantallas_reference/) es el golden source visual de cómo debe verse cada rol.
 
 ---
 
@@ -1345,6 +1349,112 @@ gantt
 
 ---
 
+<a name="s14"></a>
+
+## 14. Sistema de Diseño YARO (`@yaro/ui`)
+
+> **Fuente única de verdad visual y de interacción de toda la plataforma YARO.**
+> No es una recomendación: es **el** sistema de diseño obligatorio. Cualquier interfaz YARO (POS, KDS, dashboards, Admin Sede, Contabilidad, CDP, YARO Console) **debe** construirse consumiendo `@yaro/ui`. Cero CSS arbitrario, cero hexadecimales hardcodeados, cero `px` fuera de la escala de espaciado.
+
+### 14.1 Documentación canónica
+
+| Documento | Ubicación | Cubre |
+|---|---|---|
+| **README sistema de diseño** | [`preparation/README.md`](../preparation/README.md) | Índice general · principios técnicos `@yaro/ui` |
+| **Tokens de diseño** | [`preparation/tokens.md`](../preparation/tokens.md) | Colores · sombras · radios · tipografía · espaciado · transiciones · tema oscuro |
+| **Instalación e integración** | [`preparation/instalacion.md`](../preparation/instalacion.md) | PAT GitHub · `.npmrc` · `angular.json` · monorepo Nx · publicación |
+| **Átomos (7 componentes)** | [`preparation/atoms.md`](../preparation/atoms.md) | `YaroButton` · `YaroBadge` · `YaroInput` · `YaroToggle` · `YaroAvatar` · `YaroDelta` · `YaroQuantityControl` |
+| **Moléculas (11 componentes)** | [`preparation/molecules.md`](../preparation/molecules.md) | `YaroCard` · `YaroKpi` · `YaroStatBar` · `YaroStockBar` · `YaroNavItem` · `YaroFormRow` · `YaroInfoBox` · `YaroTableCard` · `YaroMenuItemCard` · `YaroOrderLine` · `YaroOrderCard` |
+| **Organismos (9 componentes)** | [`preparation/organisms.md`](../preparation/organisms.md) | `YaroModal` · `YaroDataTable` · `YaroSidenav` · `YaroTopbar` · `YaroBienestarPicker` · `YaroConnectionBadge` · `YaroCategoryNav` · `YaroFloorMap` · `YaroOrderPanel` |
+| **Pantallas de referencia** | [`pantallas_reference/`](../pantallas_reference/) | 9 prototipos HTML que **demuestran cómo deben verse y comportarse** las pantallas reales |
+
+### 14.2 Metodología — Atomic Design
+
+```
+[Tokens de Diseño] ──> [Átomos] ──> [Moléculas] ──> [Organismos] ──> [Pantallas]
+```
+
+Cualquier pantalla nueva se construye **siempre de derecha a izquierda en el grafo de consumo**: la pantalla usa organismos, los organismos importan moléculas, las moléculas importan átomos, los átomos consumen tokens. **Está prohibido saltarse niveles** (ej: una pantalla no puede usar tokens directamente para "salir del paso" — debe ir a través de un átomo).
+
+### 14.3 Principios técnicos no negociables `@yaro/ui`
+
+| # | Principio | Implementación |
+|---|---|---|
+| **DS-1** | **Standalone Components** | Todos los componentes Angular son `standalone: true`. Cero `NgModule`. |
+| **DS-2** | **OnPush Change Detection** | `ChangeDetectionStrategy.OnPush` en todos. Actualización depende de signals o `@Input` por referencia. |
+| **DS-3** | **`:host { display: contents }`** | Componentes no interfieren en layouts Grid/Flex del padre. |
+| **DS-4** | **Variables CSS nativas** | Cero TailwindCSS en el core. Todo es `var(--*)` para soportar temas y hot-swap. |
+| **DS-5** | **Tokens son la única fuente de verdad** | Prohibido hardcodear hex, rem, px fuera de escala. Lint rule obligatoria. |
+| **DS-6** | **Tipografía única** | `Outfit` (UI) + `JetBrains Mono` (importes, cantidades, códigos, YARO Console). |
+
+### 14.4 Tokens — resumen ejecutivo
+
+Detalle completo en [`preparation/tokens.md`](../preparation/tokens.md). Los **9 ejes de tokens** son:
+
+1. **Superficies** (`--color-bg`, `--color-bg2`, `--color-surface`, `--color-white`) — 4 niveles de profundidad
+2. **Texto** (`--color-text`, `--color-text2`, `--color-text3`) — 3 niveles de jerarquía
+3. **Acento YARO** (`--color-accent` `#f7fd9c` · `--color-accent-dk` `#d4e200` · `--color-accent-txt` `#6b7200`)
+4. **Semánticos** — 5 estados (verde · rojo · ámbar · azul · púrpura) cada uno con `-bg` y `-border`
+5. **Sombras** — 3 niveles (`--shadow-sm`, `-md`, `-lg`)
+6. **Radios** — 3 escalas (`--radius` 14px · `--radius-sm` 9px · `--radius-xs` 5px)
+7. **Tipografía** — Outfit (UI) + JetBrains Mono (numérico); escala `--text-xs` (10px) a `--text-3xl` (32px)
+8. **Espaciado** — múltiplos de 4px estrictos (`--space-1` a `--space-16`). **Prohibido 7px, 15px o cualquier valor arbitrario.**
+9. **Transiciones** — fast (0.12s), base (0.20s), spring (0.40s cubic-bezier) — esta última es la **curva característica YARO**.
+
+### 14.5 Temas
+
+- **Tema claro (default):** todos los módulos operativos de tenant (POS, KDS, Admin Sede, Contabilidad, Inventario, CDP, Plano de Mesas, Dashboard).
+- **Tema oscuro (`[data-theme="console"]`):** **YARO Console** (back-office de la plataforma — soporte, cobranza, auditoría, observabilidad). El acento cambia a púrpura `#7c6af7`.
+
+### 14.6 Pantallas de referencia (`pantallas_reference/`)
+
+Son **9 prototipos HTML funcionales** que materializan el sistema de diseño. Sirven de **golden source visual** — si una pantalla nueva del producto se ve distinta a estos prototipos sin justificación, está mal.
+
+| Prototipo | Rol / módulo | Vincula a feature PRD |
+|---|---|---|
+| `yaro-dashboard-v2.html` | Dueño · home con KPIs | §9 Dashboard + §10 Métricas |
+| `yaro-cajero.html` | Cajero · POS principal | §9 Operaciones · CU-1 §5 |
+| `yaro-kds-v2.html` | Cocina · KDS de comandas | §9 Operaciones · CU-2 §5 |
+| `yaro-mesas.html` | Mesero · plano de mesas | §9 Operaciones |
+| `yaro-jefe-cocina.html` | Jefe de cocina | §9 Operaciones · CDP |
+| `yaro-cdp_1.html` | Centro de Producción | §9 Inventario + CDP |
+| `yaro-inventario.html` | Admin · inventario | §9 Inventario · CU-3 §5 |
+| `yaro-admin-sede.html` | Andrés · admin de sede | §9 Multi-sede |
+| `yaro-contabilidad.html` | Carolina · contabilidad | §9 Fiscal · CU-4/5 §5 |
+
+> **Uso correcto:** cuando se diseñe una pantalla nueva en Figma, abrir primero el prototipo HTML del rol correspondiente y replicar layout + tokens + componentes. Si la pantalla nueva no encaja en ningún prototipo existente, **se discute con la fundadora antes de implementarla** — puede requerir un nuevo organismo en `@yaro/ui`.
+
+### 14.7 Reglas explícitamente prohibidas (extensión de §6)
+
+- ❌ Usar TailwindCSS, Bootstrap, Material o cualquier framework utility-first en código de producto YARO
+- ❌ Hardcodear hex (`#f7fd9c`) en componentes — debe ir vía `var(--color-accent)`
+- ❌ Usar `px` arbitrarios — solo múltiplos de 4 vía `var(--space-*)`
+- ❌ Crear un componente nuevo en una app sin antes evaluar si debe nacer en `@yaro/ui`
+- ❌ Importar componentes en `NgModule` (todos son `standalone`)
+- ❌ Cambiar la fuente tipográfica (`Outfit` + `JetBrains Mono` son innegociables)
+- ❌ Inventar un nivel de sombra/radio/espaciado fuera de los tokens
+- ❌ Usar emojis decorativos en pantallas operativas (solo los semánticos definidos: ✓ ⚠ ✕)
+- ❌ Aplicar el tema oscuro Console a módulos de tenant (Console es solo plataforma YARO)
+
+### 14.8 Gobernanza del sistema de diseño
+
+| Pregunta | Respuesta |
+|---|---|
+| **¿Quién aprueba un token nuevo?** | Fundadora (Valentina). Cambios a tokens = bump **major** en `@yaro/ui`. |
+| **¿Quién aprueba un átomo nuevo?** | Fundadora + ingeniería frontend. Documentación en `atoms.md` es requisito para merge. |
+| **¿Quién aprueba una molécula/organismo?** | Ingeniería frontend con review obligatorio de fundadora si afecta UX crítica (POS, Cobro, Cierre). |
+| **¿Quién aprueba una pantalla de referencia nueva?** | Fundadora. Va a `pantallas_reference/` y luego se replica como `feature` Angular. |
+| **¿Dónde vive el código?** | Repo privado `ValentinaX63/yaro-ui` · publicado en GitHub Packages como `@yaro/ui`. |
+| **¿Versionado?** | Semver estricto. Patch = fix · Minor = componentes nuevos retrocompat · Major = breaking de tokens o API. |
+
+### 14.9 Implicaciones para el backlog
+
+- **Sprint 0** debe incluir setup de `@yaro/ui` (PAT, `.npmrc`, estilos en `angular.json`, fuentes Google Fonts) **antes** de cualquier feature visual.
+- Toda historia de UI debe declarar en su Definition of Done: *"usa exclusivamente componentes `@yaro/ui` o, si requiere uno nuevo, está propuesto en PR a la librería y aprobado"*.
+- Tests visuales (Chromatic / Percy en F2) usan los prototipos de `pantallas_reference/` como baseline.
+
+---
+
 ## Apéndice — Stack técnico (heredado de prd v3.0)
 
 ### Backend
@@ -1357,7 +1467,7 @@ gantt
 - **Angular 17+** SPA · Signals + RxJS · standalone components
 - **AWS S3 + CloudFront** + **AWS WAF**
 - **Workbox** + **idb** (IndexedDB)
-- **`@yaro/ui`** librería propia (atoms/molecules/organisms)
+- **`@yaro/ui`** librería propia · sistema de diseño oficial · atoms (7) / molecules (11) / organisms (9) — ver [§14 Sistema de Diseño YARO](#s14) y carpetas [`preparation/`](../preparation/) + [`pantallas_reference/`](../pantallas_reference/)
 
 ### Infraestructura
 - **AWS RDS PostgreSQL Multi-AZ** · failover < 60s
