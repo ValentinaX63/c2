@@ -454,48 +454,48 @@ sequenceDiagram
     participant UI as POS UI
     participant API as API Service
     participant PG as PostgreSQL
-    participant BMQ as BullMQ (Valkey)
+    participant BMQ as BullMQ Valkey
     participant W as Worker
-    participant FAC as Facture.co
+    participant FAC as Facture
     participant DIAN as DIAN MUISCA
 
     C->>UI: Confirma cobro mesa 7
-    UI->>API: POST /cobros
+    UI->>API: POST cobros
     activate API
 
-    API->>PG: BEGIN
+    API->>PG: BEGIN transaction
     API->>PG: SELECT tax_snapshot active
-    API->>PG: INSERT cobros + tax_snapshot_id
-    API->>PG: INSERT fiscal_documents (status DRAFT)
-    API->>PG: COMMIT (T+30ms)
+    API->>PG: INSERT cobros con tax_snapshot_id
+    API->>PG: INSERT fiscal_documents status DRAFT
+    API->>PG: COMMIT a los 30ms
 
-    API->>BMQ: enqueue 'dian-transmit' (T+50ms)
+    API->>BMQ: enqueue dian-transmit a los 50ms
 
-    API-->>UI: { cobroId, status: 'ok' } ⚡ T+80ms (P2)
+    API-->>UI: Respuesta cobroId status ok a los 80ms
     deactivate API
 
-    UI-->>C: ✅ Confirmación inmediata<br/>Estado: 📡 Transmitiendo
+    UI-->>C: Confirmacion inmediata - Estado Transmitiendo
 
-    Note over BMQ,DIAN: ASYNC — fire-and-forget
+    Note over BMQ,DIAN: ASYNC - fire and forget
 
-    BMQ->>W: dequeue + lock pesimista
+    BMQ->>W: dequeue mas lock pesimista
     activate W
-    W->>PG: UPDATE status='TRANSMITTING'
-    W->>W: Genera XML UBL 2.1<br/>(con tax_snapshot referenciado)
-    W->>W: Valida pre-transmisión<br/>NIT DV + CIIU + impoconsumo + totales
-    W->>FAC: POST /firmar-y-transmitir
+    W->>PG: UPDATE status TRANSMITTING
+    W->>W: Genera XML UBL 2.1 con tax_snapshot
+    W->>W: Valida pre-transmision NIT CIIU totales
+    W->>FAC: POST firmar y transmitir
 
     FAC->>FAC: Firma XAdES-BES
     FAC->>DIAN: Transmite XML firmado
-    DIAN-->>FAC: ACK + CUFE
-    FAC-->>W: { cufe, status: 'ACCEPTED' }
+    DIAN-->>FAC: ACK mas CUFE
+    FAC-->>W: Respuesta cufe status ACCEPTED
 
-    W->>PG: UPDATE status='ACCEPTED' + cufe
-    W->>BMQ: publish 'DocumentoFiscalACCEPTED'
+    W->>PG: UPDATE status ACCEPTED mas cufe
+    W->>BMQ: publish DocumentoFiscalACCEPTED
     deactivate W
 
-    BMQ-->>UI: WebSocket event { cobroId, cufe, status }
-    UI-->>C: ✅ Cambia a "DIAN OK"<br/>T+5-30s típico (SLA p95)
+    BMQ-->>UI: WebSocket event cobroId cufe status
+    UI-->>C: Cambia a DIAN OK - tipico 5 a 30s p95
 ```
 
 ### State machine de fiscal_documents
@@ -504,24 +504,24 @@ sequenceDiagram
 stateDiagram-v2
     [*] --> DRAFT: cobro registrado
     DRAFT --> QUEUED: encolado BullMQ
-    QUEUED --> TRANSMITTING: worker toma job + lock
+    QUEUED --> TRANSMITTING: worker toma job
     TRANSMITTING --> ACCEPTED: CUFE recibido
-    TRANSMITTING --> REJECTED: error 4xx Facture (NIT inválido)
-    TRANSMITTING --> QUEUED: timeout/5xx → backoff exp
-    QUEUED --> EXPIRED: > 48h sin transmitir
-    EXPIRED --> [*]: → failed_fiscal_documents (CA6)
-    ACCEPTED --> [*]: P1 terminal (trigger SQL bloquea UPDATE)
+    TRANSMITTING --> REJECTED: error 4xx Facture
+    TRANSMITTING --> QUEUED: timeout o 5xx backoff
+    QUEUED --> EXPIRED: mas de 48h sin transmitir
+    EXPIRED --> [*]: a failed_fiscal_documents
+    ACCEPTED --> [*]: P1 terminal trigger SQL bloquea
 
     note right of ACCEPTED
-        Trigger SQL append-only
-        UPDATE rechazado por DB
-        Para anular: NC Tipo 91
+        Trigger SQL append-only.
+        UPDATE rechazado por DB.
+        Para anular emitir NC Tipo 91.
     end note
 
     note right of QUEUED
         Backoff exponencial:
-        2s · 4s · 8s · 16s · 32s
-        Max 5 reintentos
+        2s, 4s, 8s, 16s, 32s.
+        Max 5 reintentos.
     end note
 ```
 
@@ -1039,28 +1039,28 @@ sequenceDiagram
     participant API as Auth API
     participant GOOG as Google OAuth
 
-    U->>FE: Click "Iniciar sesión con Google"
-    FE->>GOOG: Redirect oauth2/auth
+    U->>FE: Click Iniciar sesion con Google
+    FE->>GOOG: Redirect oauth2 auth
     U->>GOOG: Autoriza
     GOOG-->>FE: code
-    FE->>API: POST /auth/google/callback { code, invitation_token? }
-    API->>GOOG: Exchange code → id_token
-    GOOG-->>API: id_token + email_verified
+    FE->>API: POST auth google callback con code y invitation_token
+    API->>GOOG: Exchange code por id_token
+    GOOG-->>API: id_token mas email_verified
 
-    API->>API: Validar firma + audience
-    alt email_verified = false
-        API-->>FE: 403
+    API->>API: Validar firma y audience
+    alt email_verified false
+        API-->>FE: 403 rechazo
     end
 
-    API->>API: Match user.google_sub OR email
+    API->>API: Match user google_sub OR email
     alt Usuario existe
         API->>API: Link google_sub si no estaba
-        API-->>FE: { accessToken, refreshToken }
-    else NO existe + sin invitación
-        API-->>FE: 403 "Pide a tu admin que te invite"
-    else NO existe + con invitación válida
-        API->>API: Activa usuario via invitación
-        API-->>FE: { accessToken, refreshToken }
+        API-->>FE: accessToken mas refreshToken
+    else NO existe sin invitacion
+        API-->>FE: 403 Pide a tu admin que te invite
+    else NO existe con invitacion valida
+        API->>API: Activa usuario via invitacion
+        API-->>FE: accessToken mas refreshToken
     end
 ```
 
@@ -1280,50 +1280,52 @@ flowchart LR
 sequenceDiagram
     autonumber
     actor M as Mesera Juliana
+    actor A as Admin Andres
     participant POS as POS app
     participant API as API
     participant DB as PostgreSQL
     participant WS as WebSocket
-    participant ADMIN as App Andrés
+    participant ADMIN as App Admin
     participant PUSH as Push PWA
 
-    M->>POS: Solicita eliminar item<br/>(producto hace 23 min)
-    POS->>API: POST /ordenes/items/{id}/eliminar
+    M->>POS: Solicita eliminar item producto hace 23 min
+    POS->>API: POST ordenes items eliminar
     API->>DB: Lee politicas_autorizacion del tenant
-    API->>API: Valida ventana 5min-1h<br/>+ política dice "requiere auth"
-    API->>DB: INSERT solicitudes_autorizacion (PENDIENTE)
-    API->>WS: Publica 'autorizacion_solicitada'<br/>canal tenant_X.sede_Y.admins
+    API->>API: Valida ventana 5min a 1h - politica requiere auth
+    API->>DB: INSERT solicitudes_autorizacion estado PENDIENTE
+    API->>WS: Publica autorizacion_solicitada canal sede admins
     API->>PUSH: Send web push a admins activos
-    API-->>POS: { solicitudId, estado: 'PENDIENTE', expiraEn }
-    POS-->>M: ⏳ "Esperando autorización del admin"
+    API-->>POS: Respuesta solicitudId estado PENDIENTE expiraEn
+    POS-->>M: Esperando autorizacion del admin
 
     par Notificaciones paralelas
-        WS-->>ADMIN: Real-time event → modal popup
+        WS-->>ADMIN: Real-time event y modal popup
         PUSH-->>ADMIN: Notification push
     end
 
-    ADMIN-->>Andrés: Modal con detalles<br/>"Juliana quiere eliminar 1 hamburguesa<br/>mesa 7 — motivo: cliente cambió"
+    ADMIN-->>A: Modal con detalles - Juliana quiere eliminar hamburguesa
+    A-->>ADMIN: Revisa la solicitud
 
-    alt Andrés aprueba (30s)
-        Andrés->>ADMIN: Tap "Aprobar"
-        ADMIN->>API: POST /autorizaciones/{id}/decidir
-        API->>DB: UPDATE → AUTORIZADA + ejecuta eliminación
-        API->>WS: Publica 'autorizacion_decidida'
-        WS-->>POS: Notificación real-time
-        POS-->>M: ✅ "Aprobado por Andrés"
-    else Andrés rechaza
-        Andrés->>ADMIN: Tap "Rechazar" + motivo
-        ADMIN->>API: POST /autorizaciones/{id}/decidir
-        API->>WS: Publica 'autorizacion_decidida'
-        WS-->>POS: Notificación
-        POS-->>M: ❌ "Rechazado: motivo"
+    alt Andres aprueba en 30s
+        A->>ADMIN: Tap Aprobar
+        ADMIN->>API: POST autorizaciones decidir
+        API->>DB: UPDATE estado AUTORIZADA y ejecuta eliminacion
+        API->>WS: Publica autorizacion_decidida
+        WS-->>POS: Notificacion real-time
+        POS-->>M: Aprobado por Andres
+    else Andres rechaza
+        A->>ADMIN: Tap Rechazar mas motivo
+        ADMIN->>API: POST autorizaciones decidir
+        API->>WS: Publica autorizacion_decidida
+        WS-->>POS: Notificacion
+        POS-->>M: Rechazado con motivo
     else Timeout 90s
         API->>API: Cron detecta timeout
-        API->>WS: Escala a Valentina (segundo nivel)
-        Note over API: Si Valentina tampoco<br/>responde 60s:<br/>aplica política tenant<br/>(BLOQUEAR/FLAG_ROJO/AUTO)
+        API->>WS: Escala a Valentina segundo nivel
+        Note over API: Si Valentina tampoco responde 60s aplica politica tenant BLOQUEAR FLAG_ROJO o AUTO
     end
 
-    Note over DB: Audit completo en<br/>audit_events + solicitudes_autorizacion
+    Note over DB: Audit completo en audit_events y solicitudes_autorizacion
 ```
 
 ### Presets configurables por tenant
