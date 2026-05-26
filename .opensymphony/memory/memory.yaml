@@ -1,0 +1,11 @@
+memory_root: .opensymphony/memory
+visibility: private
+index_path: .opensymphony/memory/memory.duckdb
+confidence_threshold: 75
+source_snapshots: hashes
+markdown_indexes: true
+docs:
+  public_root: docs
+  default_visibility: public
+  deny_private_links: true
+areas: {}
