@@ -1,122 +1,87 @@
 # AGENTS.md
 
-This file provides persistent context for AI agents working on this repository.
+Persistent implementation context for agents working in this repository.
 
 ## Project Overview
 
-<!-- Describe your project here. What does it do? What problem does it solve? -->
+This workspace contains the Hardcore AI 30X station materials and the EntreVista AI planning artifacts. The active implementation planning package is for:
+
+- Project: EntreVista AI
+- Planning wave: `entrevista-ai-mvp`
+- Source artifacts: `Estación 5/agentic_interviewer_ai/aidlc-docs`
+- Task package: `docs/tasks/task-package.yaml`
+
+EntreVista AI is a greenfield, agentic interviewer platform for high-volume hiring in Latin America. Candidates complete conversational screening through Telegram. Recruiters manage campaigns, review AI-generated evaluations with citations, and make all final hiring decisions through a dashboard.
+
+## Non-Negotiable Constraints
+
+- Do not put generated application code inside `Estación 5/agentic_interviewer_ai/aidlc-docs`; that directory is source documentation only.
+- Preserve the AI-DLC source artifacts as historical planning inputs. Add implementation planning under `docs/`.
+- The MVP is a polyrepo-style system, represented here as implementation tasks for seven service repositories:
+  - `entrevista-auth`
+  - `entrevista-compliance`
+  - `entrevista-campaign`
+  - `entrevista-evaluation`
+  - `entrevista-conversation`
+  - `entrevista-telegram-bot`
+  - `entrevista-dashboard`
+- All backend services must enforce `tenant_id` isolation on every query and API path that touches tenant-owned data.
+- The AI must never make final hiring decisions. It may score, summarize, cite evidence, and recommend. Human approval or rejection is mandatory.
+- Every evaluation score must include transcript citations.
+- Candidate-facing flows must disclose that the interviewer is an AI and record affirmative consent before evaluation.
+- Candidate screening is text-only. Do not introduce biometric, emotional, facial, or voice analysis.
+- SECURITY-01 through SECURITY-15 from the AI-DLC security baseline are blocking constraints.
 
 ## Technology Stack
 
-<!-- List your technologies: languages, frameworks, databases, etc. -->
+- Telegram gateway: Node.js 20, TypeScript, Telegraf 4.x, AWS Lambda
+- Backend services: Python 3.12, FastAPI, Mangum, AWS Lambda
+- Dashboard: React 18, TypeScript, Vite, S3, CloudFront
+- Primary database: MongoDB Atlas
+- RAG/vector store: Pinecone
+- Document storage: AWS S3
+- Secrets: AWS Secrets Manager
+- AI orchestration: Anthropic Claude / Claude Agent SDK
+- Auth: email/password, Argon2id, RS256 JWT, refresh token rotation, email OTP MFA for admin login
 
-- Language: <!-- e.g., Python 3.11, TypeScript 5.0 -->
-- Framework: <!-- e.g., FastAPI, React, Next.js -->
-- Database: <!-- e.g., PostgreSQL, SQLite -->
-- Testing: <!-- e.g., pytest, vitest -->
+## Repository Conventions
 
-## Coding Standards
+- Shared implementation docs live in `docs/`.
+- Task files live in `docs/tasks/`; the manifest is the source of truth.
+- Architecture decisions live in `docs/decisions/`.
+- Service code should be created in the service repository named in each task, not in `aidlc-docs`.
+- Use English for code, identifiers, commit messages, and generated service README files. Spanish is acceptable for candidate-facing and recruiter-facing product copy.
 
-### General
+## Commands
 
-- Keep functions small and focused
-- Write self-documenting code with clear names
-- Add comments only for "why", not "what"
-- Follow existing patterns in the codebase
+There is no single root build because the target system is polyrepo. Each generated service should include its own standard commands:
 
-### Formatting
+- Python services: `make install`, `make test`, `make lint`, `make build`
+- TypeScript services and dashboard: `npm install`, `npm test`, `npm run lint`, `npm run build`
 
-<!-- Add your formatting commands -->
-
-- Format command: `<!-- e.g., make format, npm run format -->`
-- Lint command: `<!-- e.g., make lint, npm run lint -->`
-- Type check: `<!-- e.g., make typecheck, npm run typecheck -->`
-
-### Testing
-
-<!-- Add your testing requirements -->
-
-- Test command: `<!-- e.g., make test, npm test -->`
-- Coverage requirement: <!-- e.g., 80%, 100% for critical paths -->
-- Test location: `<!-- e.g., tests/, __tests__/ -->`
-
-## Project Structure
-
-```
-<!-- Customize this structure for your project -->
-.
-├── src/                    # Source code
-├── tests/                  # Test files
-├── docs/                   # Documentation
-├── configs/                # Configuration files
-├── scripts/                # Utility scripts
-├── AGENTS.md               # This file
-├── WORKFLOW.md             # OpenSymphony configuration
-└── README.md               # Project readme
-```
-
-## Key Directories
-
-<!-- Document important directories -->
-
-- `src/` - <!-- Main source code -->
-- `tests/` - <!-- Test files -->
-- `docs/` - <!-- Documentation -->
-
-## Dependencies
-
-### Runtime
-
-<!-- List key runtime dependencies -->
-
-### Development
-
-<!-- List key dev dependencies -->
-
-## Environment Variables
-
-| Variable | Description | Required |
-|----------|-------------|----------|
-| `EXAMPLE_VAR` | <!-- Description --> | Yes/No |
-
-## Local Development Setup
-
-<!-- Steps to set up local development -->
+Before publishing or converting tasks, validate:
 
 ```bash
-# Example setup steps
-# 1. Install dependencies
-# 2. Configure environment
-# 3. Run tests
+find docs/tasks -maxdepth 1 -type f | sort
 ```
+
+## Key Source Documents
+
+- `Estación 5/agentic_interviewer_ai/aidlc-docs/aidlc-state.md`
+- `Estación 5/agentic_interviewer_ai/aidlc-docs/inception/requirements/requirements.md`
+- `Estación 5/agentic_interviewer_ai/aidlc-docs/inception/user-stories/stories.md`
+- `Estación 5/agentic_interviewer_ai/aidlc-docs/inception/application-design/components.md`
+- `Estación 5/agentic_interviewer_ai/aidlc-docs/inception/application-design/services.md`
+- `Estación 5/agentic_interviewer_ai/aidlc-docs/inception/application-design/unit-of-work.md`
+- `Estación 5/agentic_interviewer_ai/aidlc-docs/construction/auth-lambda/`
 
 ## PR Requirements
 
-Before submitting a PR:
+Before submitting implementation work:
 
-1. All tests pass
-2. Code is formatted
-3. Lint checks pass
-4. New code has tests
-5. Documentation updated if needed
-
-## Architecture Decisions
-
-<!-- Document key architecture decisions -->
-
-### Decision 1
-
-- **Context**: <!-- Why this decision was needed -->
-- **Decision**: <!-- What was decided -->
-- **Consequences**: <!-- Impact and trade-offs -->
-
-## Known Issues / Gotchas
-
-<!-- Document any quirks or known issues -->
-
-## References
-
-<!-- Links to relevant external documentation -->
-
-- [Framework Docs](https://example.com)
-- [API Reference](https://example.com/api)
+1. Required service tests pass.
+2. Formatting and lint checks pass.
+3. New API contracts have integration or contract tests.
+4. Security-sensitive flows have negative tests.
+5. Dashboard changes include accessible keyboard and screen-reader behavior for primary flows.
+6. Docs and `.env.example` are updated for new configuration.
