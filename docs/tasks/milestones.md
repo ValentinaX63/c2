@@ -1,60 +1,40 @@
-# Milestones — EntreVista AI MVP
+# Milestones — YARO S5/S6/S7 sprint
 
-**Planning wave:** `entrevista-ai-mvp`
-**Source:** AI-DLC artefacts in `Estación 5/agentic_interviewer_ai/aidlc-docs`
-**Build sequence:** Wave 1 (parallel) → Wave 2 → Wave 3 → Wave 4
-
----
-
-## M1 — Identity & Trust Foundation
-
-Wave 1, parallel. No inter-lambda dependencies. Foundation for all other services.
-
-**Units:** auth-lambda · compliance-lambda · campaign-lambda  
-**Goal:** All three Wave 1 services are implemented, tested, and deployed to staging.  
-**Exit criteria:**
-- `entrevista-auth` passes all unit and integration tests; `/auth/login`, `/auth/refresh`, `/auth/logout`, `/auth/jwks` respond correctly.
-- `entrevista-compliance` consent recording and audit log endpoints are functional.
-- `entrevista-campaign` CRUD for campaigns and rubrics is functional; RAG pipeline ingests a test document.
-- All three services deployed to AWS Lambda (staging) via Terraform.
+**Planning wave:** `yaro-s5-s6-sprint`  
+**Repo:** `apps/api` + `apps/web` + `libs/xml-builder`  
+**Backlog ref:** `backlog.md` sprints S5–S7
 
 ---
 
-## M2 — Evaluation Engine
+## S5 — DIAN Tipo 01/03 + Offline
 
-Wave 2. Depends on M1 (compliance-lambda API contract must be stable).
+Sprint S5 del backlog YARO: completar `libs/xml-builder` con FE Venta (Tipo 01) y Contingencia (Tipo 03), actualizar el `dian-transmit.worker`, y conectar el Service Worker con el builder offline.
 
-**Units:** evaluation-lambda  
-**Goal:** Scoring engine evaluates a completed screening session and returns summary with citations.  
 **Exit criteria:**
-- `entrevista-evaluation` scores a sample transcript against a rubric; returns executive summary with verbatim citations.
-- Human disagreement recording endpoint functional.
-- Integration tests pass against compliance-lambda staging endpoint.
+- `buildFEVentaXml()` genera XML válido UBL 2.1 Tipo 01 con CUDE.
+- `buildContingenciaXml()` genera XML Tipo 03 usable desde el Service Worker.
+- Worker procesa los 3 tipos sin romper el flujo existente Tipo 04.
+- Panel "Transmisiones DIAN" en configuracion.component muestra estado por tipo de documento.
 
 ---
 
-## M3 — Agentic Conversation Core
+## S6 — Motor de Reglas IA + QA
 
-Wave 3. Depends on M2 (evaluation, campaign, compliance must be stable).
+Sprint S6: endpoint `/ia/sugerir-puc` con motor determinístico + specs E2E Playwright (E8).
 
-**Units:** conversation-lambda  
-**Goal:** Multi-turn candidate screening works end-to-end via HTTP (pre-Telegram integration).  
 **Exit criteria:**
-- Candidate can complete a full screening session via API.
-- AI identity disclosure and consent capture work correctly.
-- Guardrails block jailbreak attempts (negative tests pass).
-- Evaluation triggered automatically on screening completion.
+- `POST /ia/sugerir-puc` responde en < 200ms con sugerencia + confianza + fuente.
+- Motor carga 12 reglas base del sector restaurantero desde archivo de configuración.
+- Suite Playwright cubre flujo: login → abrir turno → crear orden → cobrar → verificar badge DIAN.
+- Golden dataset Persona+Juez: 5 conversaciones de referencia con scorecard ≥ 4/5.
 
 ---
 
-## M4 — Full Stack MVP
+## S7 — IaC + Seguridad
 
-Wave 4. Depends on M3.
+E9 + E10: Terraform módulos para staging en AWS (LocalStack primero) + SAST + threat model.
 
-**Units:** telegram-bot · dashboard  
-**Goal:** Recruiter can launch a campaign, candidate completes screening via Telegram, recruiter reviews and decides in the dashboard.  
 **Exit criteria:**
-- End-to-end flow works: Telegram link → screening → evaluation → dashboard decision.
-- Dashboard review queue, candidate detail, and HITL decision endpoints functional.
-- Persona + Judge evaluation passes quality bar (≥ 4/5 on rubric dimensions).
-- All services deployed to production AWS.
+- `terraform apply` contra LocalStack despliega API Fargate + worker task + RDS sin errores.
+- Semgrep encuentra 0 hallazgos de alta severidad en apps/api y libs/.
+- Threat model cubre las 8 superficies OWASP Agentic 2026 relevantes para YARO.

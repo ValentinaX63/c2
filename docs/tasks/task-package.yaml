@@ -1,169 +1,108 @@
-planningWave: entrevista-ai-mvp
+planningWave: yaro-s5-s6-sprint
 tasksDir: docs/tasks
 
 milestones:
-  - id: M1
-    title: Identity & Trust Foundation
-    description: Wave 1 parallel — auth, compliance, campaign lambdas implemented and deployed to staging.
-  - id: M2
-    title: Evaluation Engine
-    description: Wave 2 — evaluation-lambda scoring and summary with citations.
-  - id: M3
-    title: Agentic Conversation Core
-    description: Wave 3 — multi-turn screening engine end-to-end via API.
-  - id: M4
-    title: Full Stack MVP
-    description: Wave 4 — telegram-bot + dashboard; recruiter-to-candidate flow complete.
+  - id: S5
+    title: S5 — DIAN Tipo 01/03 + Offline
+    description: Completar xml-builder con FE Venta y Contingencia + buzón DIAN recepción. Sprint S5 del backlog.
+  - id: S6
+    title: S6 — Motor de Reglas IA + QA
+    description: Endpoint /ia/sugerir-puc + motor determinístico + specs E2E Playwright (E8).
+  - id: S7
+    title: S7 — IaC + Seguridad
+    description: Terraform módulos Fargate + SAST Semgrep + threat model OWASP (E9/E10).
 
 tasks:
-  # ── Wave 1: M1 (parallel) ─────────────────────────────────────────────────
+  # ── S5: DIAN Tipo 01/03 + xml-builder ─────────────────────────────────────
 
-  - id: "001"
-    title: "entrevista-auth: project scaffold and domain models"
-    file: docs/tasks/001-auth-scaffold.md
-    milestone: M1
-    priority: P0
-    estimate: "3h"
-    blockedBy: []
-
-  - id: "002"
-    title: "entrevista-auth: AuthService, TokenManager, BruteForceProtector"
-    file: docs/tasks/002-auth-core-services.md
-    milestone: M1
-    priority: P0
-    estimate: "4h"
-    blockedBy: ["001"]
-
-  - id: "003"
-    title: "entrevista-auth: API router, Mangum handler, integration tests"
-    file: docs/tasks/003-auth-api-and-tests.md
-    milestone: M1
-    priority: P0
-    estimate: "3h"
-    blockedBy: ["002"]
-
-  - id: "004"
-    title: "entrevista-compliance: project scaffold, ConsentManager, AuditLogger"
-    file: docs/tasks/004-compliance-core.md
-    milestone: M1
-    priority: P0
-    estimate: "4h"
-    blockedBy: []
-
-  - id: "005"
-    title: "entrevista-compliance: API router, escalation, retention, integration tests"
-    file: docs/tasks/005-compliance-api-and-tests.md
-    milestone: M1
-    priority: P0
-    estimate: "3h"
-    blockedBy: ["004"]
-
-  - id: "006"
-    title: "entrevista-campaign: project scaffold, CampaignManager, RubricManager"
-    file: docs/tasks/006-campaign-core.md
-    milestone: M1
-    priority: P0
-    estimate: "4h"
-    blockedBy: []
-
-  - id: "007"
-    title: "entrevista-campaign: RAG pipeline — S3 upload, chunking, Pinecone upsert"
-    file: docs/tasks/007-campaign-rag.md
-    milestone: M1
+  - id: "S5-01"
+    title: "feat(xml-builder): FE Venta Tipo 01 — builder UBL 2.1"
+    file: docs/tasks/s5-01-xml-builder-tipo01.md
+    milestone: S5
     priority: P0
     estimate: "5h"
-    blockedBy: ["006"]
+    blockedBy: []
 
-  - id: "008"
-    title: "entrevista-campaign: API router, RAG search endpoint, integration tests"
-    file: docs/tasks/008-campaign-api-and-tests.md
-    milestone: M1
+  - id: "S5-02"
+    title: "feat(xml-builder): Contingencia Tipo 03 — builder para modo offline"
+    file: docs/tasks/s5-02-xml-builder-tipo03.md
+    milestone: S5
+    priority: P0
+    estimate: "4h"
+    blockedBy: []
+
+  - id: "S5-03"
+    title: "feat(dian-worker): soporte Tipo 01 + Tipo 03 en dian-transmit.worker"
+    file: docs/tasks/s5-03-dian-worker-tipos.md
+    milestone: S5
     priority: P0
     estimate: "3h"
-    blockedBy: ["007"]
+    blockedBy: ["S5-01", "S5-02"]
 
-  - id: "009"
-    title: "IaC Wave 1: Terraform modules for auth, compliance, campaign lambdas"
-    file: docs/tasks/009-iac-wave1.md
-    milestone: M1
+  - id: "S5-04"
+    title: "feat(config): buzón DIAN recepción básica — panel transmisiones (US-DIAN-008)"
+    file: docs/tasks/s5-04-buzon-dian.md
+    milestone: S5
     priority: P1
-    estimate: "5h"
-    blockedBy: ["003", "005", "008"]
+    estimate: "4h"
+    blockedBy: []
 
-  # ── Wave 2: M2 ────────────────────────────────────────────────────────────
-
-  - id: "010"
-    title: "entrevista-evaluation: EvaluationEngine, SummaryGenerator, DisagreementTracker"
-    file: docs/tasks/010-evaluation-core.md
-    milestone: M2
+  - id: "S5-05"
+    title: "feat(service-worker): XML builder Tipo 03 en SW para cobro offline (US-OFF-009)"
+    file: docs/tasks/s5-05-sw-offline-xml.md
+    milestone: S5
     priority: P0
     estimate: "5h"
-    blockedBy: ["005"]
+    blockedBy: ["S5-02"]
 
-  - id: "011"
-    title: "entrevista-evaluation: API router, integration tests, Claude scoring prompts"
-    file: docs/tasks/011-evaluation-api-and-tests.md
-    milestone: M2
+  # ── S6: Motor de Reglas + QA ───────────────────────────────────────────────
+
+  - id: "S6-01"
+    title: "feat(ia): endpoint POST /ia/sugerir-puc — motor determinístico (US-AI-011)"
+    file: docs/tasks/s6-01-ia-sugerir-puc.md
+    milestone: S6
     priority: P0
     estimate: "4h"
-    blockedBy: ["010"]
+    blockedBy: []
 
-  # ── Wave 3: M3 ────────────────────────────────────────────────────────────
-
-  - id: "012"
-    title: "entrevista-conversation: state machine, ConsentHandler, RequirementsHandler"
-    file: docs/tasks/012-conversation-state-machine.md
-    milestone: M3
+  - id: "S6-02"
+    title: "feat(ia): motor de reglas — 12 reglas base sector restaurantero (F4.2)"
+    file: docs/tasks/s6-02-motor-reglas.md
+    milestone: S6
     priority: P0
     estimate: "5h"
-    blockedBy: ["008", "011"]
+    blockedBy: ["S6-01"]
 
-  - id: "013"
-    title: "entrevista-conversation: ScreeningHandler, GuardrailsFilter, Claude integration"
-    file: docs/tasks/013-conversation-screening.md
-    milestone: M3
-    priority: P0
+  - id: "S6-03"
+    title: "test(e2e): specs Playwright flujo POS cobro + DIAN badge (E8)"
+    file: docs/tasks/s6-03-e2e-playwright.md
+    milestone: S6
+    priority: P1
+    estimate: "4h"
+    blockedBy: ["S5-03"]
+
+  - id: "S6-04"
+    title: "test(agents): Persona+Juez para agente IA YARO — golden dataset (E8)"
+    file: docs/tasks/s6-04-persona-juez.md
+    milestone: S6
+    priority: P1
+    estimate: "4h"
+    blockedBy: ["S6-02"]
+
+  # ── S7: IaC + Seguridad ────────────────────────────────────────────────────
+
+  - id: "S7-01"
+    title: "iac(terraform): módulos Fargate API + workers DIAN — LocalStack primero (E9)"
+    file: docs/tasks/s7-01-terraform-fargate.md
+    milestone: S7
+    priority: P1
     estimate: "6h"
-    blockedBy: ["012"]
+    blockedBy: ["S5-03"]
 
-  - id: "014"
-    title: "entrevista-conversation: EscalationNotifier, ReengagementScheduler, integration tests"
-    file: docs/tasks/014-conversation-support-and-tests.md
-    milestone: M3
-    priority: P0
-    estimate: "4h"
-    blockedBy: ["013"]
-
-  # ── Wave 4: M4 ────────────────────────────────────────────────────────────
-
-  - id: "015"
-    title: "entrevista-telegram-bot: TelegramGateway, SessionRouter, MessageFormatter"
-    file: docs/tasks/015-telegram-bot.md
-    milestone: M4
-    priority: P0
-    estimate: "4h"
-    blockedBy: ["014"]
-
-  - id: "016"
-    title: "entrevista-dashboard: auth flow, ReviewQueueView, CandidateDetailView"
-    file: docs/tasks/016-dashboard-review.md
-    milestone: M4
-    priority: P0
-    estimate: "6h"
-    blockedBy: ["003", "011"]
-
-  - id: "017"
-    title: "entrevista-dashboard: CampaignManagerView, KnowledgeBaseManagerView, AnalyticsDashboard"
-    file: docs/tasks/017-dashboard-campaigns.md
-    milestone: M4
+  - id: "S7-02"
+    title: "sec(sast): Semgrep + threat model OWASP Top 10 LLM + Agentic (E10)"
+    file: docs/tasks/s7-02-security-sast.md
+    milestone: S7
     priority: P1
-    estimate: "5h"
-    blockedBy: ["016"]
-
-  - id: "018"
-    title: "IaC Wave 4: Terraform modules for conversation, telegram-bot, dashboard (S3+CloudFront)"
-    file: docs/tasks/018-iac-wave4.md
-    milestone: M4
-    priority: P1
-    estimate: "5h"
-    blockedBy: ["014", "017"]
+    estimate: "3h"
+    blockedBy: []
