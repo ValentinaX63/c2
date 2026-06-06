@@ -1,0 +1,169 @@
+planningWave: entrevista-ai-mvp
+tasksDir: docs/tasks
+
+milestones:
+  - id: M1
+    title: Identity & Trust Foundation
+    description: Wave 1 parallel — auth, compliance, campaign lambdas implemented and deployed to staging.
+  - id: M2
+    title: Evaluation Engine
+    description: Wave 2 — evaluation-lambda scoring and summary with citations.
+  - id: M3
+    title: Agentic Conversation Core
+    description: Wave 3 — multi-turn screening engine end-to-end via API.
+  - id: M4
+    title: Full Stack MVP
+    description: Wave 4 — telegram-bot + dashboard; recruiter-to-candidate flow complete.
+
+tasks:
+  # ── Wave 1: M1 (parallel) ─────────────────────────────────────────────────
+
+  - id: "001"
+    title: "entrevista-auth: project scaffold and domain models"
+    file: docs/tasks/001-auth-scaffold.md
+    milestone: M1
+    priority: P0
+    estimate: "3h"
+    blockedBy: []
+
+  - id: "002"
+    title: "entrevista-auth: AuthService, TokenManager, BruteForceProtector"
+    file: docs/tasks/002-auth-core-services.md
+    milestone: M1
+    priority: P0
+    estimate: "4h"
+    blockedBy: ["001"]
+
+  - id: "003"
+    title: "entrevista-auth: API router, Mangum handler, integration tests"
+    file: docs/tasks/003-auth-api-and-tests.md
+    milestone: M1
+    priority: P0
+    estimate: "3h"
+    blockedBy: ["002"]
+
+  - id: "004"
+    title: "entrevista-compliance: project scaffold, ConsentManager, AuditLogger"
+    file: docs/tasks/004-compliance-core.md
+    milestone: M1
+    priority: P0
+    estimate: "4h"
+    blockedBy: []
+
+  - id: "005"
+    title: "entrevista-compliance: API router, escalation, retention, integration tests"
+    file: docs/tasks/005-compliance-api-and-tests.md
+    milestone: M1
+    priority: P0
+    estimate: "3h"
+    blockedBy: ["004"]
+
+  - id: "006"
+    title: "entrevista-campaign: project scaffold, CampaignManager, RubricManager"
+    file: docs/tasks/006-campaign-core.md
+    milestone: M1
+    priority: P0
+    estimate: "4h"
+    blockedBy: []
+
+  - id: "007"
+    title: "entrevista-campaign: RAG pipeline — S3 upload, chunking, Pinecone upsert"
+    file: docs/tasks/007-campaign-rag.md
+    milestone: M1
+    priority: P0
+    estimate: "5h"
+    blockedBy: ["006"]
+
+  - id: "008"
+    title: "entrevista-campaign: API router, RAG search endpoint, integration tests"
+    file: docs/tasks/008-campaign-api-and-tests.md
+    milestone: M1
+    priority: P0
+    estimate: "3h"
+    blockedBy: ["007"]
+
+  - id: "009"
+    title: "IaC Wave 1: Terraform modules for auth, compliance, campaign lambdas"
+    file: docs/tasks/009-iac-wave1.md
+    milestone: M1
+    priority: P1
+    estimate: "5h"
+    blockedBy: ["003", "005", "008"]
+
+  # ── Wave 2: M2 ────────────────────────────────────────────────────────────
+
+  - id: "010"
+    title: "entrevista-evaluation: EvaluationEngine, SummaryGenerator, DisagreementTracker"
+    file: docs/tasks/010-evaluation-core.md
+    milestone: M2
+    priority: P0
+    estimate: "5h"
+    blockedBy: ["005"]
+
+  - id: "011"
+    title: "entrevista-evaluation: API router, integration tests, Claude scoring prompts"
+    file: docs/tasks/011-evaluation-api-and-tests.md
+    milestone: M2
+    priority: P0
+    estimate: "4h"
+    blockedBy: ["010"]
+
+  # ── Wave 3: M3 ────────────────────────────────────────────────────────────
+
+  - id: "012"
+    title: "entrevista-conversation: state machine, ConsentHandler, RequirementsHandler"
+    file: docs/tasks/012-conversation-state-machine.md
+    milestone: M3
+    priority: P0
+    estimate: "5h"
+    blockedBy: ["008", "011"]
+
+  - id: "013"
+    title: "entrevista-conversation: ScreeningHandler, GuardrailsFilter, Claude integration"
+    file: docs/tasks/013-conversation-screening.md
+    milestone: M3
+    priority: P0
+    estimate: "6h"
+    blockedBy: ["012"]
+
+  - id: "014"
+    title: "entrevista-conversation: EscalationNotifier, ReengagementScheduler, integration tests"
+    file: docs/tasks/014-conversation-support-and-tests.md
+    milestone: M3
+    priority: P0
+    estimate: "4h"
+    blockedBy: ["013"]
+
+  # ── Wave 4: M4 ────────────────────────────────────────────────────────────
+
+  - id: "015"
+    title: "entrevista-telegram-bot: TelegramGateway, SessionRouter, MessageFormatter"
+    file: docs/tasks/015-telegram-bot.md
+    milestone: M4
+    priority: P0
+    estimate: "4h"
+    blockedBy: ["014"]
+
+  - id: "016"
+    title: "entrevista-dashboard: auth flow, ReviewQueueView, CandidateDetailView"
+    file: docs/tasks/016-dashboard-review.md
+    milestone: M4
+    priority: P0
+    estimate: "6h"
+    blockedBy: ["003", "011"]
+
+  - id: "017"
+    title: "entrevista-dashboard: CampaignManagerView, KnowledgeBaseManagerView, AnalyticsDashboard"
+    file: docs/tasks/017-dashboard-campaigns.md
+    milestone: M4
+    priority: P1
+    estimate: "5h"
+    blockedBy: ["016"]
+
+  - id: "018"
+    title: "IaC Wave 4: Terraform modules for conversation, telegram-bot, dashboard (S3+CloudFront)"
+    file: docs/tasks/018-iac-wave4.md
+    milestone: M4
+    priority: P1
+    estimate: "5h"
+    blockedBy: ["014", "017"]
